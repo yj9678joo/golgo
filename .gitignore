@@ -40,3 +40,6 @@ Thumbs.db
 # Agent local state
 .claude/
 .codex/
+
+project_info.txt
+Golgo_design/wireframe.html
