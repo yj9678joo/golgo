@@ -24,6 +24,7 @@ frontend/dist-ssr/
 build/
 backend/.gradle/
 backend/build/
+backend/gradle.properties
 
 # IDE / OS
 .idea/
