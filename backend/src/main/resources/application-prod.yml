@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:10}
+  data:
+    redis:
+      url: ${UPSTASH_REDIS_URL}
+
+logging:
+  level:
+    "[org.hibernate.SQL]": info
+    "[org.hibernate.orm.jdbc.bind]": off
