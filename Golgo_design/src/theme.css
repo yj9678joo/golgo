@@ -1,0 +1,317 @@
+/* ─────────────────────────────────────────────────────────────
+   Golgo (고르고) — design tokens
+   3 visual directions × light/dark × 4 accents × 2 profit color modes
+   ───────────────────────────────────────────────────────────── */
+
+/* Korean: Spoqa Han Sans Neo · Numbers: JetBrains Mono · UI fallback: -apple-system */
+@import url('https://spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap');
+
+:root {
+  --font-sans: 'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-num: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-serif: 'Source Serif 4', 'Times New Roman', serif;
+}
+
+/* ── Base layer: works on every theme ──────────────────────── */
+.golgo {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  color: var(--text);
+  background: var(--bg-app);
+  font-feature-settings: "ss01", "tnum";
+  /* Korean: never split a syllable mid-word. Break on spaces only. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+.golgo .nowrap { white-space: nowrap; }
+.golgo .pill,
+.golgo .num,
+.golgo .btn { white-space: nowrap; }
+.golgo .num { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+.golgo button { font-family: inherit; }
+
+/* ─────────────────────────────────────────────────────────────
+   THEME 1 — TOSS (default)
+   순수한 흰 배경, 묵직한 검정 텍스트, 둥글고 부드러운 그림자
+   ───────────────────────────────────────────────────────────── */
+.golgo[data-theme="toss"] {
+  --bg-app: #F2F4F6;
+  --bg-card: #FFFFFF;
+  --bg-elev: #FFFFFF;
+  --bg-soft: #F7F8FA;
+  --bg-chip: #F2F4F6;
+  --bg-inverse: #191F28;
+
+  --text: #191F28;
+  --text-2: #4E5968;
+  --text-3: #8B95A1;
+  --text-4: #B0B8C1;
+  --text-on-accent: #FFFFFF;
+
+  --border: rgba(25,31,40,.08);
+  --border-2: rgba(25,31,40,.14);
+  --divider: rgba(25,31,40,.06);
+
+  --accent: var(--accent-mono, #191F28);
+  --accent-soft: rgba(25,31,40,.06);
+
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.04);
+  --shadow: 0 1px 3px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.04);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.08);
+
+  --type-display: 600 32px/1.15 var(--font-sans);
+  --type-title: 600 22px/1.3 var(--font-sans);
+  --type-headline: 600 17px/1.4 var(--font-sans);
+  --type-body: 400 15px/1.5 var(--font-sans);
+  --type-callout: 500 14px/1.45 var(--font-sans);
+  --type-caption: 400 12px/1.4 var(--font-sans);
+  --type-micro: 500 11px/1.3 var(--font-sans);
+
+  --density-card: 18px;
+  --density-row: 14px;
+}
+
+/* ── TOSS · DARK ──────────────────────────────────────────── */
+.golgo[data-theme="toss"][data-dark="1"] {
+  --bg-app: #0E1014;
+  --bg-card: #17191F;
+  --bg-elev: #1F2229;
+  --bg-soft: #1A1D24;
+  --bg-chip: #22262E;
+  --bg-inverse: #FAFBFC;
+
+  --text: #F4F6F8;
+  --text-2: #B8C0CC;
+  --text-3: #7B8694;
+  --text-4: #545C68;
+  --text-on-accent: #0E1014;
+
+  --border: rgba(255,255,255,.08);
+  --border-2: rgba(255,255,255,.14);
+  --divider: rgba(255,255,255,.06);
+
+  --accent-soft: rgba(255,255,255,.08);
+  --shadow: 0 1px 3px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.5);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   THEME 2 — ROBINHOOD
+   짙은 차콜 배경, mono number, 라임/네온 그린 강조
+   ───────────────────────────────────────────────────────────── */
+.golgo[data-theme="robinhood"] {
+  --bg-app: #0B0C0E;
+  --bg-card: #15171B;
+  --bg-elev: #1C1F24;
+  --bg-soft: #131519;
+  --bg-chip: #22262C;
+  --bg-inverse: #FAFAFA;
+
+  --text: #FAFAFA;
+  --text-2: #B5B8BD;
+  --text-3: #7E8288;
+  --text-4: #4D5057;
+  --text-on-accent: #0B0C0E;
+
+  --border: rgba(255,255,255,.08);
+  --border-2: rgba(255,255,255,.16);
+  --divider: rgba(255,255,255,.05);
+
+  --accent: var(--accent-mono, #C8FF3D);
+  --accent-soft: rgba(200,255,61,.12);
+
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  --shadow-sm: none;
+  --shadow: none;
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.6);
+
+  --type-display: 700 30px/1.1 var(--font-num);
+  --type-title: 600 20px/1.25 var(--font-sans);
+  --type-headline: 600 16px/1.4 var(--font-sans);
+  --type-body: 400 14px/1.5 var(--font-sans);
+  --type-callout: 500 13px/1.4 var(--font-sans);
+  --type-caption: 400 11.5px/1.4 var(--font-sans);
+  --type-micro: 600 10px/1.2 var(--font-sans);
+
+  --density-card: 14px;
+  --density-row: 12px;
+}
+
+.golgo[data-theme="robinhood"]:not([data-dark="1"]) {
+  --bg-app: #FAFAFA;
+  --bg-card: #FFFFFF;
+  --bg-elev: #FFFFFF;
+  --bg-soft: #F2F2F2;
+  --bg-chip: #EAEAEA;
+  --bg-inverse: #0B0C0E;
+  --text: #0B0C0E;
+  --text-2: #4A4D52;
+  --text-3: #7E8288;
+  --text-4: #B5B8BD;
+  --text-on-accent: #0B0C0E;
+  --border: rgba(0,0,0,.08);
+  --border-2: rgba(0,0,0,.16);
+  --divider: rgba(0,0,0,.05);
+  --accent-soft: rgba(200,255,61,.18);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   THEME 3 — ANALYST
+   warm cream + deep navy + serif headlines, denser dense
+   ───────────────────────────────────────────────────────────── */
+.golgo[data-theme="analyst"] {
+  --bg-app: #F4F1EA;
+  --bg-card: #FBF8F2;
+  --bg-elev: #FFFEFA;
+  --bg-soft: #EEE9DD;
+  --bg-chip: #E5DFCF;
+  --bg-inverse: #1A2237;
+
+  --text: #1A2237;
+  --text-2: #4A5266;
+  --text-3: #7A7363;
+  --text-4: #A39A85;
+  --text-on-accent: #FBF8F2;
+
+  --border: rgba(26,34,55,.12);
+  --border-2: rgba(26,34,55,.22);
+  --divider: rgba(122,115,99,.18);
+
+  --accent: var(--accent-mono, #1A2237);
+  --accent-soft: rgba(26,34,55,.08);
+
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --shadow-sm: 0 1px 2px rgba(60,40,20,.04);
+  --shadow: 0 1px 3px rgba(60,40,20,.06), 0 2px 8px rgba(60,40,20,.04);
+  --shadow-lg: 0 4px 20px rgba(60,40,20,.1);
+
+  --type-display: 600 32px/1.1 var(--font-serif);
+  --type-title: 600 22px/1.25 var(--font-serif);
+  --type-headline: 600 16px/1.4 var(--font-serif);
+  --type-body: 400 14.5px/1.55 var(--font-sans);
+  --type-callout: 500 13px/1.4 var(--font-sans);
+  --type-caption: 400 12px/1.4 var(--font-sans);
+  --type-micro: 500 10.5px/1.25 var(--font-sans);
+
+  --density-card: 16px;
+  --density-row: 12px;
+}
+
+.golgo[data-theme="analyst"][data-dark="1"] {
+  --bg-app: #161B26;
+  --bg-card: #1F2532;
+  --bg-elev: #262D3D;
+  --bg-soft: #1A2030;
+  --bg-chip: #2A3142;
+  --bg-inverse: #F4F1EA;
+  --text: #F4F1EA;
+  --text-2: #BCB5A6;
+  --text-3: #8A8474;
+  --text-4: #5F594E;
+  --text-on-accent: #161B26;
+  --border: rgba(244,241,234,.1);
+  --border-2: rgba(244,241,234,.2);
+  --divider: rgba(244,241,234,.08);
+  --accent-soft: rgba(244,241,234,.1);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PROFIT COLORS — toggleable via data-profit
+   ───────────────────────────────────────────────────────────── */
+.golgo[data-profit="global"] {
+  --up: #14B8A6;
+  --up-strong: #00A37A;
+  --up-soft: rgba(20,184,166,.12);
+  --down: #F04452;
+  --down-strong: #E22B3B;
+  --down-soft: rgba(240,68,82,.1);
+}
+.golgo[data-profit="kr"] {
+  --up: #F04452;
+  --up-strong: #E22B3B;
+  --up-soft: rgba(240,68,82,.1);
+  --down: #3182F6;
+  --down-strong: #1B64DA;
+  --down-soft: rgba(49,130,246,.1);
+}
+
+/* status colors — same across themes */
+.golgo {
+  --warn: #F59E0B;
+  --warn-soft: rgba(245,158,11,.12);
+  --info: #3182F6;
+  --info-soft: rgba(49,130,246,.1);
+  --neutral-soft: rgba(139,149,161,.14);
+  --brand-dot: #22C55E;  /* Golgo brand green dot — primary mark accent */
+}
+.golgo[data-theme="analyst"] { --brand-dot: #D4A574; }
+.golgo[data-theme="robinhood"] { --brand-dot: #C8FF3D; }
+
+/* Robinhood overrides — green-up regardless (more on-brand) */
+.golgo[data-theme="robinhood"][data-profit="global"] {
+  --up: #00FFA3;
+  --up-strong: #00E591;
+  --up-soft: rgba(0,255,163,.14);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TICKER COLOR SYSTEM (consistent across themes)
+   ───────────────────────────────────────────────────────────── */
+.golgo {
+  --t-kodex: #6366F1;    /* indigo — KODEX 200 */
+  --t-tiger: #8B5CF6;    /* violet — TIGER 미국S&P500 */
+  --t-qqq:   #06B6D4;    /* cyan — QQQ */
+  --t-spy:   #14B8A6;    /* teal — SPY */
+  --t-sse:   #F59E0B;    /* amber — 삼성전자 */
+  --t-aapl:  #EC4899;    /* pink — AAPL */
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PRIMITIVES
+   ───────────────────────────────────────────────────────────── */
+.golgo .card { background: var(--bg-card); border-radius: var(--radius-lg); padding: var(--density-card); box-shadow: var(--shadow); }
+.golgo[data-theme="analyst"] .card { border: .5px solid var(--border); }
+.golgo[data-theme="robinhood"] .card { border: .5px solid var(--border); }
+
+.golgo .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 52px; padding: 0 18px; border: 0; border-radius: var(--radius); background: var(--bg-inverse); color: var(--text-on-accent); font: var(--type-headline); cursor: pointer; transition: transform .1s, opacity .15s; }
+.golgo .btn:active { transform: scale(.98); }
+.golgo .btn-accent { background: var(--accent); color: var(--text-on-accent); }
+.golgo[data-theme="robinhood"] .btn-accent { color: #0B0C0E; }
+.golgo .btn-soft { background: var(--bg-chip); color: var(--text); }
+.golgo .btn-sm { height: 38px; font: var(--type-callout); padding: 0 14px; }
+.golgo .btn-xs { height: 28px; font: var(--type-caption); padding: 0 10px; border-radius: var(--radius-sm); }
+
+.golgo .pill { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; font: var(--type-micro); }
+.golgo .pill-up { background: var(--up-soft); color: var(--up-strong); }
+.golgo .pill-down { background: var(--down-soft); color: var(--down-strong); }
+.golgo .pill-warn { background: var(--warn-soft); color: var(--warn); }
+.golgo .pill-info { background: var(--info-soft); color: var(--info); }
+.golgo .pill-neutral { background: var(--neutral-soft); color: var(--text-2); }
+
+.golgo .divider { height: 1px; background: var(--divider); }
+.golgo .scrollbody { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+/* override IOS frame defaults so we own the chrome */
+.golgo .app-shell { background: var(--bg-app); height: 100%; display: flex; flex-direction: column; font-family: var(--font-sans); }
+
+/* number flourishes */
+.golgo .up { color: var(--up-strong); }
+.golgo .down { color: var(--down-strong); }
+
+/* fades for scroll edges */
+.golgo .scroll-fade-b { mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent); }

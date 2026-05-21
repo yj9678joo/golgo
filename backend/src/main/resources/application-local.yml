@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: ${DEV_REMOTE_DATABASE_URL}
+    username: ${DEV_REMOTE_DATABASE_USERNAME}
+    password: ${DEV_REMOTE_DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+  data:
+    redis:
+      url: ${DEV_UPSTASH_REDIS_URL:redis://localhost:6379}
+
+logging:
+  level:
+    "[org.hibernate.SQL]": debug
+    "[org.hibernate.orm.jdbc.bind]": trace

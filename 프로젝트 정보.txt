@@ -1,0 +1,16 @@
+# Supabase
+project url: https://supabase.com/dashboard/project/vzgwupnvzexqoqsliiqb
+project: golgo
+pw: 1qazXSW@3edc
+
+api url: https://vzgwupnvzexqoqsliiqb.supabase.co/rest/v1/
+anon public(API Key): eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6Z3d1cG52emV4cW9xc2xpaXFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNTM0OTEsImV4cCI6MjA5NDcyOTQ5MX0.k6wBKp1pKDqEpzsG1rm_MUk8v0W5hZb8rnQTM0ZQ9xs
+
+# upstash
+url: https://console.upstash.com/redis/473f74c6-2515-4006-8353-a389fae54cd7?teamid=0
+project: golgo-db
+
+환경변수
+UPSTASH_REDIS_REST_URL="https://decent-gannet-129940.upstash.io"
+UPSTASH_REDIS_REST_TOKEN="gQAAAAAAAfuUAAIgcDI2YzM1NDZiZGY2ZTU0MDI2OTk1ZDE2YzgzOTBlNThlYg"
+

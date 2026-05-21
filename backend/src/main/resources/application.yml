@@ -1,0 +1,49 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: golgo
+  profiles:
+    default: local
+  threads:
+    virtual:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: false
+        use_sql_comments: true
+        default_batch_fetch_size: 100
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  batch:
+    job:
+      enabled: false
+
+server:
+  servlet:
+    context-path: /api
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+jasypt:
+  encryptor:
+    password: ${JASYPT_ENCRYPTOR_PASSWORD:}
+
+golgo:
+  jwt:
+    access-token-validity-seconds: ${JWT_ACCESS_TOKEN_VALIDITY_SECONDS:900}
+    refresh-token-validity-seconds: ${JWT_REFRESH_TOKEN_VALIDITY_SECONDS:604800}
+    secret: ${JWT_SECRET:}
+
+logging:
+  level:
+    "[org.hibernate.SQL]": debug
+    "[org.hibernate.orm.jdbc.bind]": trace

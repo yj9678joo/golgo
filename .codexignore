@@ -1,0 +1,115 @@
+# ========================
+# 의존성 및 빌드 결과물
+# ========================
+node_modules/
+dist/
+build/
+.next/
+.nuxt/
+out/
+.output/
+.vercel/
+.netlify/
+
+# ========================
+# 환경 변수 및 시크릿
+# ========================
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+.secrets/
+
+# ========================
+# 캐시 및 임시 파일
+# ========================
+.cache/
+.parcel-cache/
+.turbo/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+.vite/
+.swc/
+
+# ========================
+# 테스트 커버리지 / 리포트
+# ========================
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+cypress/videos/
+cypress/screenshots/
+
+# ========================
+# 번들 분석 / 로그
+# ========================
+stats.json
+bundle-stats.json
+*.log
+logs/
+npm-debug.log*
+yarn-error.log*
+
+# ========================
+# 자동 생성 파일
+# ========================
+# GraphQL 자동 생성
+src/generated/
+__generated__/
+*.generated.ts
+*.generated.tsx
+
+# i18n 번역 자동 생성
+src/locales/auto/
+
+# Prisma / ORM 생성 파일
+prisma/generated/
+
+# OpenAPI / Swagger 자동 생성
+src/api/generated/
+
+# ========================
+# 에디터 / IDE 설정
+# ========================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ========================
+# OS 파일
+# ========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================
+# 대용량 / 바이너리 에셋
+# ========================
+public/videos/
+public/fonts/
+*.mp4
+*.mov
+*.zip
+*.tar.gz
+
+# ========================
+# Storybook 빌드
+# ========================
+storybook-static/
+
+# ========================
+# 문서 / 변경 이력 (선택)
+# ========================
+CHANGELOG.md
+LICENSE

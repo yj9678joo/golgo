@@ -1,0 +1,19 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@theme {
+  --color-background: hsl(210 40% 98%);
+  --color-foreground: hsl(222.2 47.4% 11.2%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(222.2 47.4% 11.2%);
+  --color-muted: hsl(210 40% 96.1%);
+  --color-muted-foreground: hsl(215.4 16.3% 46.9%);
+  --color-primary: hsl(158 64% 34%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-border: hsl(214.3 31.8% 91.4%);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}

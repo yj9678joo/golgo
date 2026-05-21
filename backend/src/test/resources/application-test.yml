@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:golgo_test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  flyway:
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  data:
+    redis:
+      url: redis://localhost:6379
+
+logging:
+  level:
+    "[org.hibernate.SQL]": off
+    "[org.hibernate.orm.jdbc.bind]": off
