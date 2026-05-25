@@ -1,6 +1,8 @@
 spring:
   config:
-    import: optional:file:.env[.properties]
+    import:
+      - optional:file:.env[.properties]
+      - optional:file:backend/.env[.properties]
   application:
     name: golgo
   profiles:
@@ -28,6 +30,7 @@ spring:
 server:
   servlet:
     context-path: /api
+  port: 8099
 
 springdoc:
   swagger-ui:
