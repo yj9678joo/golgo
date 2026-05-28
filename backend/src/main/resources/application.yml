@@ -69,7 +69,7 @@ jasypt:
 
 golgo:
   frontend:
-    auth-callback-url: ${FRONTEND_AUTH_CALLBACK_URL:http://localhost:5173/auth/callback}
+    auth-callback-url: ${FRONTEND_AUTH_CALLBACK_URL:http://localhost:3000/auth/callback}
   jwt:
     access-token-validity-seconds: ${JWT_ACCESS_TOKEN_VALIDITY_SECONDS:900}
     refresh-token-validity-seconds: ${JWT_REFRESH_TOKEN_VALIDITY_SECONDS:604800}

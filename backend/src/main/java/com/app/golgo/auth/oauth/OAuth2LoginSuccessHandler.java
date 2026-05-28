@@ -21,7 +21,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
 	public OAuth2LoginSuccessHandler(
 		AuthService authService,
-		@Value("${golgo.frontend.auth-callback-url:http://localhost:5173/auth/callback}") String frontendCallbackUrl
+		@Value("${golgo.frontend.auth-callback-url:http://localhost:3000/auth/callback}") String frontendCallbackUrl
 	) {
 		this.authService = authService;
 		this.frontendCallbackUrl = frontendCallbackUrl;
