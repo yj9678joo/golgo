@@ -1,0 +1,13 @@
+package com.app.golgo.auth.application;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+public record NicknameUpdateRequest(
+	@NotBlank
+	@Size(min = 2, max = 12)
+	@Pattern(regexp = "^[가-힣A-Za-z0-9]+$")
+	String nickname
+) {
+}
