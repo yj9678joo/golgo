@@ -1,4 +1,4 @@
-package com.app.golgo.auth.domain;
+package com.app.golgo.auth.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

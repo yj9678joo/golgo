@@ -1,7 +1,7 @@
 package com.app.golgo.auth.oauth;
 
-import com.app.golgo.auth.application.AuthService;
-import com.app.golgo.auth.application.TokenPair;
+import com.app.golgo.auth.service.AuthService;
+import com.app.golgo.auth.dto.TokenPair;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

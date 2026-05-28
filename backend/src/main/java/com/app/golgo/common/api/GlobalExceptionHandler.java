@@ -1,6 +1,6 @@
 package com.app.golgo.common.api;
 
-import com.app.golgo.auth.application.AuthException;
+import com.app.golgo.auth.service.AuthException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;

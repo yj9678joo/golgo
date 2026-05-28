@@ -1,4 +1,4 @@
-package com.app.golgo.auth.application;
+package com.app.golgo.auth.dto;
 
 import java.time.Instant;
 

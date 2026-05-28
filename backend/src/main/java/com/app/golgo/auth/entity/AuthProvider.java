@@ -1,7 +1,9 @@
-package com.app.golgo.auth.domain;
+package com.app.golgo.auth.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -18,9 +20,9 @@ import org.hibernate.generator.EventType;
 
 @Getter
 @Entity
-@Table(name = "refresh_tokens")
+@Table(name = "auth_providers")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RefreshToken {
+public class AuthProvider {
 
 	@Id
 	@Generated(event = EventType.INSERT)
@@ -31,23 +33,24 @@ public class RefreshToken {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	@Column(name = "token_hash", nullable = false, unique = true)
-	private String tokenHash;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, length = 20)
+	private SocialProvider provider;
 
-	@Column(name = "expires_at", nullable = false)
-	private Instant expiresAt;
+	@Column(name = "provider_id", nullable = false)
+	private String providerId;
 
-	@Column(name = "created_at", nullable = false)
-	private Instant createdAt;
+	@Column(name = "connected_at", nullable = false)
+	private Instant connectedAt;
 
-	private RefreshToken(User user, String tokenHash, Instant expiresAt, Clock clock) {
+	private AuthProvider(User user, SocialProvider provider, String providerId, Clock clock) {
 		this.user = user;
-		this.tokenHash = tokenHash;
-		this.expiresAt = expiresAt;
-		this.createdAt = Instant.now(clock);
+		this.provider = provider;
+		this.providerId = providerId;
+		this.connectedAt = Instant.now(clock);
 	}
 
-	public static RefreshToken issue(User user, String tokenHash, Instant expiresAt, Clock clock) {
-		return new RefreshToken(user, tokenHash, expiresAt, clock);
+	public static AuthProvider connect(User user, SocialProvider provider, String providerId, Clock clock) {
+		return new AuthProvider(user, provider, providerId, clock);
 	}
 }

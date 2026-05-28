@@ -1,14 +1,14 @@
-package com.app.golgo.auth.api;
+package com.app.golgo.auth.controller;
 
-import com.app.golgo.auth.application.AccessTokenResponse;
-import com.app.golgo.auth.application.AuthService;
-import com.app.golgo.auth.application.AuthUserResponse;
-import com.app.golgo.auth.application.NicknameUpdateRequest;
-import com.app.golgo.auth.application.NicknameUpdateResponse;
-import com.app.golgo.auth.application.ProviderListResponse;
-import com.app.golgo.auth.application.RefreshTokenRequest;
-import com.app.golgo.auth.application.RemainingProvidersResponse;
-import com.app.golgo.auth.domain.SocialProvider;
+import com.app.golgo.auth.dto.AccessTokenResponse;
+import com.app.golgo.auth.service.AuthService;
+import com.app.golgo.auth.dto.AuthUserResponse;
+import com.app.golgo.auth.dto.NicknameUpdateRequest;
+import com.app.golgo.auth.dto.NicknameUpdateResponse;
+import com.app.golgo.auth.dto.ProviderListResponse;
+import com.app.golgo.auth.dto.RefreshTokenRequest;
+import com.app.golgo.auth.dto.RemainingProvidersResponse;
+import com.app.golgo.auth.entity.SocialProvider;
 import com.app.golgo.auth.security.JwtPrincipal;
 import com.app.golgo.common.api.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;

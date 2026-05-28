@@ -1,5 +1,6 @@
-package com.app.golgo.auth.domain;
+package com.app.golgo.auth.repository;
 
+import com.app.golgo.auth.entity.User;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

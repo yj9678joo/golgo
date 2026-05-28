@@ -1,6 +1,6 @@
 package com.app.golgo.auth.oauth;
 
-import com.app.golgo.auth.application.OAuthUserProfile;
+import com.app.golgo.auth.dto.OAuthUserProfile;
 import java.util.Collection;
 import java.util.Map;
 import org.springframework.security.core.GrantedAuthority;

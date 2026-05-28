@@ -1,4 +1,4 @@
-package com.app.golgo.auth.application;
+package com.app.golgo.auth.service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

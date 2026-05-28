@@ -1,4 +1,4 @@
-package com.app.golgo.auth.domain;
+package com.app.golgo.auth.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,16 +1,19 @@
-package com.app.golgo.auth.application;
+package com.app.golgo.auth.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.app.golgo.auth.domain.AuthProvider;
-import com.app.golgo.auth.domain.AuthProviderRepository;
-import com.app.golgo.auth.domain.RefreshTokenRepository;
-import com.app.golgo.auth.domain.SocialProvider;
-import com.app.golgo.auth.domain.User;
-import com.app.golgo.auth.domain.UserRepository;
+import com.app.golgo.auth.dto.AccessTokenResponse;
+import com.app.golgo.auth.dto.OAuthUserProfile;
+import com.app.golgo.auth.dto.TokenPair;
+import com.app.golgo.auth.entity.AuthProvider;
+import com.app.golgo.auth.entity.SocialProvider;
+import com.app.golgo.auth.entity.User;
+import com.app.golgo.auth.repository.AuthProviderRepository;
+import com.app.golgo.auth.repository.RefreshTokenRepository;
+import com.app.golgo.auth.repository.UserRepository;
 import com.app.golgo.auth.security.JwtProvider;
 import java.time.Clock;
 import java.time.Instant;

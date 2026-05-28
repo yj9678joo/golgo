@@ -1,5 +1,7 @@
-package com.app.golgo.auth.domain;
+package com.app.golgo.auth.repository;
 
+import com.app.golgo.auth.entity.AuthProvider;
+import com.app.golgo.auth.entity.SocialProvider;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

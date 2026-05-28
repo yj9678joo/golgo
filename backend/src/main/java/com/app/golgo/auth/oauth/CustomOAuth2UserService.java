@@ -1,7 +1,7 @@
 package com.app.golgo.auth.oauth;
 
-import com.app.golgo.auth.application.OAuthUserProfile;
-import com.app.golgo.auth.domain.SocialProvider;
+import com.app.golgo.auth.dto.OAuthUserProfile;
+import com.app.golgo.auth.entity.SocialProvider;
 import java.util.Map;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
