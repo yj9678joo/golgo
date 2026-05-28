@@ -2,8 +2,6 @@ package com.app.golgo.auth.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Clock;
@@ -12,6 +10,8 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
 
 @Getter
 @Entity
@@ -20,7 +20,8 @@ import lombok.NoArgsConstructor;
 public class User {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
+	@Generated(event = EventType.INSERT)
+	@Column(insertable = false, updatable = false)
 	private UUID id;
 
 	@Column(nullable = false, unique = true)
