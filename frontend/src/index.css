@@ -10,6 +10,7 @@
   --color-muted-foreground: hsl(215.4 16.3% 46.9%);
   --color-primary: hsl(158 64% 34%);
   --color-primary-foreground: hsl(0 0% 100%);
+  --color-destructive: hsl(0 72% 48%);
   --color-border: hsl(214.3 31.8% 91.4%);
 }
 
