@@ -42,6 +42,11 @@ Thumbs.db
 .claude/
 .codex/
 
+# Agent instructions
+AGENT.md
+.codex/back-end/back_end.md
+.codex/front-end/font_end.md
+
 project_info.txt
 Golgo_design/
 Golgo_logo/
