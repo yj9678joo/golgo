@@ -28,12 +28,12 @@ export function SocialLoginButton({
     return (
       <Button
         asChild
-        className="h-[54px] overflow-hidden rounded-[14px] bg-transparent p-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:bg-transparent active:scale-[0.98]"
+        className="h-[54px] w-full overflow-hidden rounded-[14px] bg-transparent p-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:bg-transparent active:scale-[0.98]"
         size="lg"
       >
         <a href={href} aria-label={label}>
           {image ? (
-            <img className="h-full max-w-full object-contain" src={image} alt="" />
+            <img className="h-full w-full object-contain" src={image} alt="" />
           ) : (
             <span>{label}</span>
           )}
@@ -44,7 +44,7 @@ export function SocialLoginButton({
 
   return (
     <Button
-      className="h-[54px] rounded-[14px] bg-[#FEE500]/50 text-base font-semibold text-[#8B7B00] opacity-80"
+      className="h-[54px] w-full rounded-[14px] bg-[#FEE500]/50 text-base font-semibold text-[#8B7B00] opacity-80"
       disabled
       size="lg"
       type="button"

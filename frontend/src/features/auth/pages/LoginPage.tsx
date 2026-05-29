@@ -1,7 +1,6 @@
-import { LockKeyhole, Sparkles, Target } from 'lucide-react'
 import { MobilePage } from '@/components/layout/MobilePage'
 import { getOAuthLoginUrl } from '@/lib/api/client'
-import golgoLockup from '@/assets/golgo-lockup-wide.png'
+import golgoMark from '@/assets/golgo-mark-transparent-512.png'
 import { SocialLoginButton } from '@/features/auth/components/SocialLoginButton'
 
 const providers = [
@@ -9,12 +8,6 @@ const providers = [
   { provider: 'naver', label: '네이버로 시작하기', href: getOAuthLoginUrl('naver') },
   { provider: 'google', label: 'Google로 계속하기', href: getOAuthLoginUrl('google') },
 ] as const
-
-const checkpoints = [
-  { label: '소셜 인증', icon: LockKeyhole },
-  { label: '목표 비중', icon: Target },
-  { label: 'AI 리밸런싱', icon: Sparkles },
-]
 
 export function LoginPage() {
   return (
@@ -24,7 +17,7 @@ export function LoginPage() {
     >
       <div className="hidden lg:block">
         <div className="max-w-xl">
-          <img className="h-12 w-auto" src={golgoLockup} alt="Golgo" />
+          <BrandLogo size="lg" />
           <h1 className="mt-10 text-5xl font-semibold leading-[1.15] text-balance">
             자산을 <span className="text-[#00A37A]">고르게</span>,
             <br />
@@ -42,9 +35,9 @@ export function LoginPage() {
           <div className="h-1.5 w-20 rounded-full bg-[#DDE2E7]" />
         </div>
 
-        <div className="flex flex-1 flex-col justify-center pb-5 pt-4 sm:pb-10 sm:pt-12">
-          <img className="h-10 w-fit sm:h-14" src={golgoLockup} alt="Golgo" />
-          <h2 className="mt-5 text-[28px] font-semibold leading-[1.15] text-balance min-[375px]:text-[30px] sm:mt-8 sm:text-[34px] sm:leading-[1.18]">
+        <div className="flex flex-1 flex-col justify-center pb-8 pt-8 sm:pb-12 sm:pt-16">
+          <BrandLogo />
+          <h2 className="mt-7 text-[28px] font-semibold leading-[1.15] text-balance min-[375px]:text-[30px] sm:mt-10 sm:text-[34px] sm:leading-[1.18]">
             자산을 <span className="text-[#00A37A]">고르게</span>,
             <br />
             종목을 <span className="text-[#00A37A]">고르게</span>.
@@ -52,18 +45,6 @@ export function LoginPage() {
           <p className="mt-3 text-[14px] leading-6 text-[#4E5968] sm:mt-4 sm:text-[15px]">
             AI 기반 리밸런싱 어드바이저
           </p>
-
-          <div className="mt-5 grid grid-cols-3 gap-1.5 min-[375px]:mt-6 sm:mt-8 sm:gap-2">
-            {checkpoints.map(({ label, icon: Icon }) => (
-              <div
-                key={label}
-                className="min-h-[72px] rounded-[14px] border border-[#E5E8EB] bg-white px-2 py-3 text-center shadow-[0_1px_2px_rgba(0,0,0,0.04)] sm:px-3 sm:py-4"
-              >
-                <Icon className="mx-auto size-4 text-[#00A37A] sm:size-5" aria-hidden="true" />
-                <p className="mt-2 text-[11px] font-semibold leading-4 text-[#4E5968] sm:text-[12px]">{label}</p>
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className="grid gap-2.5">
@@ -79,5 +60,17 @@ export function LoginPage() {
         </div>
       </div>
     </MobilePage>
+  )
+}
+
+function BrandLogo({ size = 'default' }: { size?: 'default' | 'lg' }) {
+  const markSize = size === 'lg' ? 'size-12' : 'size-10'
+  const textSize = size === 'lg' ? 'text-3xl' : 'text-2xl'
+
+  return (
+    <div className="flex items-center gap-2.5">
+      <img className={markSize} src={golgoMark} alt="" />
+      <span className={`${textSize} font-semibold tracking-normal text-[#191F28]`}>고르고</span>
+    </div>
   )
 }
