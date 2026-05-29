@@ -29,5 +29,6 @@ export default defineConfig({
   server: {
     port: 3000, // 원하는 포트 번호 입력
     strictPort: true,
+    host: "0.0.0.0",
   },
 });
