@@ -1,5 +1,5 @@
 import { api, type ApiResponse } from '@/lib/api/client'
-import type { AuthUser, NicknameUpdateResponse } from '@/features/auth/types'
+import type { AuthUser, NicknameUpdateResponse, TokenPair } from '@/features/auth/types'
 
 export async function fetchMe() {
   const response = await api.get<ApiResponse<AuthUser>>('/auth/me')
@@ -9,6 +9,14 @@ export async function fetchMe() {
 export async function updateNickname(nickname: string) {
   const response = await api.patch<ApiResponse<NicknameUpdateResponse>>('/auth/me/nickname', {
     nickname,
+  })
+  return response.data.data
+}
+
+export async function directLogin(loginId: string, password: string) {
+  const response = await api.post<ApiResponse<TokenPair>>('/auth/test-login', {
+    loginId,
+    password,
   })
   return response.data.data
 }

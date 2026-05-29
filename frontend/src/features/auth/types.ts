@@ -13,3 +13,9 @@ export type NicknameUpdateResponse = {
   nickname: string
   updatedAt: string
 }
+
+export type TokenPair = {
+  accessToken: string
+  refreshToken: string
+  expiresIn: number
+}

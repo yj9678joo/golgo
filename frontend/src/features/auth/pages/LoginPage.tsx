@@ -1,7 +1,10 @@
+import { FormEvent, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { MobilePage } from '@/components/layout/MobilePage'
 import { getOAuthLoginUrl } from '@/lib/api/client'
 import logo from '@/assets/golgo-logo.png'
 import { SocialLoginButton } from '@/features/auth/components/SocialLoginButton'
+import { useAuthStore } from '@/features/auth/store/auth-store'
 
 const providers = [
   // { provider: 'kakao', label: '카카오는 준비 중', disabled: true },
@@ -18,6 +21,40 @@ const providers = [
 ] as const
 
 export function LoginPage() {
+  const navigate = useNavigate()
+  const loginWithPassword = useAuthStore((state) => state.loginWithPassword)
+  const [loginId, setLoginId] = useState('test01')
+  const [password, setPassword] = useState('test01')
+  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  async function handleDirectLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    setError(null)
+    setIsSubmitting(true)
+
+    try {
+      const user = await loginWithPassword(loginId, password)
+
+      window.alert(
+        [
+          '로그인 성공',
+          `닉네임: ${user.nickname}`,
+          `이메일: ${user.email}`,
+          `연결 Provider: ${user.connectedProviders.join(', ')}`,
+        ].join('\n'),
+      )
+      navigate('/nickname', { replace: true })
+    } catch {
+      const message = '테스트 계정 로그인에 실패했습니다.'
+      setError(message)
+      window.alert(`로그인 실패: ${message}`)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <MobilePage
       className="bg-[#F2F4F6] text-[#191F28]"
@@ -40,7 +77,48 @@ export function LoginPage() {
           </p>
         </div>
 
-        <div className="grid gap-2">
+        <div className="grid gap-2.5">
+          <form
+            className="rounded-[18px] border border-[#E5E8EB] bg-white p-4 shadow-sm"
+            onSubmit={handleDirectLogin}
+          >
+            <div className="grid gap-2.5">
+              <label className="grid gap-1.5 text-[12px] font-medium text-[#4E5968]">
+                아이디
+                <input
+                  className="h-11 rounded-[12px] border border-[#DDE2E7] bg-[#F7F8FA] px-3 text-[15px] text-[#191F28] outline-none transition focus:border-[#00A37A] focus:bg-white"
+                  name="loginId"
+                  value={loginId}
+                  onChange={(event) => setLoginId(event.target.value)}
+                  autoComplete="username"
+                />
+              </label>
+              <label className="grid gap-1.5 text-[12px] font-medium text-[#4E5968]">
+                비밀번호
+                <input
+                  className="h-11 rounded-[12px] border border-[#DDE2E7] bg-[#F7F8FA] px-3 text-[15px] text-[#191F28] outline-none transition focus:border-[#00A37A] focus:bg-white"
+                  name="password"
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  autoComplete="current-password"
+                />
+              </label>
+            </div>
+
+            {error ? (
+              <p className="mt-3 text-[12px] leading-5 text-red-600">{error}</p>
+            ) : null}
+
+            <button
+              className="mt-3 inline-flex h-12 w-full items-center justify-center rounded-[14px] bg-[#00A37A] px-4 text-[14px] font-semibold text-white transition hover:bg-[#008F6C] disabled:cursor-not-allowed disabled:opacity-60"
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? '로그인 중...' : '테스트 계정으로 로그인'}
+            </button>
+          </form>
+
           {providers.map((provider) => (
             <SocialLoginButton key={provider.provider} {...provider} />
           ))}
@@ -63,7 +141,9 @@ function BrandLogo({ size = 'default' }: { size?: 'default' | 'lg' }) {
   return (
     <div className="flex items-center gap-2.5">
       <img className={markSize} src={logo} alt="" />
-      <span className={`${textSize} font-semibold tracking-normal text-[#191F28]`}>
+      <span
+        className={`${textSize} font-semibold tracking-normal text-[#191F28]`}
+      >
         고르고
       </span>
     </div>
