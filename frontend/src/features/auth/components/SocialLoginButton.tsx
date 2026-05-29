@@ -33,7 +33,7 @@ export function SocialLoginButton({
       >
         <a href={href} aria-label={label}>
           {image ? (
-            <img className="h-full w-full object-cover" src={image} alt="" />
+            <img className="h-full max-w-full object-contain" src={image} alt="" />
           ) : (
             <span>{label}</span>
           )}
