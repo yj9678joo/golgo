@@ -1,4 +1,4 @@
-export type OnboardingStep = 'persona' | 'broker' | 'targets' | 'done'
+export type OnboardingStep = 'persona' | 'broker' | 'done'
 
 export type InvestmentPersona = 'conservative' | 'balanced' | 'growth' | 'custom'
 
@@ -14,11 +14,3 @@ export type BrokerId =
   | 'other'
 
 export type BrokerConnectionMethod = 'api-key' | 'screenshot'
-
-export type TargetWeight = {
-  ticker: string
-  name: string
-  sector: string
-  colorClassName: string
-  weight: number
-}

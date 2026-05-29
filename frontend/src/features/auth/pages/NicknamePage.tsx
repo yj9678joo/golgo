@@ -48,7 +48,7 @@ export function NicknamePage() {
       contentClassName="flex max-w-[430px]"
     >
       <div className="flex min-h-[calc(100svh-2rem)] w-full flex-col px-2 py-4">
-        <OnboardingStepBar current={1} total={4} />
+        <OnboardingStepBar current={1} total={3} />
 
         <div className="mt-5 flex items-start justify-between gap-3">
           <div className="min-w-0">
