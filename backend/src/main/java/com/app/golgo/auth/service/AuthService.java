@@ -11,9 +11,11 @@ import com.app.golgo.auth.dto.TokenPair;
 import com.app.golgo.auth.entity.AuthProvider;
 import com.app.golgo.auth.entity.RefreshToken;
 import com.app.golgo.auth.entity.SocialProvider;
+import com.app.golgo.auth.entity.TestLoginCredential;
 import com.app.golgo.auth.entity.User;
 import com.app.golgo.auth.repository.AuthProviderRepository;
 import com.app.golgo.auth.repository.RefreshTokenRepository;
+import com.app.golgo.auth.repository.TestLoginCredentialRepository;
 import com.app.golgo.auth.repository.UserRepository;
 import com.app.golgo.auth.security.JwtPrincipal;
 import com.app.golgo.auth.security.JwtProvider;
@@ -22,6 +24,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,20 +34,26 @@ public class AuthService {
 	private final UserRepository userRepository;
 	private final AuthProviderRepository authProviderRepository;
 	private final RefreshTokenRepository refreshTokenRepository;
+	private final TestLoginCredentialRepository testLoginCredentialRepository;
 	private final JwtProvider jwtProvider;
+	private final PasswordEncoder passwordEncoder;
 	private final Clock clock;
 
 	public AuthService(
 		UserRepository userRepository,
 		AuthProviderRepository authProviderRepository,
 		RefreshTokenRepository refreshTokenRepository,
+		TestLoginCredentialRepository testLoginCredentialRepository,
 		JwtProvider jwtProvider,
+		PasswordEncoder passwordEncoder,
 		Clock clock
 	) {
 		this.userRepository = userRepository;
 		this.authProviderRepository = authProviderRepository;
 		this.refreshTokenRepository = refreshTokenRepository;
+		this.testLoginCredentialRepository = testLoginCredentialRepository;
 		this.jwtProvider = jwtProvider;
+		this.passwordEncoder = passwordEncoder;
 		this.clock = clock;
 	}
 
@@ -56,6 +65,17 @@ public class AuthService {
 		User user = authProviderRepository.findByProviderAndProviderId(profile.provider(), profile.providerId())
 			.map(AuthProvider::getUser)
 			.orElseGet(() -> connectProvider(profile));
+		return issueTokenPair(user);
+	}
+
+	@Transactional
+	public TokenPair loginWithTestCredential(String loginId, String password) {
+		TestLoginCredential credential = testLoginCredentialRepository.findByLoginId(loginId)
+			.orElseThrow(this::invalidTestLogin);
+		if (!passwordEncoder.matches(password, credential.getPasswordHash())) {
+			throw invalidTestLogin();
+		}
+		User user = findActiveUser(credential.getUser().getId());
 		return issueTokenPair(user);
 	}
 
@@ -164,5 +184,9 @@ public class AuthService {
 			return fallback;
 		}
 		return normalized.substring(0, Math.min(12, normalized.length()));
+	}
+
+	private AuthException invalidTestLogin() {
+		return new AuthException(HttpStatus.UNAUTHORIZED, "AUTH_010", "아이디 또는 비밀번호가 올바르지 않습니다.");
 	}
 }

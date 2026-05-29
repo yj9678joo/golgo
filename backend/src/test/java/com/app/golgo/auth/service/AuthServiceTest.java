@@ -10,9 +10,11 @@ import com.app.golgo.auth.dto.OAuthUserProfile;
 import com.app.golgo.auth.dto.TokenPair;
 import com.app.golgo.auth.entity.AuthProvider;
 import com.app.golgo.auth.entity.SocialProvider;
+import com.app.golgo.auth.entity.TestLoginCredential;
 import com.app.golgo.auth.entity.User;
 import com.app.golgo.auth.repository.AuthProviderRepository;
 import com.app.golgo.auth.repository.RefreshTokenRepository;
+import com.app.golgo.auth.repository.TestLoginCredentialRepository;
 import com.app.golgo.auth.repository.UserRepository;
 import com.app.golgo.auth.security.JwtProvider;
 import java.time.Clock;
@@ -26,6 +28,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -42,7 +47,11 @@ class AuthServiceTest {
 	@Mock
 	private RefreshTokenRepository refreshTokenRepository;
 
+	@Mock
+	private TestLoginCredentialRepository testLoginCredentialRepository;
+
 	private AuthService authService;
+	private PasswordEncoder passwordEncoder;
 
 	@BeforeEach
 	void setUp() {
@@ -52,7 +61,16 @@ class AuthServiceTest {
 			604800,
 			CLOCK
 		);
-		authService = new AuthService(userRepository, authProviderRepository, refreshTokenRepository, jwtProvider, CLOCK);
+		passwordEncoder = new BCryptPasswordEncoder();
+		authService = new AuthService(
+			userRepository,
+			authProviderRepository,
+			refreshTokenRepository,
+			testLoginCredentialRepository,
+			jwtProvider,
+			passwordEncoder,
+			CLOCK
+		);
 	}
 
 	@Test
@@ -117,5 +135,37 @@ class AuthServiceTest {
 
 		assertThat(response.accessToken()).isNotBlank();
 		assertThat(response.expiresIn()).isEqualTo(900);
+	}
+
+	@Test
+	void testLoginIssuesTokenPairWhenCredentialMatches() {
+		User user = User.create("test01@golgo.local", "test01", null, CLOCK);
+		user.assignIdForTest(USER_ID);
+		TestLoginCredential credential = new TestLoginCredential("test01", passwordEncoder.encode("test01"), user);
+		when(testLoginCredentialRepository.findByLoginId("test01")).thenReturn(Optional.of(credential));
+		when(userRepository.findByIdAndDeletedAtIsNull(USER_ID)).thenReturn(Optional.of(user));
+
+		TokenPair tokens = authService.loginWithTestCredential("test01", "test01");
+
+		assertThat(tokens.accessToken()).isNotBlank();
+		assertThat(tokens.refreshToken()).isNotBlank();
+		assertThat(tokens.expiresIn()).isEqualTo(900);
+	}
+
+	@Test
+	void testLoginThrowsUnauthorizedWhenPasswordDoesNotMatch() {
+		User user = User.create("test01@golgo.local", "test01", null, CLOCK);
+		user.assignIdForTest(USER_ID);
+		TestLoginCredential credential = new TestLoginCredential("test01", passwordEncoder.encode("test01"), user);
+		when(testLoginCredentialRepository.findByLoginId("test01")).thenReturn(Optional.of(credential));
+
+		org.assertj.core.api.ThrowableAssert.ThrowingCallable action =
+			() -> authService.loginWithTestCredential("test01", "wrong");
+
+		assertThat(org.assertj.core.api.Assertions.catchThrowable(action))
+			.isInstanceOf(AuthException.class)
+			.hasMessage("아이디 또는 비밀번호가 올바르지 않습니다.")
+			.extracting(error -> ((AuthException) error).status(), error -> ((AuthException) error).code())
+			.containsExactly(HttpStatus.UNAUTHORIZED, "AUTH_010");
 	}
 }
