@@ -4,7 +4,7 @@ import logo from '@/assets/golgo-logo.png'
 import { SocialLoginButton } from '@/features/auth/components/SocialLoginButton'
 
 const providers = [
-  { provider: 'kakao', label: '카카오는 준비 중', disabled: true },
+  // { provider: 'kakao', label: '카카오는 준비 중', disabled: true },
   {
     provider: 'naver',
     label: '네이버로 시작하기',
@@ -40,7 +40,7 @@ export function LoginPage() {
           </p>
         </div>
 
-        <div className="grid gap-2.5">
+        <div className="grid gap-2">
           {providers.map((provider) => (
             <SocialLoginButton key={provider.provider} {...provider} />
           ))}
