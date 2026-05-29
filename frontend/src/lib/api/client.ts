@@ -21,7 +21,15 @@ type RetriableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8099/api'
+function getDefaultApiBaseUrl() {
+  if (typeof window === 'undefined') {
+    return 'http://localhost:8099/api'
+  }
+
+  return `http://${window.location.hostname}:8099/api`
+}
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? getDefaultApiBaseUrl()
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
