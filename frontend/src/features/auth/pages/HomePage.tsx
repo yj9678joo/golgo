@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { LogOut, UserRound } from 'lucide-react'
+import { ArrowRight, Landmark, LogOut, Sparkles, UserRound } from 'lucide-react'
 import { MobilePage } from '@/components/layout/MobilePage'
 import { useAuthStore } from '@/features/auth/store/auth-store'
 
@@ -51,6 +51,30 @@ export function HomePage() {
           <div className="rounded-md bg-muted p-4">
             <p className="text-xs font-semibold text-muted-foreground">다음 단계</p>
             <p className="mt-2 text-sm font-medium">온보딩 및 증권사 연결</p>
+            <div className="mt-4 grid gap-2">
+              <button
+                className="inline-flex h-11 w-full items-center justify-between rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground"
+                type="button"
+                onClick={() => navigate('/onboarding')}
+              >
+                <span className="inline-flex items-center gap-2">
+                  <Sparkles className="size-4" aria-hidden="true" />
+                  온보딩 시작
+                </span>
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </button>
+              <button
+                className="inline-flex h-11 w-full items-center justify-between rounded-md border border-border bg-card px-3 text-sm font-semibold text-foreground"
+                type="button"
+                onClick={() => navigate('/broker-setup')}
+              >
+                <span className="inline-flex items-center gap-2">
+                  <Landmark className="size-4" aria-hidden="true" />
+                  증권사 설정
+                </span>
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

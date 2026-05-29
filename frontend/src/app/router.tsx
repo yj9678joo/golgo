@@ -4,6 +4,8 @@ import { AuthCallbackPage } from '@/features/auth/pages/AuthCallbackPage'
 import { HomePage } from '@/features/auth/pages/HomePage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { NicknamePage } from '@/features/auth/pages/NicknamePage'
+import { BrokerSetupPage } from '@/features/onboarding/pages/BrokerSetupPage'
+import { OnboardingPage } from '@/features/onboarding/pages/OnboardingPage'
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +26,14 @@ export const router = createBrowserRouter([
       {
         path: '/nickname',
         element: <NicknamePage />,
+      },
+      {
+        path: '/onboarding',
+        element: <OnboardingPage />,
+      },
+      {
+        path: '/broker-setup',
+        element: <BrokerSetupPage />,
       },
     ],
   },
