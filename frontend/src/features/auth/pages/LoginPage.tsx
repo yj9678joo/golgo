@@ -18,7 +18,7 @@ const checkpoints = [
 export function LoginPage() {
   return (
     <main className="min-h-screen bg-[#F2F4F6] text-[#191F28]">
-      <section className="mx-auto grid min-h-screen w-full max-w-5xl items-center gap-8 px-5 py-8 lg:grid-cols-[1fr_400px]">
+      <section className="mx-auto grid min-h-screen w-full max-w-5xl items-center gap-8 px-4 py-4 sm:px-5 sm:py-8 lg:grid-cols-[1fr_400px]">
         <div className="hidden lg:block">
           <div className="max-w-xl">
             <img className="h-12 w-auto" src={golgoLockup} alt="Golgo" />
@@ -34,30 +34,30 @@ export function LoginPage() {
           </div>
         </div>
 
-        <div className="mx-auto flex min-h-[720px] w-full max-w-[390px] flex-col rounded-[32px] border border-white/80 bg-[#F7F8FA] px-7 py-8 shadow-[0_24px_80px_rgba(25,31,40,0.14)] lg:min-h-[760px]">
+        <div className="mx-auto flex min-h-[calc(100svh-2rem)] w-full max-w-[390px] flex-col rounded-[28px] border border-white/80 bg-[#F7F8FA] px-5 py-5 shadow-[0_24px_80px_rgba(25,31,40,0.14)] sm:rounded-[32px] sm:px-7 sm:py-8 lg:min-h-[760px]">
           <div className="flex justify-center">
             <div className="h-1.5 w-20 rounded-full bg-[#DDE2E7]" />
           </div>
 
-          <div className="flex flex-1 flex-col justify-center pb-10 pt-12">
-            <img className="h-14 w-fit" src={golgoLockup} alt="Golgo" />
-            <h2 className="mt-8 text-[34px] font-semibold leading-[1.18] text-balance">
+          <div className="flex flex-1 flex-col justify-center pb-6 pt-8 sm:pb-10 sm:pt-12">
+            <img className="h-11 w-fit sm:h-14" src={golgoLockup} alt="Golgo" />
+            <h2 className="mt-6 text-[30px] font-semibold leading-[1.16] text-balance sm:mt-8 sm:text-[34px] sm:leading-[1.18]">
               자산을 <span className="text-[#00A37A]">고르게</span>,
               <br />
               종목을 <span className="text-[#00A37A]">고르게</span>.
             </h2>
-            <p className="mt-4 text-[15px] leading-6 text-[#4E5968]">
+            <p className="mt-3 text-[14px] leading-6 text-[#4E5968] sm:mt-4 sm:text-[15px]">
               AI 기반 리밸런싱 어드바이저
             </p>
 
-            <div className="mt-8 grid grid-cols-3 gap-2">
+            <div className="mt-6 grid grid-cols-3 gap-1.5 sm:mt-8 sm:gap-2">
               {checkpoints.map(({ label, icon: Icon }) => (
                 <div
                   key={label}
-                  className="rounded-[14px] border border-[#E5E8EB] bg-white px-3 py-4 text-center shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+                  className="rounded-[14px] border border-[#E5E8EB] bg-white px-2 py-3 text-center shadow-[0_1px_2px_rgba(0,0,0,0.04)] sm:px-3 sm:py-4"
                 >
-                  <Icon className="mx-auto size-5 text-[#00A37A]" aria-hidden="true" />
-                  <p className="mt-2 text-[12px] font-semibold leading-4 text-[#4E5968]">{label}</p>
+                  <Icon className="mx-auto size-4 text-[#00A37A] sm:size-5" aria-hidden="true" />
+                  <p className="mt-2 text-[11px] font-semibold leading-4 text-[#4E5968] sm:text-[12px]">{label}</p>
                 </div>
               ))}
             </div>
