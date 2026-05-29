@@ -1,4 +1,5 @@
 import { LockKeyhole, Sparkles, Target } from 'lucide-react'
+import { MobilePage } from '@/components/layout/MobilePage'
 import { getOAuthLoginUrl } from '@/lib/api/client'
 import golgoLockup from '@/assets/golgo-lockup-wide.png'
 import { SocialLoginButton } from '@/features/auth/components/SocialLoginButton'
@@ -17,65 +18,66 @@ const checkpoints = [
 
 export function LoginPage() {
   return (
-    <main className="min-h-screen bg-[#F2F4F6] text-[#191F28]">
-      <section className="mx-auto grid min-h-screen w-full max-w-5xl items-center gap-8 px-4 py-4 sm:px-5 sm:py-8 lg:grid-cols-[1fr_400px]">
-        <div className="hidden lg:block">
-          <div className="max-w-xl">
-            <img className="h-12 w-auto" src={golgoLockup} alt="Golgo" />
-            <h1 className="mt-10 text-5xl font-semibold leading-[1.15] text-balance">
-              자산을 <span className="text-[#00A37A]">고르게</span>,
-              <br />
-              종목을 <span className="text-[#00A37A]">고르게</span>.
-            </h1>
-            <p className="mt-5 max-w-md text-base leading-7 text-[#4E5968]">
-              소셜 로그인으로 시작해 증권사 연결, 포트폴리오 최신화, AI 리밸런싱
-              가이드까지 이어갑니다.
-            </p>
-          </div>
+    <MobilePage
+      className="bg-[#F2F4F6] text-[#191F28]"
+      contentClassName="grid max-w-5xl items-center gap-8 lg:grid-cols-[1fr_400px]"
+    >
+      <div className="hidden lg:block">
+        <div className="max-w-xl">
+          <img className="h-12 w-auto" src={golgoLockup} alt="Golgo" />
+          <h1 className="mt-10 text-5xl font-semibold leading-[1.15] text-balance">
+            자산을 <span className="text-[#00A37A]">고르게</span>,
+            <br />
+            종목을 <span className="text-[#00A37A]">고르게</span>.
+          </h1>
+          <p className="mt-5 max-w-md text-base leading-7 text-[#4E5968]">
+            소셜 로그인으로 시작해 증권사 연결, 포트폴리오 최신화, AI 리밸런싱
+            가이드까지 이어갑니다.
+          </p>
+        </div>
+      </div>
+
+      <div className="mx-auto flex min-h-[calc(100svh-2rem)] w-full max-w-[390px] flex-col rounded-[24px] bg-[#F7F8FA] px-4 py-4 sm:min-h-[720px] sm:rounded-[32px] sm:border sm:border-white/80 sm:px-7 sm:py-8 sm:shadow-[0_24px_80px_rgba(25,31,40,0.14)] lg:min-h-[760px]">
+        <div className="hidden justify-center sm:flex">
+          <div className="h-1.5 w-20 rounded-full bg-[#DDE2E7]" />
         </div>
 
-        <div className="mx-auto flex min-h-[calc(100svh-2rem)] w-full max-w-[390px] flex-col rounded-[28px] border border-white/80 bg-[#F7F8FA] px-5 py-5 shadow-[0_24px_80px_rgba(25,31,40,0.14)] sm:rounded-[32px] sm:px-7 sm:py-8 lg:min-h-[760px]">
-          <div className="flex justify-center">
-            <div className="h-1.5 w-20 rounded-full bg-[#DDE2E7]" />
-          </div>
+        <div className="flex flex-1 flex-col justify-center pb-5 pt-4 sm:pb-10 sm:pt-12">
+          <img className="h-10 w-fit sm:h-14" src={golgoLockup} alt="Golgo" />
+          <h2 className="mt-5 text-[28px] font-semibold leading-[1.15] text-balance min-[375px]:text-[30px] sm:mt-8 sm:text-[34px] sm:leading-[1.18]">
+            자산을 <span className="text-[#00A37A]">고르게</span>,
+            <br />
+            종목을 <span className="text-[#00A37A]">고르게</span>.
+          </h2>
+          <p className="mt-3 text-[14px] leading-6 text-[#4E5968] sm:mt-4 sm:text-[15px]">
+            AI 기반 리밸런싱 어드바이저
+          </p>
 
-          <div className="flex flex-1 flex-col justify-center pb-6 pt-8 sm:pb-10 sm:pt-12">
-            <img className="h-11 w-fit sm:h-14" src={golgoLockup} alt="Golgo" />
-            <h2 className="mt-6 text-[30px] font-semibold leading-[1.16] text-balance sm:mt-8 sm:text-[34px] sm:leading-[1.18]">
-              자산을 <span className="text-[#00A37A]">고르게</span>,
-              <br />
-              종목을 <span className="text-[#00A37A]">고르게</span>.
-            </h2>
-            <p className="mt-3 text-[14px] leading-6 text-[#4E5968] sm:mt-4 sm:text-[15px]">
-              AI 기반 리밸런싱 어드바이저
-            </p>
-
-            <div className="mt-6 grid grid-cols-3 gap-1.5 sm:mt-8 sm:gap-2">
-              {checkpoints.map(({ label, icon: Icon }) => (
-                <div
-                  key={label}
-                  className="rounded-[14px] border border-[#E5E8EB] bg-white px-2 py-3 text-center shadow-[0_1px_2px_rgba(0,0,0,0.04)] sm:px-3 sm:py-4"
-                >
-                  <Icon className="mx-auto size-4 text-[#00A37A] sm:size-5" aria-hidden="true" />
-                  <p className="mt-2 text-[11px] font-semibold leading-4 text-[#4E5968] sm:text-[12px]">{label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid gap-2.5">
-            {providers.map((provider) => (
-              <SocialLoginButton key={provider.provider} {...provider} />
+          <div className="mt-5 grid grid-cols-3 gap-1.5 min-[375px]:mt-6 sm:mt-8 sm:gap-2">
+            {checkpoints.map(({ label, icon: Icon }) => (
+              <div
+                key={label}
+                className="min-h-[72px] rounded-[14px] border border-[#E5E8EB] bg-white px-2 py-3 text-center shadow-[0_1px_2px_rgba(0,0,0,0.04)] sm:px-3 sm:py-4"
+              >
+                <Icon className="mx-auto size-4 text-[#00A37A] sm:size-5" aria-hidden="true" />
+                <p className="mt-2 text-[11px] font-semibold leading-4 text-[#4E5968] sm:text-[12px]">{label}</p>
+              </div>
             ))}
-
-            <p className="mt-3 text-center text-[12px] leading-5 text-[#8B95A1]">
-              가입 시 서비스 이용약관과
-              <br />
-              개인정보 처리방침에 동의하게 됩니다.
-            </p>
           </div>
         </div>
-      </section>
-    </main>
+
+        <div className="grid gap-2.5">
+          {providers.map((provider) => (
+            <SocialLoginButton key={provider.provider} {...provider} />
+          ))}
+
+          <p className="mt-2 text-center text-[11px] leading-5 text-[#8B95A1] min-[375px]:mt-3 min-[375px]:text-[12px]">
+            가입 시 서비스 이용약관과
+            <br />
+            개인정보 처리방침에 동의하게 됩니다.
+          </p>
+        </div>
+      </div>
+    </MobilePage>
   )
 }

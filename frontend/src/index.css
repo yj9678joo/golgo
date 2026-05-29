@@ -14,7 +14,26 @@
   --color-border: hsl(214.3 31.8% 91.4%);
 }
 
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: hsl(210 40% 98%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   min-width: 320px;
+  min-height: 100%;
+  background: hsl(210 40% 98%);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  min-height: 100svh;
 }
