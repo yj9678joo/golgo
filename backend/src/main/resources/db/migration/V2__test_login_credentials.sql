@@ -12,7 +12,7 @@ ON CONFLICT (email) DO NOTHING;
 INSERT INTO test_login_credentials (login_id, password_hash, user_id)
 SELECT
     'test01',
-    crypt('test01', gen_salt('bf', 10)),
+    '$2a$10$hMyP/eGrIGtc1GhJoeJ5FuhxyJwGgQlof7LSBHxGGKOmr2wURaXEe',
     id
 FROM users
 WHERE email = 'test01@golgo.local'
