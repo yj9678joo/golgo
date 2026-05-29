@@ -28,12 +28,12 @@ export function SocialLoginButton({
     return (
       <Button
         asChild
-        className="h-[54px] w-full overflow-hidden rounded-[14px] bg-transparent p-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:bg-transparent active:scale-[0.98]"
+        className="h-auto w-full overflow-hidden rounded-[14px] bg-transparent p-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:bg-transparent active:scale-[0.98]"
         size="lg"
       >
         <a href={href} aria-label={label}>
           {image ? (
-            <img className="h-full w-full object-contain" src={image} alt="" />
+            <img className="block h-auto w-full" src={image} alt="" />
           ) : (
             <span>{label}</span>
           )}
