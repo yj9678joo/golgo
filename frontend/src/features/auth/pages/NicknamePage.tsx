@@ -1,15 +1,13 @@
 import { FormEvent, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Check, Loader2, LogOut } from 'lucide-react'
-import { updateNickname } from './auth-api'
-import { useAuthStore } from './auth-store'
+import { updateNickname } from '@/features/auth/api/auth-api'
+import { useAuthStore } from '@/features/auth/store/auth-store'
 
 const nicknamePattern = /^[가-힣A-Za-z0-9]{2,12}$/
 
-type NicknamePageProps = {
-  onDone: () => void
-}
-
-export function NicknamePage({ onDone }: NicknamePageProps) {
+export function NicknamePage() {
+  const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const loadUser = useAuthStore((state) => state.loadUser)
   const signOut = useAuthStore((state) => state.signOut)
@@ -33,7 +31,7 @@ export function NicknamePage({ onDone }: NicknamePageProps) {
     try {
       await updateNickname(nickname)
       await loadUser()
-      onDone()
+      navigate('/', { replace: true })
     } catch {
       setError('닉네임을 저장하지 못했습니다. 중복 여부를 확인해 주세요.')
     } finally {
@@ -53,7 +51,7 @@ export function NicknamePage({ onDone }: NicknamePageProps) {
             <button
               className="inline-flex size-10 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted"
               type="button"
-              onClick={() => void signOut()}
+              onClick={() => void signOut().then(() => navigate('/login', { replace: true }))}
               aria-label="로그아웃"
             >
               <LogOut className="size-4" aria-hidden="true" />

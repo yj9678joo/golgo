@@ -1,5 +1,5 @@
-import { api, type ApiResponse } from '@/lib/api'
-import type { AuthUser, NicknameUpdateResponse } from './types'
+import { api, type ApiResponse } from '@/lib/api/client'
+import type { AuthUser, NicknameUpdateResponse } from '@/features/auth/types'
 
 export async function fetchMe() {
   const response = await api.get<ApiResponse<AuthUser>>('/auth/me')

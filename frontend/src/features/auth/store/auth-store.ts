@@ -5,9 +5,9 @@ import {
   getRefreshToken,
   setAuthTokens,
   type AuthTokens,
-} from '@/lib/auth-storage'
-import { fetchMe, logout } from './auth-api'
-import type { AuthUser } from './types'
+} from '@/lib/api/auth-token-storage'
+import { fetchMe, logout } from '@/features/auth/api/auth-api'
+import type { AuthUser } from '@/features/auth/types'
 
 type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'anonymous'
 

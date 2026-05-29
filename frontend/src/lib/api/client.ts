@@ -4,7 +4,7 @@ import {
   getAccessToken,
   getRefreshToken,
   setAccessToken,
-} from './auth-storage'
+} from './auth-token-storage'
 
 export type ApiResponse<T> = {
   success: boolean
@@ -69,6 +69,6 @@ api.interceptors.response.use(
   },
 )
 
-export function getOAuthLoginUrl(provider: 'google' | 'naver') {
+export function getOAuthLoginUrl(provider: 'google' | 'naver' | 'kakao') {
   return `${API_BASE_URL}/auth/${provider}/login`
 }

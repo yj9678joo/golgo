@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
-import { useAuthStore } from './auth-store'
+import { useAuthStore } from '@/features/auth/store/auth-store'
 
-type AuthCallbackPageProps = {
-  onComplete: () => void
-}
-
-export function AuthCallbackPage({ onComplete }: AuthCallbackPageProps) {
+export function AuthCallbackPage() {
+  const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
   const setTokens = useAuthStore((state) => state.setTokens)
   const loadUser = useAuthStore((state) => state.loadUser)
@@ -24,10 +22,12 @@ export function AuthCallbackPage({ onComplete }: AuthCallbackPageProps) {
     setTokens({ accessToken, refreshToken })
     window.history.replaceState(null, '', '/auth/callback')
 
-    loadUser().then(onComplete).catch(() => {
-      setError('로그인 정보를 불러오지 못했습니다.')
-    })
-  }, [loadUser, onComplete, setTokens])
+    loadUser()
+      .then(() => navigate('/nickname', { replace: true }))
+      .catch(() => {
+        setError('로그인 정보를 불러오지 못했습니다.')
+      })
+  }, [loadUser, navigate, setTokens])
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-5 text-foreground">
@@ -38,7 +38,7 @@ export function AuthCallbackPage({ onComplete }: AuthCallbackPageProps) {
             <p className="mt-3 text-sm leading-6 text-muted-foreground">{error}</p>
             <a
               className="mt-6 inline-flex h-11 items-center rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground"
-              href="/"
+              href="/login"
             >
               다시 로그인
             </a>

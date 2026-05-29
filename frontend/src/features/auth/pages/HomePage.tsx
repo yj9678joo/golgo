@@ -1,7 +1,9 @@
+import { useNavigate } from 'react-router-dom'
 import { LogOut, UserRound } from 'lucide-react'
-import { useAuthStore } from './auth-store'
+import { useAuthStore } from '@/features/auth/store/auth-store'
 
 export function HomePage() {
+  const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const signOut = useAuthStore((state) => state.signOut)
 
@@ -16,7 +18,7 @@ export function HomePage() {
           <button
             className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-card px-3 text-sm font-medium hover:bg-muted"
             type="button"
-            onClick={() => void signOut()}
+            onClick={() => void signOut().then(() => navigate('/login', { replace: true }))}
           >
             <LogOut className="size-4" aria-hidden="true" />
             로그아웃
