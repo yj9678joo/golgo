@@ -1,465 +1,263 @@
-# Week 5 Screenshot Upload Implementation Plan
+# Week 5 MTS 캡처 업로드 구현 계획서
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Agent 작업자 필수 지침:** 이 계획을 구현할 때는 `superpowers:subagent-driven-development` 또는 `superpowers:executing-plans`를 사용한다. 각 작업은 체크박스(`- [ ]`) 기준으로 진행 상태를 추적한다.
 
-**Goal:** Week 4 KIS API work is skipped, so Week 5 delivers the screenshot-based portfolio ingestion flow without depending on API Key broker integration.
+**목표:** Week 4 KIS API 연동은 스킵하고, Week 5 범위인 MTS 캡처 업로드 기반 포트폴리오 입력 흐름을 구현한다.
 
-**Architecture:** The backend owns screenshot account creation, multipart upload validation, parse job state, editable parsed holdings, and final confirmation into `holdings`. The Vision/OCR integration is isolated behind a parser port so local development can use a deterministic fake parser until real Vision credentials and prompts are approved. The frontend adds a mobile upload flow, polling, review/edit UI, and confirm flow using TanStack Query and the existing JWT API client.
+**아키텍처:** 백엔드는 캡처 방식 계좌 등록, 이미지 업로드 검증, 파싱 작업 상태, 파싱 결과 수정, 최종 확정 저장을 담당한다. Vision/OCR 연동은 `ScreenshotParser` 인터페이스 뒤로 숨기고, 로컬/테스트 환경에서는 deterministic fake parser를 사용한다. 프론트엔드는 모바일 기준 업로드 화면, 파싱 진행 상태, 결과 확인/수정 화면, 최종 저장 흐름을 TanStack Query 기반으로 구현한다.
 
-**Tech Stack:** Spring Boot 3.5, Java 21, Spring Data JPA, Flyway, PostgreSQL/Supabase, React 19, Vite, TanStack Query, Zustand auth store, Tailwind CSS, lucide-react.
+**기술 스택:** Spring Boot 3.5, Java 21, Spring Data JPA, Flyway, PostgreSQL/Supabase, React 19, Vite, TanStack Query, Zustand, Tailwind CSS, lucide-react.
 
-## Global Constraints
+## 전역 제약
 
-- Week 4 is skipped: do not implement KIS token issuance, API Key sync, BrokerAdapter, Redis rate limit, or Spring Batch token jobs.
-- Screenshot uploads must work through `SCREENSHOT` broker accounts only.
-- Do not call paid Vision APIs by default in tests or local development.
-- Store uploaded image files under a configurable local storage path for now; Supabase Storage can replace this behind the same storage interface later.
-- Confirming a screenshot job is the first point where parsed holdings are written to `holdings`.
-- Keep changes surgical and scoped to Week 5 screenshot ingestion.
-- Use existing API response shape: `ApiResponse<T>`.
-- Use existing JWT guard and `@AuthenticationPrincipal JwtPrincipal`.
-- Verification before completion: run backend tests, frontend lint, frontend build, and `git diff --check`.
+- Week 4는 스킵한다. KIS 토큰 발급, API Key 동기화, BrokerAdapter, Redis Rate Limit, Spring Batch 토큰 갱신 작업은 구현하지 않는다.
+- 이번 범위는 `SCREENSHOT` 방식 계좌만 지원한다.
+- 테스트와 로컬 개발에서 유료 Vision API를 호출하지 않는다.
+- 업로드 이미지는 우선 로컬 파일 시스템에 저장한다. 추후 Supabase Storage로 교체 가능하도록 storage 인터페이스를 둔다.
+- `confirm` 호출 전까지는 `holdings` 테이블에 반영하지 않는다.
+- 변경은 Week 5 캡처 업로드 범위로 제한한다.
+- API 응답은 기존 `ApiResponse<T>` 형식을 따른다.
+- 인증은 기존 JWT Guard와 `@AuthenticationPrincipal JwtPrincipal`을 사용한다.
+- 완료 전 검증은 백엔드 테스트, 프론트 린트, 프론트 빌드, `git diff --check`로 확인한다.
 
 ---
 
-## Agent Team
+## Agent Team 구성
 
-| Agent | Scope | Owns | Blocks |
+| Agent | 담당 범위 | 주요 작업 | 의존성 |
 |---|---|---|---|
-| Agent A - Backend Domain | JPA entities, repositories, services, screenshot API | Tasks 1-3 | Agent C frontend API integration needs response contracts |
-| Agent B - Parser and Storage | file validation/storage, parser port, deterministic fake parser | Task 4 | Agent A upload service depends on parser/storage contracts |
-| Agent C - Frontend Flow | upload page, polling, review/edit, confirm UI | Tasks 5-7 | Needs Agent A API contracts |
-| Agent D - Integration QA | cross-layer contract tests, final verification, docs/API spec cleanup | Task 8 | Runs after Agents A-C finish |
+| Agent A - 백엔드 도메인 | JPA 엔티티, Repository, Service, Controller | Task 1-3 | Agent B의 parser/storage 인터페이스 |
+| Agent B - Parser/Storage | 이미지 저장, 파일 검증, fake parser | Task 4 | Agent A의 업로드 서비스에서 사용 |
+| Agent C - 프론트엔드 | 업로드, 폴링, 결과 수정, 최종 저장 UI | Task 5-7 | 백엔드 API 계약 |
+| Agent D - 통합 QA | 계약 검증, 전체 테스트, 문서 정리 | Task 8 | A-C 완료 후 실행 |
 
-Parallelization:
-- Agents A and B can start together after agreeing on interfaces in Task 1.
-- Agent C can scaffold types and routes while Agent A builds APIs, but must wait for final response contracts before wiring requests.
-- Agent D runs only after backend and frontend changes are merged locally.
+병렬화 기준:
 
----
-
-## Existing Context
-
-- `broker_accounts`, `holdings`, and `portfolio_screenshots` already exist in `backend/src/main/resources/db/migration/V1__init.sql`.
-- No backend `portfolio`, `broker`, or `screenshot` package exists yet.
-- `frontend/src/app/providers.tsx` already provides a TanStack Query client.
-- `frontend/src/lib/api/client.ts` already injects JWT access tokens and refreshes expired tokens.
-- `frontend/src/features/onboarding/pages/OnboardingPage.tsx` already presents MTS capture as the post-onboarding path, but does not upload files.
-- Because Week 4 is skipped, Week 5 must include a minimal screenshot broker account endpoint or create a screenshot account implicitly during upload.
-
-Decision:
-- Implement `POST /brokers/connect/screenshot` and `GET /brokers/accounts` as the minimal broker surface needed by screenshot upload.
-- Implement `POST /portfolio/screenshot` with `accountId`, not implicit account creation, so the API remains aligned with `api-spec.md`.
+- Agent A와 Agent B는 인터페이스만 먼저 합의하면 동시에 시작할 수 있다.
+- Agent C는 라우팅과 타입 스캐폴딩을 먼저 진행할 수 있으나, 실제 API 연결은 Agent A의 응답 계약 확정 후 진행한다.
+- Agent D는 백엔드와 프론트 작업이 모두 합쳐진 뒤 실행한다.
 
 ---
 
-## File Structure
+## 현재 코드 기준
 
-### Backend Files
+- `broker_accounts`, `holdings`, `portfolio_screenshots` 테이블은 이미 `backend/src/main/resources/db/migration/V1__init.sql`에 존재한다.
+- 아직 백엔드에는 `broker`, `portfolio`, `screenshot` 도메인 패키지가 없다.
+- `frontend/src/app/providers.tsx`에는 TanStack Query Provider가 이미 있다.
+- `frontend/src/lib/api/client.ts`는 JWT access token 주입과 refresh 처리를 이미 담당한다.
+- `frontend/src/features/onboarding/pages/OnboardingPage.tsx`는 MTS 캡처를 온보딩 후 흐름으로 안내하지만 실제 업로드는 없다.
+- Week 4를 스킵하므로 Week 5에서 캡처 방식 계좌 등록에 필요한 최소 Broker API를 함께 구현한다.
 
-- Create `backend/src/main/java/com/app/golgo/broker/entity/BrokerAccount.java`: maps `broker_accounts`.
-- Create `backend/src/main/java/com/app/golgo/broker/entity/BrokerConnectionType.java`: enum `API_KEY`, `SCREENSHOT`.
-- Create `backend/src/main/java/com/app/golgo/broker/repository/BrokerAccountRepository.java`: active account lookup by user.
-- Create `backend/src/main/java/com/app/golgo/broker/dto/ScreenshotBrokerConnectRequest.java`: validates `brokerCode`, `accountNickname`.
-- Create `backend/src/main/java/com/app/golgo/broker/dto/BrokerAccountResponse.java`: frontend account list contract.
-- Create `backend/src/main/java/com/app/golgo/broker/controller/BrokerController.java`: minimal screenshot account endpoints.
-- Create `backend/src/main/java/com/app/golgo/broker/service/BrokerService.java`: account creation and ownership checks.
-- Create `backend/src/main/java/com/app/golgo/portfolio/entity/Holding.java`: maps `holdings`.
-- Create `backend/src/main/java/com/app/golgo/portfolio/entity/PortfolioScreenshot.java`: maps `portfolio_screenshots`.
-- Create `backend/src/main/java/com/app/golgo/portfolio/entity/ScreenshotStatus.java`: enum `PROCESSING`, `COMPLETED`, `PENDING_CONFIRM`, `CONFIRMED`, `FAILED`.
-- Create `backend/src/main/java/com/app/golgo/portfolio/repository/HoldingRepository.java`: upsert support via delete-then-save for account holdings.
-- Create `backend/src/main/java/com/app/golgo/portfolio/repository/PortfolioScreenshotRepository.java`: job lookup by id and user.
-- Create `backend/src/main/java/com/app/golgo/portfolio/dto/*`: upload, status, holding edit, confirm DTOs.
-- Create `backend/src/main/java/com/app/golgo/portfolio/parser/ScreenshotParser.java`: parser port.
-- Create `backend/src/main/java/com/app/golgo/portfolio/parser/FakeScreenshotParser.java`: deterministic local parser.
-- Create `backend/src/main/java/com/app/golgo/portfolio/storage/ScreenshotStorage.java`: storage port.
-- Create `backend/src/main/java/com/app/golgo/portfolio/storage/LocalScreenshotStorage.java`: local filesystem implementation.
-- Create `backend/src/main/java/com/app/golgo/portfolio/controller/PortfolioScreenshotController.java`: screenshot endpoints.
-- Create `backend/src/main/java/com/app/golgo/portfolio/service/PortfolioScreenshotService.java`: upload, parse, edit, confirm.
-- Create `backend/src/main/java/com/app/golgo/portfolio/service/ScreenshotException.java`: domain error with `SCREENSHOT_*` codes.
-- Modify `backend/src/main/java/com/app/golgo/common/api/GlobalExceptionHandler.java`: handle `ScreenshotException`.
-- Modify `backend/src/main/resources/application.yml`: add `golgo.screenshot.storage-dir`.
-- Create tests under `backend/src/test/java/com/app/golgo/broker/service` and `backend/src/test/java/com/app/golgo/portfolio/service`.
+결정 사항:
 
-### Frontend Files
-
-- Create `frontend/src/features/portfolio/types.ts`: screenshot account, job, holding contracts.
-- Create `frontend/src/features/portfolio/api/screenshot-api.ts`: broker account and screenshot API functions.
-- Create `frontend/src/features/portfolio/hooks/use-screenshot-upload.ts`: upload/poll/edit/confirm mutations.
-- Create `frontend/src/features/portfolio/pages/ScreenshotUploadPage.tsx`: B-4 upload screen.
-- Create `frontend/src/features/portfolio/pages/ScreenshotReviewPage.tsx`: B-5 review screen.
-- Create `frontend/src/features/portfolio/components/HoldingEditSheet.tsx`: B-6 edit bottom sheet.
-- Create `frontend/src/features/portfolio/components/ParsingProgress.tsx`: polling skeleton.
-- Modify `frontend/src/app/router.tsx`: add `/portfolio/screenshot` and `/portfolio/screenshot/:jobId`.
-- Modify `frontend/src/features/auth/pages/HomePage.tsx`: add dashboard placeholder CTA to screenshot upload.
-- Modify `frontend/src/features/onboarding/pages/OnboardingPage.tsx`: after onboarding done, route toward upload CTA when user chooses MTS capture.
+- `POST /brokers/connect/screenshot`, `GET /brokers/accounts`만 최소 구현한다.
+- `POST /portfolio/screenshot`은 `accountId`를 필수로 받는다.
+- 계좌를 자동 생성하며 업로드하는 방식은 API 계약이 흐려지므로 사용하지 않는다.
 
 ---
 
-## Task 1: Backend Broker Screenshot Account Foundation
+## 파일 구조
 
-**Agent:** Agent A - Backend Domain
+### 백엔드 생성/수정 파일
 
-**Files:**
-- Create: `backend/src/main/java/com/app/golgo/broker/entity/BrokerConnectionType.java`
-- Create: `backend/src/main/java/com/app/golgo/broker/entity/BrokerAccount.java`
-- Create: `backend/src/main/java/com/app/golgo/broker/repository/BrokerAccountRepository.java`
-- Create: `backend/src/main/java/com/app/golgo/broker/dto/ScreenshotBrokerConnectRequest.java`
-- Create: `backend/src/main/java/com/app/golgo/broker/dto/BrokerAccountResponse.java`
-- Create: `backend/src/main/java/com/app/golgo/broker/service/BrokerService.java`
-- Create: `backend/src/main/java/com/app/golgo/broker/controller/BrokerController.java`
-- Test: `backend/src/test/java/com/app/golgo/broker/service/BrokerServiceTest.java`
+- `backend/src/main/java/com/app/golgo/broker/entity/BrokerAccount.java`
+- `backend/src/main/java/com/app/golgo/broker/entity/BrokerConnectionType.java`
+- `backend/src/main/java/com/app/golgo/broker/repository/BrokerAccountRepository.java`
+- `backend/src/main/java/com/app/golgo/broker/dto/ScreenshotBrokerConnectRequest.java`
+- `backend/src/main/java/com/app/golgo/broker/dto/BrokerAccountResponse.java`
+- `backend/src/main/java/com/app/golgo/broker/controller/BrokerController.java`
+- `backend/src/main/java/com/app/golgo/broker/service/BrokerService.java`
+- `backend/src/main/java/com/app/golgo/portfolio/entity/Holding.java`
+- `backend/src/main/java/com/app/golgo/portfolio/entity/PortfolioScreenshot.java`
+- `backend/src/main/java/com/app/golgo/portfolio/entity/ScreenshotStatus.java`
+- `backend/src/main/java/com/app/golgo/portfolio/repository/HoldingRepository.java`
+- `backend/src/main/java/com/app/golgo/portfolio/repository/PortfolioScreenshotRepository.java`
+- `backend/src/main/java/com/app/golgo/portfolio/dto/*`
+- `backend/src/main/java/com/app/golgo/portfolio/parser/*`
+- `backend/src/main/java/com/app/golgo/portfolio/storage/*`
+- `backend/src/main/java/com/app/golgo/portfolio/controller/PortfolioScreenshotController.java`
+- `backend/src/main/java/com/app/golgo/portfolio/service/PortfolioScreenshotService.java`
+- `backend/src/main/java/com/app/golgo/portfolio/service/ScreenshotException.java`
+- `backend/src/main/java/com/app/golgo/common/api/GlobalExceptionHandler.java`
+- `backend/src/main/resources/application.yml`
+- `backend/src/test/java/com/app/golgo/broker/service/BrokerServiceTest.java`
+- `backend/src/test/java/com/app/golgo/portfolio/service/PortfolioScreenshotServiceTest.java`
+- `backend/src/test/java/com/app/golgo/portfolio/storage/LocalScreenshotStorageTest.java`
 
-**Interfaces:**
-- Produces: `BrokerService.createScreenshotAccount(UUID userId, ScreenshotBrokerConnectRequest request): BrokerAccountResponse`
-- Produces: `BrokerService.findActiveAccountForUser(UUID userId, UUID accountId): BrokerAccount`
-- Produces: `GET /brokers/accounts`
-- Produces: `POST /brokers/connect/screenshot`
+### 프론트엔드 생성/수정 파일
 
-- [ ] **Step 1: Write service tests**
+- `frontend/src/features/portfolio/types.ts`
+- `frontend/src/features/portfolio/api/screenshot-api.ts`
+- `frontend/src/features/portfolio/hooks/use-screenshot-upload.ts`
+- `frontend/src/features/portfolio/pages/ScreenshotUploadPage.tsx`
+- `frontend/src/features/portfolio/pages/ScreenshotReviewPage.tsx`
+- `frontend/src/features/portfolio/components/HoldingEditSheet.tsx`
+- `frontend/src/features/portfolio/components/ParsingProgress.tsx`
+- `frontend/src/app/router.tsx`
+- `frontend/src/features/auth/pages/HomePage.tsx`
+- `frontend/src/features/onboarding/pages/OnboardingPage.tsx`
 
-```java
-@Test
-void createScreenshotAccountStoresScreenShotConnectionOnly() {
-	User user = User.createLocal("golgo01", "hash", "홍길동", "user@example.com", "투자초보", CLOCK);
-	user.assignIdForTest(USER_ID);
-	when(userRepository.findByIdAndDeletedAtIsNull(USER_ID)).thenReturn(Optional.of(user));
-	when(brokerAccountRepository.save(any(BrokerAccount.class))).thenAnswer(invocation -> {
-		BrokerAccount account = invocation.getArgument(0);
-		account.assignIdForTest(ACCOUNT_ID);
-		return account;
-	});
+---
 
-	BrokerAccountResponse response = brokerService.createScreenshotAccount(
-		USER_ID,
-		new ScreenshotBrokerConnectRequest("MIRAE", "미래에셋 메인")
-	);
+## Task 1: 캡처 방식 증권사 계좌 기반 구현
 
-	assertThat(response.accountId()).isEqualTo(ACCOUNT_ID);
-	assertThat(response.brokerCode()).isEqualTo("MIRAE");
-	assertThat(response.connectionType()).isEqualTo("SCREENSHOT");
-	assertThat(response.accountNickname()).isEqualTo("미래에셋 메인");
-}
+**담당:** Agent A - 백엔드 도메인
 
-@Test
-void findActiveAccountForUserRejectsOtherUsersAccount() {
-	when(brokerAccountRepository.findByIdAndUserIdAndDeletedAtIsNull(ACCOUNT_ID, USER_ID))
-		.thenReturn(Optional.empty());
+**목표:** Week 5 업로드가 사용할 `SCREENSHOT` 계좌를 생성하고 조회할 수 있게 한다.
 
-	Throwable thrown = catchThrowable(() -> brokerService.findActiveAccountForUser(USER_ID, ACCOUNT_ID));
+**구현 API:**
 
-	assertThat(thrown)
-		.isInstanceOf(IllegalArgumentException.class)
-		.hasMessage("계좌를 찾을 수 없습니다.");
-}
-```
+- `POST /brokers/connect/screenshot`
+- `GET /brokers/accounts`
 
-- [ ] **Step 2: Run backend test and confirm failure**
+**핵심 인터페이스:**
 
-Run:
+- `BrokerService.createScreenshotAccount(UUID userId, ScreenshotBrokerConnectRequest request): BrokerAccountResponse`
+- `BrokerService.findActiveAccountForUser(UUID userId, UUID accountId): BrokerAccount`
+
+**작업 절차:**
+
+- [ ] `BrokerConnectionType` enum에 `API_KEY`, `SCREENSHOT`을 정의한다.
+- [ ] `BrokerAccount` 엔티티를 `broker_accounts` 테이블에 매핑한다.
+- [ ] API Key 관련 컬럼은 nullable로 매핑하되 Week 5에서는 setter를 만들지 않는다.
+- [ ] `BrokerAccountRepository`에 사용자 소유 활성 계좌 조회 메서드를 추가한다.
+- [ ] `ScreenshotBrokerConnectRequest`에 `brokerCode`, `accountNickname` 검증을 추가한다.
+- [ ] `BrokerService`에서 캡처 방식 계좌 생성과 소유권 검증을 구현한다.
+- [ ] `BrokerController`에서 인증 사용자 기준 API를 노출한다.
+- [ ] `BrokerServiceTest`를 작성한다.
+
+**테스트 기준:**
 
 ```powershell
 .\gradlew.bat test --tests com.app.golgo.broker.service.BrokerServiceTest
 ```
 
-Expected: compile failure because broker classes do not exist.
+성공 기준:
 
-- [ ] **Step 3: Implement broker entity and repository**
-
-Implement `BrokerAccount` with fields matching `broker_accounts`: `id`, `user`, `brokerCode`, `connectionType`, `accountNickname`, `createdAt`, `updatedAt`, `deletedAt`. Keep API Key fields nullable but do not expose setters for them in Week 5.
-
-- [ ] **Step 4: Implement service and controller**
-
-`POST /brokers/connect/screenshot` accepts:
-
-```json
-{
-  "brokerCode": "MIRAE",
-  "accountNickname": "미래에셋 메인"
-}
-```
-
-It returns HTTP 200 with:
-
-```json
-{
-  "accountId": "uuid",
-  "brokerCode": "MIRAE",
-  "connectionType": "SCREENSHOT",
-  "accountNickname": "미래에셋 메인",
-  "connectedAt": "2026-06-17T00:00:00Z",
-  "notice": "캡처 이미지를 업로드하면 보유 종목을 구성할 수 있습니다."
-}
-```
-
-- [ ] **Step 5: Run broker tests**
-
-Run:
-
-```powershell
-.\gradlew.bat test --tests com.app.golgo.broker.service.BrokerServiceTest
-```
-
-Expected: test passes.
+- 캡처 계좌 생성 시 `connectionType`이 `SCREENSHOT`으로 저장된다.
+- 다른 사용자의 계좌 조회는 실패한다.
+- 삭제된 계좌는 조회되지 않는다.
 
 ---
 
-## Task 2: Backend Screenshot Job Entity and Status API
+## Task 2: 캡처 파싱 작업 상태 도메인 구현
 
-**Agent:** Agent A - Backend Domain
+**담당:** Agent A - 백엔드 도메인
 
-**Files:**
-- Create: `backend/src/main/java/com/app/golgo/portfolio/entity/ScreenshotStatus.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/entity/PortfolioScreenshot.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/repository/PortfolioScreenshotRepository.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/dto/ScreenshotUploadResponse.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/dto/ScreenshotJobResponse.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/dto/ParsedHoldingResponse.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/service/ScreenshotException.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/service/PortfolioScreenshotService.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/controller/PortfolioScreenshotController.java`
-- Modify: `backend/src/main/java/com/app/golgo/common/api/GlobalExceptionHandler.java`
-- Test: `backend/src/test/java/com/app/golgo/portfolio/service/PortfolioScreenshotServiceTest.java`
+**목표:** 업로드된 캡처 이미지의 파싱 작업 상태를 저장하고 조회할 수 있게 한다.
 
-**Interfaces:**
-- Consumes: `BrokerService.findActiveAccountForUser(UUID userId, UUID accountId): BrokerAccount`
-- Produces: `PortfolioScreenshotService.getJob(UUID userId, UUID jobId): ScreenshotJobResponse`
-- Produces: `GET /portfolio/screenshot/{jobId}`
+**구현 API:**
 
-- [ ] **Step 1: Write status lookup tests**
+- `GET /portfolio/screenshot/{jobId}`
 
-```java
-@Test
-void getJobReturnsParsedHoldingsForOwner() {
-	PortfolioScreenshot screenshot = PortfolioScreenshot.completed(
-		user,
-		account,
-		"MIRAE",
-		"/local/test.png",
-		List.of(new ParsedHolding("005930", "삼성전자", "KOSPI", new BigDecimal("50"), new BigDecimal("68000"), new BigDecimal("72000"), "KRW")),
-		new BigDecimal("0.970"),
-		new BigDecimal("3600000"),
-		List.of("일부 항목은 직접 확인해 주세요."),
-		CLOCK
-	);
-	screenshot.assignIdForTest(JOB_ID);
-	when(portfolioScreenshotRepository.findByIdAndUserId(JOB_ID, USER_ID)).thenReturn(Optional.of(screenshot));
+**핵심 인터페이스:**
 
-	ScreenshotJobResponse response = service.getJob(USER_ID, JOB_ID);
+- `PortfolioScreenshotService.getJob(UUID userId, UUID jobId): ScreenshotJobResponse`
 
-	assertThat(response.jobId()).isEqualTo(JOB_ID);
-	assertThat(response.status()).isEqualTo("COMPLETED");
-	assertThat(response.holdings()).hasSize(1);
-}
+**작업 절차:**
 
-@Test
-void getJobThrowsWhenJobIsMissing() {
-	when(portfolioScreenshotRepository.findByIdAndUserId(JOB_ID, USER_ID)).thenReturn(Optional.empty());
+- [ ] `ScreenshotStatus` enum을 정의한다.
+- [ ] `PortfolioScreenshot` 엔티티를 `portfolio_screenshots` 테이블에 매핑한다.
+- [ ] `parsed_holdings_json`, `edited_holdings_json`, `warnings_json`은 문자열로 매핑하고 서비스에서 Jackson으로 직렬화/역직렬화한다.
+- [ ] `PortfolioScreenshotRepository`에 사용자 소유 job 조회 메서드를 추가한다.
+- [ ] 상태별 응답 DTO를 만든다.
+- [ ] `ScreenshotException`을 만들고 `GlobalExceptionHandler`에 매핑한다.
+- [ ] `GET /portfolio/screenshot/{jobId}`를 구현한다.
+- [ ] 상태 조회 테스트를 작성한다.
 
-	Throwable thrown = catchThrowable(() -> service.getJob(USER_ID, JOB_ID));
+**상태별 응답 기준:**
 
-	assertThat(thrown)
-		.isInstanceOf(ScreenshotException.class)
-		.hasMessage("파싱 작업을 찾을 수 없습니다.");
-}
-```
-
-- [ ] **Step 2: Run test and confirm failure**
-
-Run:
-
-```powershell
-.\gradlew.bat test --tests com.app.golgo.portfolio.service.PortfolioScreenshotServiceTest
-```
-
-Expected: compile failure because portfolio classes do not exist.
-
-- [ ] **Step 3: Implement entity JSON mapping simply**
-
-Use string columns in the entity for `parsedHoldingsJson`, `editedHoldingsJson`, and `warningsJson`, and serialize/deserialize with Jackson `ObjectMapper` in the service. This avoids adding custom Hibernate JSON types.
-
-- [ ] **Step 4: Implement `GET /portfolio/screenshot/{jobId}`**
-
-Return status-specific responses:
 - `PROCESSING`: `jobId`, `status`, `estimatedSeconds`
-- `COMPLETED` or `PENDING_CONFIRM`: parsed or edited holdings, `confidence`, `totalAssetKrw`, `warnings`
-- `FAILED`: `jobId`, `status`, `errorReason`, `message`
-- `CONFIRMED`: same as confirmed state with `confirmedAt`
+- `COMPLETED`: 파싱 결과, 신뢰도, 총 자산, 경고
+- `PENDING_CONFIRM`: 수정된 holdings, 총 자산
+- `FAILED`: 실패 사유와 사용자 메시지
+- `CONFIRMED`: 저장 완료 상태와 저장 시각
 
-- [ ] **Step 5: Run status tests**
-
-Run:
-
-```powershell
-.\gradlew.bat test --tests com.app.golgo.portfolio.service.PortfolioScreenshotServiceTest
-```
-
-Expected: test passes.
-
----
-
-## Task 3: Backend Upload, Edit, and Confirm Flow
-
-**Agent:** Agent A - Backend Domain
-
-**Files:**
-- Create: `backend/src/main/java/com/app/golgo/portfolio/entity/Holding.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/repository/HoldingRepository.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/dto/HoldingEditRequest.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/dto/HoldingConfirmRequest.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/dto/ScreenshotConfirmResponse.java`
-- Modify: `backend/src/main/java/com/app/golgo/portfolio/service/PortfolioScreenshotService.java`
-- Modify: `backend/src/main/java/com/app/golgo/portfolio/controller/PortfolioScreenshotController.java`
-- Test: `backend/src/test/java/com/app/golgo/portfolio/service/PortfolioScreenshotServiceTest.java`
-
-**Interfaces:**
-- Consumes: `ScreenshotParser.parse(Path imagePath): ParsedPortfolio`
-- Consumes: `ScreenshotStorage.store(UUID userId, MultipartFile image): StoredScreenshot`
-- Produces: `POST /portfolio/screenshot`
-- Produces: `PATCH /portfolio/screenshot/{jobId}/holdings`
-- Produces: `POST /portfolio/screenshot/{jobId}/confirm`
-
-- [ ] **Step 1: Write upload validation tests**
-
-```java
-@Test
-void uploadRejectsNonImageFile() {
-	MockMultipartFile file = new MockMultipartFile("image", "note.txt", "text/plain", "hello".getBytes(StandardCharsets.UTF_8));
-
-	Throwable thrown = catchThrowable(() -> service.upload(USER_ID, ACCOUNT_ID, file));
-
-	assertThat(thrown)
-		.isInstanceOf(ScreenshotException.class)
-		.hasMessage("지원하지 않는 이미지 형식입니다.");
-}
-
-@Test
-void uploadStoresParsedCompletedJob() {
-	MockMultipartFile file = new MockMultipartFile("image", "mts.png", "image/png", new byte[] {1, 2, 3});
-	when(brokerService.findActiveAccountForUser(USER_ID, ACCOUNT_ID)).thenReturn(account);
-	when(storage.store(USER_ID, file)).thenReturn(new StoredScreenshot("/tmp/mts.png", Path.of("D:/tmp/mts.png")));
-	when(parser.parse(Path.of("D:/tmp/mts.png"))).thenReturn(ParsedPortfolio.sample());
-	when(portfolioScreenshotRepository.save(any(PortfolioScreenshot.class))).thenAnswer(invocation -> {
-		PortfolioScreenshot screenshot = invocation.getArgument(0);
-		screenshot.assignIdForTest(JOB_ID);
-		return screenshot;
-	});
-
-	ScreenshotUploadResponse response = service.upload(USER_ID, ACCOUNT_ID, file);
-
-	assertThat(response.jobId()).isEqualTo(JOB_ID);
-	assertThat(response.status()).isEqualTo("COMPLETED");
-}
-```
-
-- [ ] **Step 2: Write confirm tests**
-
-```java
-@Test
-void confirmReplacesAccountHoldingsAndMarksJobConfirmed() {
-	when(portfolioScreenshotRepository.findByIdAndUserId(JOB_ID, USER_ID)).thenReturn(Optional.of(completedScreenshot));
-
-	ScreenshotConfirmResponse response = service.confirm(
-		USER_ID,
-		JOB_ID,
-		new HoldingConfirmRequest(List.of(new ConfirmedHoldingRequest("005930", "삼성전자", "KOSPI", new BigDecimal("55"), new BigDecimal("67500"), new BigDecimal("72000"), "KRW")), new BigDecimal("3960000"))
-	);
-
-	verify(holdingRepository).deleteAllByBrokerAccountId(ACCOUNT_ID);
-	verify(holdingRepository).saveAll(anyList());
-	assertThat(response.status()).isEqualTo("CONFIRMED");
-	assertThat(response.savedHoldingsCount()).isEqualTo(1);
-}
-```
-
-- [ ] **Step 3: Implement upload**
-
-Validate:
-- content type is `image/png` or `image/jpeg`
-- file size is greater than 0
-- file size is at most 10MB
-- account belongs to the authenticated user
-- account connection type is `SCREENSHOT`
-
-Then store file, parse it synchronously for Week 5, save screenshot job as `COMPLETED` or `FAILED`, and return `ScreenshotUploadResponse`.
-
-- [ ] **Step 4: Implement edit**
-
-`PATCH /portfolio/screenshot/{jobId}/holdings` replaces the edited holdings JSON with the request holdings, recalculates `totalAssetKrw` as `quantity * currentPrice` for each holding, sets `isManuallyEdited = true`, and changes status to `PENDING_CONFIRM`.
-
-- [ ] **Step 5: Implement confirm**
-
-`POST /portfolio/screenshot/{jobId}/confirm` rejects already confirmed jobs, writes confirmed holdings to `holdings`, sets `lastSyncedAt` on the broker account, marks the screenshot as `CONFIRMED`, and returns saved count.
-
-- [ ] **Step 6: Run portfolio service tests**
-
-Run:
+**테스트 기준:**
 
 ```powershell
 .\gradlew.bat test --tests com.app.golgo.portfolio.service.PortfolioScreenshotServiceTest
 ```
 
-Expected: test passes.
+---
+
+## Task 3: 업로드, 수정, 최종 저장 플로우 구현
+
+**담당:** Agent A - 백엔드 도메인
+
+**목표:** 캡처 파일을 업로드하고, 파싱 결과를 수정하고, 최종 확정 시 `holdings`에 저장한다.
+
+**구현 API:**
+
+- `POST /portfolio/screenshot`
+- `PATCH /portfolio/screenshot/{jobId}/holdings`
+- `POST /portfolio/screenshot/{jobId}/confirm`
+
+**핵심 인터페이스:**
+
+- `PortfolioScreenshotService.upload(UUID userId, UUID accountId, MultipartFile image): ScreenshotUploadResponse`
+- `PortfolioScreenshotService.updateHoldings(UUID userId, UUID jobId, HoldingEditRequest request): ScreenshotJobResponse`
+- `PortfolioScreenshotService.confirm(UUID userId, UUID jobId, HoldingConfirmRequest request): ScreenshotConfirmResponse`
+
+**작업 절차:**
+
+- [ ] `Holding` 엔티티를 `holdings` 테이블에 매핑한다.
+- [ ] `HoldingRepository`에 계좌 기준 삭제/저장 흐름을 추가한다.
+- [ ] 업로드 파일 검증을 구현한다.
+- [ ] 업로드 시 계좌 소유권과 `SCREENSHOT` 방식 여부를 검증한다.
+- [ ] 파일 저장 후 parser를 호출한다.
+- [ ] 파싱 성공 시 `COMPLETED`, 실패 시 `FAILED` job을 저장한다.
+- [ ] holdings 수정 API는 전체 목록을 받아 `edited_holdings_json`으로 교체한다.
+- [ ] 수정 시 총 자산은 `quantity * currentPrice` 합계로 재계산한다.
+- [ ] confirm API는 이미 확정된 job을 거부한다.
+- [ ] confirm API는 계좌의 기존 holdings를 교체 저장하고 job을 `CONFIRMED`로 변경한다.
+- [ ] confirm 시 broker account의 `last_synced_at`도 갱신한다.
+
+**파일 검증 기준:**
+
+- `image/png`, `image/jpeg`만 허용
+- 빈 파일 거부
+- 10MB 초과 거부
+
+**테스트 기준:**
+
+```powershell
+.\gradlew.bat test --tests com.app.golgo.portfolio.service.PortfolioScreenshotServiceTest
+```
+
+성공 기준:
+
+- 잘못된 파일 형식은 `SCREENSHOT_001`로 실패한다.
+- 10MB 초과는 `SCREENSHOT_002`로 실패한다.
+- 업로드 성공 시 job이 생성된다.
+- 수정 저장 시 상태가 `PENDING_CONFIRM`이 된다.
+- 최종 저장 시 `holdings`가 교체되고 job이 `CONFIRMED`가 된다.
 
 ---
 
-## Task 4: Parser and Local Storage Adapter
+## Task 4: Parser와 Local Storage Adapter 구현
 
-**Agent:** Agent B - Parser and Storage
+**담당:** Agent B - Parser/Storage
 
-**Files:**
-- Create: `backend/src/main/java/com/app/golgo/portfolio/parser/ScreenshotParser.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/parser/ParsedPortfolio.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/parser/ParsedHolding.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/parser/FakeScreenshotParser.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/storage/ScreenshotStorage.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/storage/StoredScreenshot.java`
-- Create: `backend/src/main/java/com/app/golgo/portfolio/storage/LocalScreenshotStorage.java`
-- Modify: `backend/src/main/resources/application.yml`
-- Test: `backend/src/test/java/com/app/golgo/portfolio/storage/LocalScreenshotStorageTest.java`
+**목표:** 실제 Vision API 없이도 Week 5 흐름이 동작하도록 저장소와 fake parser를 구현한다.
 
-**Interfaces:**
-- Produces: `ScreenshotParser.parse(Path imagePath): ParsedPortfolio`
-- Produces: `ScreenshotStorage.store(UUID userId, MultipartFile image): StoredScreenshot`
+**핵심 인터페이스:**
 
-- [ ] **Step 1: Define parser result model**
+- `ScreenshotParser.parse(Path imagePath): ParsedPortfolio`
+- `ScreenshotStorage.store(UUID userId, MultipartFile image): StoredScreenshot`
 
-Use immutable records:
+**작업 절차:**
 
-```java
-public record ParsedHolding(
-	String ticker,
-	String name,
-	String market,
-	BigDecimal quantity,
-	BigDecimal avgPrice,
-	BigDecimal currentPrice,
-	String currency
-) {
-}
+- [ ] `ParsedHolding`, `ParsedPortfolio` record를 정의한다.
+- [ ] `ScreenshotParser` 인터페이스를 정의한다.
+- [ ] `FakeScreenshotParser`를 `@Component`로 등록한다.
+- [ ] fake parser는 삼성전자 샘플 holdings를 반환한다.
+- [ ] `ScreenshotStorage` 인터페이스를 정의한다.
+- [ ] `LocalScreenshotStorage`를 구현한다.
+- [ ] `application.yml`에 storage 경로 설정을 추가한다.
+- [ ] local storage 테스트를 작성한다.
 
-public record ParsedPortfolio(
-	List<ParsedHolding> holdings,
-	BigDecimal confidence,
-	List<String> warnings
-) {
-	public static ParsedPortfolio sample() {
-		return new ParsedPortfolio(
-			List.of(new ParsedHolding("005930", "삼성전자", "KOSPI", new BigDecimal("50"), new BigDecimal("68000"), new BigDecimal("72000"), "KRW")),
-			new BigDecimal("0.970"),
-			List.of("샘플 파싱 결과입니다. 실제 MTS 캡처로 확인해 주세요.")
-		);
-	}
-}
-```
-
-- [ ] **Step 2: Implement fake parser**
-
-`FakeScreenshotParser` returns `ParsedPortfolio.sample()` for any stored image. Mark it with `@Component` so Week 5 works without Vision credentials.
-
-- [ ] **Step 3: Implement local storage**
-
-Store files under `${golgo.screenshot.storage-dir}/{userId}/{uuid}.{ext}`. Default property:
+**기본 storage 설정:**
 
 ```yaml
 golgo:
@@ -467,80 +265,47 @@ golgo:
     storage-dir: ${GOLGO_SCREENSHOT_STORAGE_DIR:./data/screenshots}
 ```
 
-- [ ] **Step 4: Write storage test**
+**샘플 parser 결과:**
 
-```java
-@Test
-void storeWritesFileUnderUserDirectory() {
-	LocalScreenshotStorage storage = new LocalScreenshotStorage(tempDir.toString());
-	MockMultipartFile file = new MockMultipartFile("image", "mts.png", "image/png", new byte[] {1, 2, 3});
+- ticker: `005930`
+- name: `삼성전자`
+- market: `KOSPI`
+- quantity: `50`
+- avgPrice: `68000`
+- currentPrice: `72000`
+- currency: `KRW`
+- confidence: `0.970`
 
-	StoredScreenshot stored = storage.store(USER_ID, file);
-
-	assertThat(stored.path()).contains(USER_ID.toString());
-	assertThat(Files.exists(stored.absolutePath())).isTrue();
-}
-```
-
-- [ ] **Step 5: Run storage tests**
-
-Run:
+**테스트 기준:**
 
 ```powershell
 .\gradlew.bat test --tests com.app.golgo.portfolio.storage.LocalScreenshotStorageTest
 ```
 
-Expected: test passes.
-
 ---
 
-## Task 5: Frontend API Hooks and Routing
+## Task 5: 프론트엔드 API 타입, 훅, 라우팅 구현
 
-**Agent:** Agent C - Frontend Flow
+**담당:** Agent C - 프론트엔드
 
-**Files:**
-- Create: `frontend/src/features/portfolio/types.ts`
-- Create: `frontend/src/features/portfolio/api/screenshot-api.ts`
-- Create: `frontend/src/features/portfolio/hooks/use-screenshot-upload.ts`
-- Modify: `frontend/src/app/router.tsx`
+**목표:** 캡처 업로드 화면과 결과 확인 화면에서 사용할 API 타입과 TanStack Query 훅을 만든다.
 
-**Interfaces:**
-- Consumes: `POST /brokers/connect/screenshot`
-- Consumes: `GET /brokers/accounts`
-- Consumes: `POST /portfolio/screenshot`
-- Consumes: `GET /portfolio/screenshot/{jobId}`
-- Consumes: `PATCH /portfolio/screenshot/{jobId}/holdings`
-- Consumes: `POST /portfolio/screenshot/{jobId}/confirm`
-- Produces: route `/portfolio/screenshot`
-- Produces: route `/portfolio/screenshot/:jobId`
+**구현 라우트:**
 
-- [ ] **Step 1: Add frontend types**
+- `/portfolio/screenshot`
+- `/portfolio/screenshot/:jobId`
 
-Define `BrokerAccount`, `ScreenshotUploadResponse`, `ScreenshotJob`, `ParsedHolding`, `HoldingEditPayload`, and `HoldingConfirmPayload` using API response field names exactly.
+**작업 절차:**
 
-- [ ] **Step 2: Add API functions**
+- [ ] `frontend/src/features/portfolio/types.ts`에 API 계약 타입을 정의한다.
+- [ ] `screenshot-api.ts`에 계좌 생성/조회, 업로드, job 조회, 수정, confirm API 함수를 만든다.
+- [ ] multipart 업로드는 `FormData`를 사용한다.
+- [ ] `use-screenshot-upload.ts`에 Query/Mutation 훅을 만든다.
+- [ ] job 조회 훅은 상태가 `PROCESSING`일 때 1500ms 간격으로 polling한다.
+- [ ] `router.tsx`에 업로드/리뷰 라우트를 추가한다.
 
-Use existing `api` from `frontend/src/lib/api/client.ts`. Upload function must send `FormData` and set no explicit JSON content type:
+**주요 훅:**
 
-```ts
-export async function uploadScreenshot(accountId: string, image: File) {
-  const formData = new FormData()
-  formData.append('accountId', accountId)
-  formData.append('image', image)
-
-  const response = await api.post<ApiResponse<ScreenshotUploadResponse>>(
-    '/portfolio/screenshot',
-    formData,
-    { headers: { 'Content-Type': 'multipart/form-data' } },
-  )
-
-  return response.data.data
-}
-```
-
-- [ ] **Step 3: Add TanStack Query hooks**
-
-Create:
 - `useBrokerAccounts()`
 - `useCreateScreenshotAccount()`
 - `useUploadScreenshot()`
@@ -548,123 +313,62 @@ Create:
 - `useEditScreenshotHoldings(jobId)`
 - `useConfirmScreenshot(jobId)`
 
-Polling rule: `useScreenshotJob` refetches every 1500ms while status is `PROCESSING`.
-
-- [ ] **Step 4: Wire routes**
-
-Add authenticated routes:
-
-```tsx
-{
-  path: '/portfolio/screenshot',
-  element: <ScreenshotUploadPage />,
-},
-{
-  path: '/portfolio/screenshot/:jobId',
-  element: <ScreenshotReviewPage />,
-},
-```
-
-- [ ] **Step 5: Run frontend typecheck**
-
-Run:
+**검증 기준:**
 
 ```powershell
 npm run typecheck
 ```
 
-Expected: typecheck passes after placeholder pages are added in Task 6.
-
 ---
 
-## Task 6: Frontend Upload and Parsing Progress UI
+## Task 6: 캡처 업로드 화면과 파싱 진행 UI 구현
 
-**Agent:** Agent C - Frontend Flow
+**담당:** Agent C - 프론트엔드
 
-**Files:**
-- Create: `frontend/src/features/portfolio/pages/ScreenshotUploadPage.tsx`
-- Create: `frontend/src/features/portfolio/components/ParsingProgress.tsx`
-- Modify: `frontend/src/features/auth/pages/HomePage.tsx`
-- Modify: `frontend/src/features/onboarding/pages/OnboardingPage.tsx`
+**목표:** 사용자가 캡처 방식 계좌를 선택/생성하고 PNG/JPG 이미지를 업로드할 수 있게 한다.
 
-**Interfaces:**
-- Consumes: hooks from Task 5.
-- Produces: user can select/create screenshot account and upload PNG/JPG.
+**작업 절차:**
 
-- [ ] **Step 1: Build upload page layout**
+- [ ] `ScreenshotUploadPage.tsx`를 만든다.
+- [ ] `MobilePage` 기반 모바일 화면으로 구성한다.
+- [ ] 기존 캡처 계좌 목록을 보여준다.
+- [ ] 계좌가 없으면 `MIRAE`, `KIS`, `OTHER` 중 선택해 캡처 계좌를 만들 수 있게 한다.
+- [ ] 드래그/탭 업로드 영역을 구현한다.
+- [ ] 선택된 파일명과 크기를 표시한다.
+- [ ] PNG/JPG, 10MB 이하만 클라이언트에서 허용한다.
+- [ ] 업로드 성공 시 `/portfolio/screenshot/{jobId}`로 이동한다.
+- [ ] `ParsingProgress` 컴포넌트로 파싱 진행 skeleton을 표시한다.
+- [ ] `HomePage`에 “MTS 캡처 업로드” CTA를 추가한다.
 
-Use `MobilePage`, quiet dashboard styling, and icon buttons. Include:
-- account selector with existing screenshot accounts
-- quick create account form with broker choices `MIRAE`, `KIS`, `OTHER`
-- drag/tap file input zone
-- selected filename and size
-- upload button disabled until account and file exist
-- client validation for PNG/JPG and 10MB
-
-- [ ] **Step 2: Add upload flow**
-
-On upload success, navigate:
-
-```ts
-navigate(`/portfolio/screenshot/${response.jobId}`)
-```
-
-- [ ] **Step 3: Add progress component**
-
-`ParsingProgress` shows skeleton rows and current status text while polling returns `PROCESSING`.
-
-- [ ] **Step 4: Link from existing screens**
-
-`HomePage` dashboard placeholder gets CTA “MTS 캡처 업로드”. `OnboardingPage` final CTA can still go to `/`, but the dashboard CTA must make the next action obvious.
-
-- [ ] **Step 5: Run frontend lint**
-
-Run:
+**검증 기준:**
 
 ```powershell
 npm run lint
 ```
 
-Expected: lint passes.
-
 ---
 
-## Task 7: Frontend Review, Edit Sheet, and Confirm Flow
+## Task 7: 파싱 결과 확인, 수정, 최종 저장 UI 구현
 
-**Agent:** Agent C - Frontend Flow
+**담당:** Agent C - 프론트엔드
 
-**Files:**
-- Create: `frontend/src/features/portfolio/pages/ScreenshotReviewPage.tsx`
-- Create: `frontend/src/features/portfolio/components/HoldingEditSheet.tsx`
+**목표:** 사용자가 파싱 결과를 확인하고 holdings를 수정한 뒤 최종 저장할 수 있게 한다.
 
-**Interfaces:**
-- Consumes: `ScreenshotJob` from Task 5.
-- Produces: user can edit parsed holdings and confirm final holdings.
+**작업 절차:**
 
-- [ ] **Step 1: Build review page states**
+- [ ] `ScreenshotReviewPage.tsx`를 만든다.
+- [ ] `PROCESSING` 상태에서는 `ParsingProgress`를 보여준다.
+- [ ] `FAILED` 상태에서는 업로드 재시도 CTA를 보여준다.
+- [ ] `COMPLETED`, `PENDING_CONFIRM` 상태에서는 holdings 목록을 보여준다.
+- [ ] `CONFIRMED` 상태에서는 저장 완료 화면과 대시보드 CTA를 보여준다.
+- [ ] holdings row에는 종목코드, 종목명, 시장, 수량, 평균가, 현재가, 평가금액을 표시한다.
+- [ ] 평가금액은 `quantity * currentPrice`로 계산한다.
+- [ ] `HoldingEditSheet`를 만들어 종목 추가/수정/삭제를 지원한다.
+- [ ] “수정 내용 저장” 버튼은 전체 holdings 목록을 PATCH로 저장한다.
+- [ ] “최종 저장” 버튼은 confirm API를 호출한다.
 
-Handle:
-- `PROCESSING`: render `ParsingProgress`
-- `FAILED`: show retry CTA back to upload page
-- `COMPLETED` or `PENDING_CONFIRM`: show parsed holdings list
-- `CONFIRMED`: show saved state and dashboard CTA
+**편집 필드:**
 
-- [ ] **Step 2: Build holdings list**
-
-Each row shows:
-- ticker and name
-- market
-- quantity
-- average price
-- current price
-- current value
-- edit button
-
-Compute current value on frontend for display as `quantity * currentPrice`.
-
-- [ ] **Step 3: Build edit sheet**
-
-Use a fixed bottom sheet style. Fields:
 - ticker
 - name
 - market
@@ -673,132 +377,73 @@ Use a fixed bottom sheet style. Fields:
 - currentPrice
 - currency
 
-Actions:
-- save updates local state
-- delete removes row from local state
-- add holding opens empty form
-
-- [ ] **Step 4: Persist edits**
-
-When user taps “수정 내용 저장”, call `PATCH /portfolio/screenshot/{jobId}/holdings` with all current holdings as the new list.
-
-- [ ] **Step 5: Confirm**
-
-When user taps “최종 저장”, call `POST /portfolio/screenshot/{jobId}/confirm` with current holdings and computed `totalAssetKrw`.
-
-- [ ] **Step 6: Run frontend build**
-
-Run:
+**검증 기준:**
 
 ```powershell
 npm run build
 ```
-
-Expected: build passes.
 
 ---
 
-## Task 8: Integration QA, Contract Cleanup, and Commit
+## Task 8: 통합 QA, 문서 정리, 커밋
 
-**Agent:** Agent D - Integration QA
+**담당:** Agent D - 통합 QA
 
-**Files:**
-- Modify: `api-spec.md` only if implemented response differs from current spec.
-- Modify: `roadmap.md` only if Week 5 status is explicitly tracked.
-- Review all files changed by Tasks 1-7.
+**목표:** Week 5 구현 전체가 API 계약과 UI 흐름을 만족하는지 검증하고 커밋한다.
 
-**Interfaces:**
-- Consumes: completed backend and frontend implementation.
-- Produces: verified, staged, committed Week 5 implementation.
+**작업 절차:**
 
-- [ ] **Step 1: Run backend full tests**
+- [ ] 백엔드 전체 테스트를 실행한다.
+- [ ] 프론트 린트를 실행한다.
+- [ ] 프론트 빌드를 실행한다.
+- [ ] `git diff --check`로 공백 오류를 확인한다.
+- [ ] `git status --short`, `git diff --stat`으로 변경 범위를 확인한다.
+- [ ] 로컬 smoke test를 수행한다.
+- [ ] API 응답이 `api-spec.md`와 다르면 명세를 구현 기준에 맞게 갱신한다.
+- [ ] 커밋 전 변경 파일 목록과 핵심 diff 요약을 보고한다.
+- [ ] 검증 결과를 보고한 뒤 커밋한다.
 
-Run:
+**검증 명령:**
 
 ```powershell
 .\gradlew.bat test
-```
-
-Expected: `BUILD SUCCESSFUL`.
-
-- [ ] **Step 2: Run frontend lint**
-
-Run:
-
-```powershell
 npm run lint
-```
-
-Expected: no ESLint errors.
-
-- [ ] **Step 3: Run frontend build**
-
-Run:
-
-```powershell
 npm run build
-```
-
-Expected: TypeScript and Vite build succeed.
-
-- [ ] **Step 4: Check diff hygiene**
-
-Run:
-
-```powershell
 git diff --check
-git status --short
-git diff --stat
 ```
 
-Expected:
-- no whitespace errors
-- only Week 5 files changed
-- no generated build output staged
+**Smoke test 시나리오:**
 
-- [ ] **Step 5: Manual smoke test**
+- 로그인 또는 회원가입
+- `/portfolio/screenshot` 이동
+- 캡처 계좌 생성
+- 10MB 이하 PNG/JPG 업로드
+- fake parser가 반환한 삼성전자 holdings 확인
+- 수량 수정
+- 수정 내용 저장
+- 최종 저장
+- 새로고침 후 `CONFIRMED` 상태 확인
 
-Run backend and frontend locally, then verify:
-- register or login
-- navigate to `/portfolio/screenshot`
-- create screenshot account
-- upload PNG/JPG under 10MB
-- review fake parsed Samsung Electronics holding
-- edit quantity
-- confirm holdings
-- refresh review page and see confirmed state
-
-- [ ] **Step 6: Report before commit**
-
-Before committing, report:
-- changed file list
-- core diff summary
-- backend test result
-- frontend lint/build result
-- smoke test result or reason it was not run
-
-- [ ] **Step 7: Commit**
-
-Commit message:
+**커밋 메시지:**
 
 ```bash
 git commit -m "feat(portfolio): MTS 캡처 업로드 구현"
 ```
 
-Do not push unless explicitly instructed.
+Push는 사용자가 명시적으로 요청할 때만 수행한다.
 
 ---
 
-## Risks and Tradeoffs
+## 리스크와 트레이드오프
 
-- Real Vision parsing is intentionally deferred behind `ScreenshotParser`; Week 5 can ship a working flow with deterministic parsing while prompt quality is reviewed separately.
-- Local filesystem storage is enough for local and Railway smoke tests, but production should move to Supabase Storage before broad beta usage.
-- The API spec currently says upload returns `202 PROCESSING`; this plan allows synchronous fake parsing to return `COMPLETED` in the response data while still using the same job status model. Agent D must align the final implementation and docs.
-- Because Week 4 is skipped, only screenshot broker accounts are implemented. API Key account upgrade remains out of scope.
+- 실제 Vision API 파싱은 이번 계획에서 직접 붙이지 않는다. `ScreenshotParser` 뒤로 격리하고 fake parser로 전체 제품 흐름을 먼저 완성한다.
+- 로컬 파일 저장은 개발과 smoke test에는 충분하지만, 운영 전에는 Supabase Storage로 교체하는 것이 좋다.
+- `api-spec.md`는 업로드 응답을 `202 PROCESSING` 중심으로 설명하지만, fake parser를 동기 실행하면 즉시 `COMPLETED`가 될 수 있다. 최종 구현 후 Agent D가 명세와 실제 응답을 맞춘다.
+- Week 4를 스킵했으므로 API Key 계좌 업그레이드와 KIS 실시간 동기화는 범위 밖이다.
 
-## Self-Review
+## 자체 검토
 
-- Spec coverage: Week 5 upload, parsing state, review/edit, confirm, and tests are mapped to Tasks 1-8.
-- Scope check: Week 4 KIS/API Key work is explicitly excluded.
-- Type consistency: backend response names are mirrored in frontend `portfolio/types.ts`.
-- Placeholder scan: no implementation task depends on undefined future work; fake parser is the explicit Week 5 parser implementation.
+- Week 5 요구사항인 업로드, 파싱 상태, 결과 수정, 최종 저장, 검증 흐름이 Task 1-8에 포함되어 있다.
+- Week 4 KIS/API Key 작업은 명시적으로 제외했다.
+- 백엔드 응답 타입과 프론트 타입의 이름을 맞추도록 계획했다.
+- 실제 Vision API 의존 없이 구현 가능한 fake parser 전략을 명시했다.
