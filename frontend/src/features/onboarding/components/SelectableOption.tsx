@@ -22,7 +22,7 @@ export function SelectableOption({
     <button
       className={
         selected
-          ? 'flex w-full items-center gap-3 rounded-[16px] border border-[#191F28] bg-white p-3.5 text-left shadow-sm'
+          ? 'flex w-full items-center gap-3 rounded-[16px] border border-[#03ba8c] bg-white p-3.5 text-left'
           : 'flex w-full items-center gap-3 rounded-[16px] border border-[#E5E8EB] bg-white p-3.5 text-left'
       }
       type="button"
@@ -31,7 +31,7 @@ export function SelectableOption({
       <span
         className={
           selected
-            ? 'flex size-11 shrink-0 items-center justify-center rounded-[12px] bg-[#191F28] text-white'
+            ? 'flex size-11 shrink-0 items-center justify-center rounded-[12px] bg-[#E5FBF5] text-[#03ba8c]'
             : 'flex size-11 shrink-0 items-center justify-center rounded-[12px] bg-[#F2F4F6] text-[#4E5968]'
         }
       >
@@ -48,7 +48,7 @@ export function SelectableOption({
       <span
         className={
           selected
-            ? 'flex size-5 shrink-0 items-center justify-center rounded-full bg-[#191F28] text-white'
+            ? 'flex size-5 shrink-0 items-center justify-center rounded-full bg-[#03ba8c] text-white'
             : 'size-5 shrink-0 rounded-full border border-[#DDE2E7]'
         }
       >

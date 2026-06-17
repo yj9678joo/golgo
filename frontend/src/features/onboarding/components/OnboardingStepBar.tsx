@@ -15,7 +15,7 @@ export function OnboardingStepBar({ current, total }: OnboardingStepBarProps) {
               key={index}
               className={
                 isActive
-                  ? 'h-1 flex-1 rounded-full bg-[#191F28]'
+                  ? 'h-1 flex-1 rounded-full bg-[#03ba8c]'
                   : 'h-1 flex-1 rounded-full bg-[#DDE2E7]'
               }
             />

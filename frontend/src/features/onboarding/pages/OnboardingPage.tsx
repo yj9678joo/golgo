@@ -59,9 +59,9 @@ export function OnboardingPage() {
               />
             ))}
           </div>
-          <div className="mt-auto grid gap-2 pt-5">
+          <div className="mt-auto grid gap-2 pt-5 sm:mt-7">
             <button
-              className="inline-flex h-13 w-full items-center justify-center rounded-[16px] bg-[#191F28] px-4 text-[15px] font-semibold text-white"
+              className="inline-flex h-13 w-full items-center justify-center rounded-[16px] bg-[#03ba8c] px-4 text-[15px] font-semibold text-white transition hover:bg-[#02a77e]"
               type="button"
               onClick={() => setStep('broker')}
             >
@@ -107,14 +107,14 @@ export function OnboardingPage() {
             ))}
           </div>
           <div className="mt-4 flex gap-2 rounded-[16px] bg-white p-3.5">
-            <Shield className="mt-0.5 size-4 shrink-0 text-[#8B95A1]" aria-hidden="true" />
+            <Shield className="mt-0.5 size-4 shrink-0 text-[#03ba8c]" aria-hidden="true" />
             <p className="text-[12px] leading-5 text-[#4E5968]">
               API Key는 암호화 저장을 전제로 설계합니다.
             </p>
           </div>
-          <div className="mt-auto grid gap-2 pt-5">
+          <div className="mt-auto grid gap-2 pt-5 sm:mt-7">
             <button
-              className="inline-flex h-13 w-full items-center justify-center rounded-[16px] bg-[#191F28] px-4 text-[15px] font-semibold text-white"
+              className="inline-flex h-13 w-full items-center justify-center rounded-[16px] bg-[#03ba8c] px-4 text-[15px] font-semibold text-white transition hover:bg-[#02a77e]"
               type="button"
               onClick={() => setStep('done')}
             >
@@ -133,11 +133,11 @@ export function OnboardingPage() {
 
       {step === 'done' ? (
         <OnboardingFrame>
-          <div className="flex flex-1 flex-col items-center justify-center text-center">
-            <div className="mb-7 flex size-22 items-center justify-center rounded-[28px] bg-[#191F28] text-white shadow-sm">
-              <Check className="size-10" aria-hidden="true" />
+          <div className="flex flex-1 flex-col items-center justify-center pt-4 text-center sm:justify-start sm:pt-28">
+            <div className="mb-6 flex size-20 items-center justify-center rounded-[24px] bg-[#03ba8c] text-white shadow-sm">
+              <Check className="size-9" aria-hidden="true" />
             </div>
-            <h1 className="text-[28px] font-semibold leading-[1.25] text-[#191F28]">
+            <h1 className="text-[27px] font-semibold leading-[1.25] text-[#191F28]">
               준비 완료!
               <br />
               이제 고르고를
@@ -147,13 +147,13 @@ export function OnboardingPage() {
             <p className="mt-3 text-[14px] leading-6 text-[#6B7684]">
               선택한 설정을 기준으로 대시보드를 준비했어요
             </p>
-            <div className="mt-7 w-full rounded-[18px] bg-white p-4 text-left">
+            <div className="mt-6 w-full rounded-[18px] bg-white p-4 text-left">
               <SummaryRow label="투자 성향" value={personaLabels[persona]} />
               <SummaryRow label="연결 증권사" value={selectedBroker.name} />
             </div>
           </div>
           <button
-            className="inline-flex h-13 w-full items-center justify-center rounded-[16px] bg-[#191F28] px-4 text-[15px] font-semibold text-white"
+            className="inline-flex h-13 w-full items-center justify-center rounded-[16px] bg-[#03ba8c] px-4 text-[15px] font-semibold text-white transition hover:bg-[#02a77e]"
             type="button"
             onClick={() => navigate('/', { replace: true })}
           >
@@ -167,7 +167,7 @@ export function OnboardingPage() {
 
 function OnboardingFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-[calc(100svh-2rem)] w-full flex-col px-2 py-4">
+    <div className="flex min-h-[calc(100svh-2rem)] w-full flex-col px-2 py-4 sm:min-h-[700px]">
       {children}
     </div>
   )
