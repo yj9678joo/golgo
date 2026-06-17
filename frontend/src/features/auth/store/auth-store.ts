@@ -6,7 +6,7 @@ import {
   setAuthTokens,
   type AuthTokens,
 } from '@/lib/api/auth-token-storage'
-import { directLogin, fetchMe, logout } from '@/features/auth/api/auth-api'
+import { fetchMe, login, logout } from '@/features/auth/api/auth-api'
 import type { AuthUser } from '@/features/auth/types'
 
 type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'anonymous'
@@ -59,7 +59,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ status: 'loading', error: null })
 
     try {
-      const tokens = await directLogin(loginId, password)
+      const tokens = await login(loginId, password)
       get().setTokens(tokens)
 
       const user = await get().loadUser()

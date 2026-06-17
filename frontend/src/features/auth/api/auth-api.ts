@@ -13,8 +13,8 @@ export async function updateNickname(nickname: string) {
   return response.data.data
 }
 
-export async function directLogin(loginId: string, password: string) {
-  const response = await api.post<ApiResponse<TokenPair>>('/auth/test-login', {
+export async function login(loginId: string, password: string) {
+  const response = await api.post<ApiResponse<TokenPair>>('/auth/login', {
     loginId,
     password,
   })

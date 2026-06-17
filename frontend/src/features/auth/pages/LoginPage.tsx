@@ -1,30 +1,14 @@
 import { FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MobilePage } from '@/components/layout/MobilePage'
-import { getOAuthLoginUrl } from '@/lib/api/client'
 import logo from '@/assets/golgo-logo.png'
-import { SocialLoginButton } from '@/features/auth/components/SocialLoginButton'
 import { useAuthStore } from '@/features/auth/store/auth-store'
-
-const providers = [
-  // { provider: 'kakao', label: '카카오는 준비 중', disabled: true },
-  {
-    provider: 'naver',
-    label: '네이버로 시작하기',
-    href: getOAuthLoginUrl('naver'),
-  },
-  {
-    provider: 'google',
-    label: 'Google로 계속하기',
-    href: getOAuthLoginUrl('google'),
-  },
-] as const
 
 export function LoginPage() {
   const navigate = useNavigate()
   const loginWithPassword = useAuthStore((state) => state.loginWithPassword)
-  const [loginId, setLoginId] = useState('test01')
-  const [password, setPassword] = useState('test01')
+  const [loginId, setLoginId] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -35,21 +19,11 @@ export function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      const user = await loginWithPassword(loginId, password)
-
-      window.alert(
-        [
-          '로그인 성공',
-          `닉네임: ${user.nickname}`,
-          `이메일: ${user.email}`,
-          `연결 Provider: ${user.connectedProviders.join(', ')}`,
-        ].join('\n'),
-      )
-      navigate('/nickname', { replace: true })
+      await loginWithPassword(loginId, password)
+      navigate('/onboarding', { replace: true })
     } catch {
-      const message = '테스트 계정 로그인에 실패했습니다.'
+      const message = '아이디 또는 비밀번호를 확인해 주세요.'
       setError(message)
-      window.alert(`로그인 실패: ${message}`)
     } finally {
       setIsSubmitting(false)
     }
@@ -115,13 +89,16 @@ export function LoginPage() {
               type="submit"
               disabled={isSubmitting}
             >
-              {isSubmitting ? '로그인 중...' : '테스트 계정으로 로그인'}
+              {isSubmitting ? '로그인 중...' : '로그인'}
+            </button>
+            <button
+              className="mt-3 h-11 w-full text-[14px] font-semibold text-[#00A37A] transition hover:text-[#008F6C]"
+              type="button"
+              onClick={() => navigate('/register')}
+            >
+              회원가입
             </button>
           </form>
-
-          {providers.map((provider) => (
-            <SocialLoginButton key={provider.provider} {...provider} />
-          ))}
 
           <p className="mt-2 text-center text-[11px] leading-5 text-[#8B95A1] min-[375px]:mt-3 min-[375px]:text-[12px]">
             가입 시 서비스 이용약관과
