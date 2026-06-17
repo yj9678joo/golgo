@@ -42,6 +42,9 @@ public class User {
 	@Column(name = "profile_image")
 	private String profileImage;
 
+	@Column(name = "onboarding_completed", nullable = false)
+	private boolean onboardingCompleted;
+
 	@Column(name = "created_at", nullable = false)
 	private Instant createdAt;
 
@@ -88,6 +91,11 @@ public class User {
 
 	public void changeNickname(String nickname, Clock clock) {
 		this.nickname = nickname;
+		this.updatedAt = Instant.now(clock);
+	}
+
+	public void completeOnboarding(Clock clock) {
+		this.onboardingCompleted = true;
 		this.updatedAt = Instant.now(clock);
 	}
 

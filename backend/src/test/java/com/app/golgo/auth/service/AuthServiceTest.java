@@ -20,6 +20,7 @@ import com.app.golgo.auth.security.JwtProvider;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -176,6 +177,25 @@ class AuthServiceTest {
 		assertThat(tokens.accessToken()).isNotBlank();
 		assertThat(tokens.refreshToken()).isNotBlank();
 		assertThat(tokens.expiresIn()).isEqualTo(900);
+	}
+
+	@Test
+	void completeOnboardingMarksUserAsOnboarded() {
+		User user = User.createLocal(
+			"golgo01",
+			passwordEncoder.encode("Password!1"),
+			"홍길동",
+			"user@example.com",
+			"투자초보",
+			CLOCK
+		);
+		user.assignIdForTest(USER_ID);
+		when(userRepository.findByIdAndDeletedAtIsNull(USER_ID)).thenReturn(Optional.of(user));
+		when(authProviderRepository.findAllByUserId(USER_ID)).thenReturn(List.of());
+
+		var response = authService.completeOnboarding(USER_ID);
+
+		assertThat(response.onboardingCompleted()).isTrue();
 	}
 
 	@Test

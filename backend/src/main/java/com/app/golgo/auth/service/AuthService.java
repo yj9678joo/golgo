@@ -129,6 +129,25 @@ public class AuthService {
 			user.getEmail(),
 			user.getNickname(),
 			user.getProfileImage(),
+			user.isOnboardingCompleted(),
+			providers,
+			user.getCreatedAt()
+		);
+	}
+
+	@Transactional
+	public AuthUserResponse completeOnboarding(UUID userId) {
+		User user = findActiveUser(userId);
+		user.completeOnboarding(clock);
+		List<SocialProvider> providers = authProviderRepository.findAllByUserId(userId).stream()
+			.map(AuthProvider::getProvider)
+			.toList();
+		return new AuthUserResponse(
+			user.getId(),
+			user.getEmail(),
+			user.getNickname(),
+			user.getProfileImage(),
+			user.isOnboardingCompleted(),
 			providers,
 			user.getCreatedAt()
 		);

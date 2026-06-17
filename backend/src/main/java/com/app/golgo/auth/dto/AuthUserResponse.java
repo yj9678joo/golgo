@@ -10,6 +10,7 @@ public record AuthUserResponse(
 	String email,
 	String nickname,
 	String profileImage,
+	boolean onboardingCompleted,
 	List<SocialProvider> connectedProviders,
 	Instant createdAt
 ) {

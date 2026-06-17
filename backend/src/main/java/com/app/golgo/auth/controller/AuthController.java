@@ -74,6 +74,11 @@ public class AuthController {
 		return ApiResponse.ok(authService.me(principal.userId()));
 	}
 
+	@PatchMapping("/me/onboarding")
+	public ApiResponse<AuthUserResponse> completeOnboarding(@AuthenticationPrincipal JwtPrincipal principal) {
+		return ApiResponse.ok(authService.completeOnboarding(principal.userId()));
+	}
+
 	@PatchMapping("/me/nickname")
 	public ApiResponse<NicknameUpdateResponse> updateNickname(
 		@AuthenticationPrincipal JwtPrincipal principal,

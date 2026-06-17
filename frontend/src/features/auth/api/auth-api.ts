@@ -18,6 +18,11 @@ export async function updateNickname(nickname: string) {
   return response.data.data
 }
 
+export async function completeOnboarding() {
+  const response = await api.patch<ApiResponse<AuthUser>>('/auth/me/onboarding')
+  return response.data.data
+}
+
 export async function login(loginId: string, password: string) {
   const response = await api.post<ApiResponse<TokenPair>>('/auth/login', {
     loginId,

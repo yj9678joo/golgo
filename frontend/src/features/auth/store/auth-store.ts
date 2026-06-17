@@ -6,7 +6,13 @@ import {
   setAuthTokens,
   type AuthTokens,
 } from '@/lib/api/auth-token-storage'
-import { fetchMe, login, logout, register } from '@/features/auth/api/auth-api'
+import {
+  completeOnboarding,
+  fetchMe,
+  login,
+  logout,
+  register,
+} from '@/features/auth/api/auth-api'
 import type { AuthUser, RegisterPayload } from '@/features/auth/types'
 
 type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'anonymous'
@@ -20,6 +26,7 @@ type AuthState = {
   loadUser: () => Promise<AuthUser | null>
   loginWithPassword: (loginId: string, password: string) => Promise<AuthUser>
   registerWithPassword: (payload: RegisterPayload) => Promise<AuthUser>
+  finishOnboarding: () => Promise<AuthUser>
   signOut: () => Promise<void>
   clearSession: () => void
 }
@@ -98,6 +105,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ status: getAccessToken() ? 'idle' : 'anonymous', error: message })
       throw error
     }
+  },
+  finishOnboarding: async () => {
+    const user = await completeOnboarding()
+    set({ user, status: 'authenticated', error: null })
+    return user
   },
   signOut: async () => {
     const refreshToken = getRefreshToken()

@@ -5,6 +5,7 @@ export type AuthUser = {
   email: string
   nickname: string
   profileImage: string | null
+  onboardingCompleted: boolean
   connectedProviders: SocialProvider[]
   createdAt: string
 }

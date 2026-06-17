@@ -1,15 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, Shield } from 'lucide-react'
+import { ArrowLeft, Check, ImageUp } from 'lucide-react'
 import { MobilePage } from '@/components/layout/MobilePage'
 import { OnboardingStepBar } from '@/features/onboarding/components/OnboardingStepBar'
 import { SelectableOption } from '@/features/onboarding/components/SelectableOption'
-import {
-  brokerOptions,
-  personaOptions,
-} from '@/features/onboarding/data/onboarding-options'
+import { useAuthStore } from '@/features/auth/store/auth-store'
+import { personaOptions } from '@/features/onboarding/data/onboarding-options'
 import type {
-  BrokerId,
   InvestmentPersona,
   OnboardingStep,
 } from '@/features/onboarding/types'
@@ -23,11 +20,25 @@ const personaLabels: Record<InvestmentPersona, string> = {
 
 export function OnboardingPage() {
   const navigate = useNavigate()
+  const finishOnboarding = useAuthStore((state) => state.finishOnboarding)
   const [step, setStep] = useState<OnboardingStep>('persona')
   const [persona, setPersona] = useState<InvestmentPersona>('balanced')
-  const [brokerId, setBrokerId] = useState<BrokerId>('kis')
+  const [isCompleting, setIsCompleting] = useState(false)
+  const [completionError, setCompletionError] = useState<string | null>(null)
 
-  const selectedBroker = brokerOptions.find((broker) => broker.id === brokerId) ?? brokerOptions[0]
+  const complete = async () => {
+    setIsCompleting(true)
+    setCompletionError(null)
+
+    try {
+      await finishOnboarding()
+      setStep('done')
+    } catch {
+      setCompletionError('온보딩 설정을 저장하지 못했어요. 잠시 후 다시 시도해주세요.')
+    } finally {
+      setIsCompleting(false)
+    }
+  }
 
   return (
     <MobilePage
@@ -84,48 +95,62 @@ export function OnboardingPage() {
       {step === 'broker' ? (
         <OnboardingFrame>
           <OnboardingStepBar current={3} total={3} />
+          <button
+            className="mb-2 inline-flex h-10 w-fit items-center gap-1.5 rounded-[12px] bg-white px-3 text-[13px] font-semibold text-[#4E5968]"
+            type="button"
+            onClick={() => setStep('persona')}
+          >
+            <ArrowLeft className="size-4" aria-hidden="true" />
+            이전 단계 수정
+          </button>
           <OnboardingHeading
             title={
               <>
-                증권사 계좌를
+                MTS 캡처로
                 <br />
-                연결해주세요
+                시작해볼게요
               </>
             }
-            description="보유 종목을 자동으로 불러와요"
+            description="보유 종목 화면 캡처 업로드는 다음 단계에서 이어갈 수 있어요"
           />
-          <div className="grid gap-2.5">
-            {brokerOptions.map((broker) => (
-              <SelectableOption
-                key={broker.id}
-                title={broker.name}
-                description={broker.methods.join(' · ')}
-                badge={broker.brandLabel}
-                selected={brokerId === broker.id}
-                onClick={() => setBrokerId(broker.id)}
-              />
-            ))}
+          <div className="rounded-[20px] border border-dashed border-[#B0B8C1] bg-white p-5 text-center">
+            <div className="mx-auto flex size-15 items-center justify-center rounded-[18px] bg-[#E9FBF6] text-[#03ba8c]">
+              <ImageUp className="size-7" aria-hidden="true" />
+            </div>
+            <p className="mt-4 text-[16px] font-semibold text-[#191F28]">
+              보유 종목 캡처 업로드
+            </p>
+            <p className="mt-2 text-[13px] leading-6 text-[#6B7684]">
+              지금은 온보딩 완료 여부만 저장하고 캡처 파일은 저장하지 않아요.
+            </p>
           </div>
-          <div className="mt-4 flex gap-2 rounded-[16px] bg-white p-3.5">
-            <Shield className="mt-0.5 size-4 shrink-0 text-[#03ba8c]" aria-hidden="true" />
+          <div className="mt-4 grid gap-2 rounded-[16px] bg-white p-3.5">
+            <p className="text-[12px] font-semibold text-[#8B95A1]">고도화 예정</p>
             <p className="text-[12px] leading-5 text-[#4E5968]">
-              API Key는 암호화 저장을 전제로 설계합니다.
+              증권사 계좌 연결과 MTS 캡처 데이터 연동은 이후 포트폴리오 연동 단계에서 연결합니다.
             </p>
           </div>
           <div className="mt-auto grid gap-2 pt-5 sm:mt-7">
+            {completionError ? (
+              <p className="text-center text-[13px] font-semibold text-[#E5484D]">
+                {completionError}
+              </p>
+            ) : null}
             <button
               className="inline-flex h-13 w-full items-center justify-center rounded-[16px] bg-[#03ba8c] px-4 text-[15px] font-semibold text-white transition hover:bg-[#02a77e]"
               type="button"
-              onClick={() => setStep('done')}
+              onClick={() => void complete()}
+              disabled={isCompleting}
             >
-              고르고 시작하기
+              {isCompleting ? '저장 중...' : '고르고 시작하기'}
             </button>
             <button
               className="h-11 text-[14px] font-semibold text-[#8B95A1]"
               type="button"
-              onClick={() => setStep('done')}
+              onClick={() => void complete()}
+              disabled={isCompleting}
             >
-              나중에 연결할게요
+              캡처는 나중에 업로드할게요
             </button>
           </div>
         </OnboardingFrame>
@@ -149,7 +174,7 @@ export function OnboardingPage() {
             </p>
             <div className="mt-6 w-full rounded-[18px] bg-white p-4 text-left">
               <SummaryRow label="투자 성향" value={personaLabels[persona]} />
-              <SummaryRow label="연결 증권사" value={selectedBroker.name} />
+              <SummaryRow label="연동 방식" value="MTS 캡처 업로드" />
             </div>
           </div>
           <button

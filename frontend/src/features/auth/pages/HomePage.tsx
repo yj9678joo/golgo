@@ -13,7 +13,7 @@ export function HomePage() {
       <header className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-primary">Golgo</p>
-          <h1 className="mt-2 text-[26px] font-semibold leading-tight">인증 완료</h1>
+          <h1 className="mt-2 text-[26px] font-semibold leading-tight">대시보드</h1>
         </div>
         <button
           className="inline-flex h-11 shrink-0 items-center gap-2 rounded-md border border-border bg-card px-3 text-sm font-medium hover:bg-muted"
@@ -50,19 +50,23 @@ export function HomePage() {
           </div>
           <div className="rounded-md bg-muted p-4">
             <p className="text-xs font-semibold text-muted-foreground">다음 단계</p>
-            <p className="mt-2 text-sm font-medium">온보딩 및 증권사 연결</p>
+            <p className="mt-2 text-sm font-medium">
+              {user?.onboardingCompleted ? '대시보드 화면 준비 중' : '온보딩 설정'}
+            </p>
             <div className="mt-4 grid gap-2">
-              <button
-                className="inline-flex h-11 w-full items-center justify-between rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground"
-                type="button"
-                onClick={() => navigate('/onboarding')}
-              >
-                <span className="inline-flex items-center gap-2">
-                  <Sparkles className="size-4" aria-hidden="true" />
-                  온보딩 시작
-                </span>
-                <ArrowRight className="size-4" aria-hidden="true" />
-              </button>
+              {!user?.onboardingCompleted ? (
+                <button
+                  className="inline-flex h-11 w-full items-center justify-between rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground"
+                  type="button"
+                  onClick={() => navigate('/onboarding')}
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <Sparkles className="size-4" aria-hidden="true" />
+                    온보딩 시작
+                  </span>
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </button>
+              ) : null}
               <button
                 className="inline-flex h-11 w-full items-center justify-between rounded-md border border-border bg-card px-3 text-sm font-semibold text-foreground"
                 type="button"
