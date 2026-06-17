@@ -4,6 +4,7 @@ import { AuthCallbackPage } from '@/features/auth/pages/AuthCallbackPage'
 import { HomePage } from '@/features/auth/pages/HomePage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { NicknamePage } from '@/features/auth/pages/NicknamePage'
+import { RegisterPage } from '@/features/auth/pages/RegisterPage'
 import { BrokerSetupPage } from '@/features/onboarding/pages/BrokerSetupPage'
 import { OnboardingPage } from '@/features/onboarding/pages/OnboardingPage'
 
@@ -11,6 +12,10 @@ export const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />,
+  },
+  {
+    path: '/register',
+    element: <RegisterPage />,
   },
   {
     path: '/auth/callback',

@@ -19,3 +19,11 @@ export type TokenPair = {
   refreshToken: string
   expiresIn: number
 }
+
+export type RegisterPayload = {
+  loginId: string
+  password: string
+  name: string
+  email: string
+  nickname: string
+}

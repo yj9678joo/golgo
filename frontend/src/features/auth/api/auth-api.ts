@@ -1,5 +1,10 @@
 import { api, type ApiResponse } from '@/lib/api/client'
-import type { AuthUser, NicknameUpdateResponse, TokenPair } from '@/features/auth/types'
+import type {
+  AuthUser,
+  NicknameUpdateResponse,
+  RegisterPayload,
+  TokenPair,
+} from '@/features/auth/types'
 
 export async function fetchMe() {
   const response = await api.get<ApiResponse<AuthUser>>('/auth/me')
@@ -18,6 +23,11 @@ export async function login(loginId: string, password: string) {
     loginId,
     password,
   })
+  return response.data.data
+}
+
+export async function register(payload: RegisterPayload) {
+  const response = await api.post<ApiResponse<TokenPair>>('/auth/register', payload)
   return response.data.data
 }
 
