@@ -5,8 +5,14 @@ CREATE TABLE test_login_credentials (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-INSERT INTO users (email, nickname)
-VALUES ('test01@golgo.local', 'test01')
+INSERT INTO users (login_id, password_hash, name, email, nickname)
+VALUES (
+    'test01',
+    '$2a$10$hMyP/eGrIGtc1GhJoeJ5FuhxyJwGgQlof7LSBHxGGKOmr2wURaXEe',
+    '테스트 사용자',
+    'test01@golgo.local',
+    'test01'
+)
 ON CONFLICT (email) DO NOTHING;
 
 INSERT INTO test_login_credentials (login_id, password_hash, user_id)

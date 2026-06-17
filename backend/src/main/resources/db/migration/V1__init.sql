@@ -23,6 +23,9 @@ $$;
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_v7(),
+    login_id VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    name VARCHAR(50) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     nickname VARCHAR(12) NOT NULL UNIQUE,
     profile_image TEXT,
@@ -31,6 +34,7 @@ CREATE TABLE users (
     deleted_at TIMESTAMPTZ
 );
 
+CREATE INDEX idx_users_login_id ON users (login_id);
 CREATE INDEX idx_users_email ON users (email);
 CREATE INDEX idx_users_nickname ON users (nickname);
 
