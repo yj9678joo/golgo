@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, Landmark, LogOut, Sparkles, UserRound } from 'lucide-react'
+import { ArrowRight, ImageUp, Landmark, LogOut, Sparkles, UserRound } from 'lucide-react'
 import { MobilePage } from '@/components/layout/MobilePage'
 import { useAuthStore } from '@/features/auth/store/auth-store'
 
@@ -67,6 +67,17 @@ export function HomePage() {
                   <ArrowRight className="size-4" aria-hidden="true" />
                 </button>
               ) : null}
+              <button
+                className="inline-flex h-11 w-full items-center justify-between rounded-md border border-border bg-card px-3 text-sm font-semibold text-foreground"
+                type="button"
+                onClick={() => navigate('/portfolio/screenshot')}
+              >
+                <span className="inline-flex items-center gap-2">
+                  <ImageUp className="size-4" aria-hidden="true" />
+                  MTS 캡처 업로드
+                </span>
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </button>
               <button
                 className="inline-flex h-11 w-full items-center justify-between rounded-md border border-border bg-card px-3 text-sm font-semibold text-foreground"
                 type="button"
