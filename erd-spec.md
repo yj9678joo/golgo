@@ -38,6 +38,9 @@
 |컬럼|타입|제약|설명|
 |---|---|---|---|
 |id|UUID|PK|사용자 ID|
+|login_id|VARCHAR(50)|UNIQUE, NOT NULL|로그인 ID|
+|password_hash|VARCHAR(255)|NOT NULL|BCrypt 비밀번호 해시|
+|name|VARCHAR(50)|NOT NULL|사용자 이름|
 |email|VARCHAR(255)|UNIQUE, NOT NULL|이메일 (계정 병합 기준)|
 |nickname|VARCHAR(12)|UNIQUE, NOT NULL|닉네임 (2~12자)|
 |profile_image|TEXT|NULL|프로필 이미지 URL|
@@ -47,6 +50,7 @@
 
 **인덱스**
 
+- `idx_users_login_id` (login_id) — ID/PW 로그인 시 조회
 - `idx_users_email` (email) — 로그인 시 조회
 - `idx_users_nickname` (nickname) — 중복 체크
 

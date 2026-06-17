@@ -51,7 +51,7 @@
 
 ## 1. 인증 (Auth)
 
-> 자체 회원가입/로그인 없음. **네이버·카카오·구글 OAuth 2.0** 전용. OAuth 완료 후 백엔드에서 자체 JWT 발급. 신규 사용자는 자동 회원가입 처리.
+> 1차 구현은 **ID/PW 회원가입·로그인**을 우선 지원한다. 소셜 로그인은 배포 후 고도화 항목으로 분리하며, 추후 네이버·카카오·구글 OAuth 2.0을 다시 활성화한다.
 
 ### 계정 병합 정책
 
@@ -71,21 +71,20 @@
 - 이후: 사용자가 언제든 직접 수정 가능
 - 제약: 2~12자, 특수문자 불가, 중복 불가
 
-### OAuth 흐름
+### ID/PW 인증 흐름
 
 ```
-① 프론트 → GET /auth/{provider}/login        # Provider 인증 페이지로 Redirect
-② 사용자 → Provider에서 소셜 계정 승인
-③ Provider → GET /auth/{provider}/callback   # 백엔드 Callback (code 수신)
-④ 백엔드 → Provider에 Access Token 교환
-⑤ 백엔드 → 이메일 기준 계정 병합 또는 신규 생성
-⑥ 백엔드 → 프론트에 자체 JWT 발급 후 Redirect
+① 프론트 → POST /auth/register 또는 POST /auth/login
+② 백엔드 → 입력값 검증 및 비밀번호 BCrypt 검증
+③ 백엔드 → 자체 JWT accessToken, refreshToken 발급
+④ 프론트 → 토큰 저장 후 /auth/me 조회
+⑤ 신규 가입자 → 온보딩 화면으로 이동
 ```
 
 |Method|Endpoint|설명|인증|
 |---|---|---|---|
-|GET|`/auth/{provider}/login`|소셜 로그인 시작 (Redirect)|❌|
-|GET|`/auth/{provider}/callback`|OAuth Callback 처리 (JWT 발급)|❌|
+|POST|`/auth/register`|ID/PW 회원가입 후 JWT 발급|❌|
+|POST|`/auth/login`|ID/PW 로그인 후 JWT 발급|❌|
 |POST|`/auth/refresh`|Access Token 갱신|❌ (Refresh Token 필요)|
 |POST|`/auth/logout`|로그아웃 (Refresh Token 무효화)|✅|
 |GET|`/auth/me`|내 정보 조회|✅|
@@ -96,13 +95,82 @@
 
 > `{provider}` 허용값: `kakao` · `naver` · `google`
 
-### 1.1 GET `/auth/{provider}/login`
+### 1.1 POST `/auth/register`
+
+사용자 계정을 생성하고 JWT를 발급한다.
+
+**Request**
+
+```json
+{
+  "loginId": "golgo01",
+  "password": "Password!1",
+  "name": "홍길동",
+  "email": "user@example.com",
+  "nickname": "투자초보"
+}
+```
+
+**제약 조건**
+
+|항목|규칙|
+|---|---|
+|loginId|4~50자, 중복 불가|
+|password|대문자 1개 이상, 특수문자 1개 이상, 8자 이상|
+|name|1~50자|
+|email|이메일 형식, 중복 불가|
+|nickname|한글, 영문, 숫자 2~12자, 중복 불가|
+
+**Response (200)**
+
+```json
+{
+  "success": true,
+  "data": {
+    "accessToken": "eyJhbGc...",
+    "refreshToken": "eyJhbGc...",
+    "expiresIn": 900
+  }
+}
+```
+
+### 1.2 POST `/auth/login`
+
+ID/PW를 검증하고 JWT를 발급한다.
+
+**Request**
+
+```json
+{
+  "loginId": "golgo01",
+  "password": "Password!1"
+}
+```
+
+**Response (200)**
+
+```json
+{
+  "success": true,
+  "data": {
+    "accessToken": "eyJhbGc...",
+    "refreshToken": "eyJhbGc...",
+    "expiresIn": 900
+  }
+}
+```
+
+### 1.8 GET `/auth/{provider}/login`
+
+> 배포 후 소셜 로그인 고도화에서 재활성화한다.
 
 브라우저를 각 Provider의 OAuth 인증 페이지로 Redirect.
 
 **동작**: 서버가 302 Redirect → Provider 로그인 페이지
 
-### 1.2 GET `/auth/{provider}/callback`
+### 1.9 GET `/auth/{provider}/callback`
+
+> 배포 후 소셜 로그인 고도화에서 재활성화한다.
 
 Provider 인증 완료 후 자동 호출되는 Callback 엔드포인트.
 
