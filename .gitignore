@@ -41,6 +41,7 @@ Thumbs.db
 # Agent local state
 .claude/
 .codex/
+frontend/.gstack/
 
 # Agent instructions
 AGENT.md
