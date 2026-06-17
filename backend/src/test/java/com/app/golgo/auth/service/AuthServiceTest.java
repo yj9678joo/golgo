@@ -1,20 +1,20 @@
 package com.app.golgo.auth.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.app.golgo.auth.dto.AccessTokenResponse;
 import com.app.golgo.auth.dto.OAuthUserProfile;
+import com.app.golgo.auth.dto.RegisterRequest;
 import com.app.golgo.auth.dto.TokenPair;
 import com.app.golgo.auth.entity.AuthProvider;
 import com.app.golgo.auth.entity.SocialProvider;
-import com.app.golgo.auth.entity.TestLoginCredential;
 import com.app.golgo.auth.entity.User;
 import com.app.golgo.auth.repository.AuthProviderRepository;
 import com.app.golgo.auth.repository.RefreshTokenRepository;
-import com.app.golgo.auth.repository.TestLoginCredentialRepository;
 import com.app.golgo.auth.repository.UserRepository;
 import com.app.golgo.auth.security.JwtProvider;
 import java.time.Clock;
@@ -47,9 +47,6 @@ class AuthServiceTest {
 	@Mock
 	private RefreshTokenRepository refreshTokenRepository;
 
-	@Mock
-	private TestLoginCredentialRepository testLoginCredentialRepository;
-
 	private AuthService authService;
 	private PasswordEncoder passwordEncoder;
 
@@ -66,7 +63,6 @@ class AuthServiceTest {
 			userRepository,
 			authProviderRepository,
 			refreshTokenRepository,
-			testLoginCredentialRepository,
 			jwtProvider,
 			passwordEncoder,
 			CLOCK
@@ -138,14 +134,24 @@ class AuthServiceTest {
 	}
 
 	@Test
-	void testLoginIssuesTokenPairWhenCredentialMatches() {
-		User user = User.create("test01@golgo.local", "test01", null, CLOCK);
-		user.assignIdForTest(USER_ID);
-		TestLoginCredential credential = new TestLoginCredential("test01", passwordEncoder.encode("test01"), user);
-		when(testLoginCredentialRepository.findByLoginId("test01")).thenReturn(Optional.of(credential));
-		when(userRepository.findByIdAndDeletedAtIsNull(USER_ID)).thenReturn(Optional.of(user));
+	void registerCreatesUserAndIssuesTokenPair() {
+		RegisterRequest request = new RegisterRequest(
+			"golgo01",
+			"Password!1",
+			"홍길동",
+			"user@example.com",
+			"투자초보"
+		);
+		when(userRepository.existsByLoginIdAndDeletedAtIsNull("golgo01")).thenReturn(false);
+		when(userRepository.existsByEmailAndDeletedAtIsNull("user@example.com")).thenReturn(false);
+		when(userRepository.existsByNicknameAndDeletedAtIsNull("투자초보")).thenReturn(false);
+		when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+			User user = invocation.getArgument(0);
+			user.assignIdForTest(USER_ID);
+			return user;
+		});
 
-		TokenPair tokens = authService.loginWithTestCredential("test01", "test01");
+		TokenPair tokens = authService.register(request);
 
 		assertThat(tokens.accessToken()).isNotBlank();
 		assertThat(tokens.refreshToken()).isNotBlank();
@@ -153,16 +159,54 @@ class AuthServiceTest {
 	}
 
 	@Test
-	void testLoginThrowsUnauthorizedWhenPasswordDoesNotMatch() {
-		User user = User.create("test01@golgo.local", "test01", null, CLOCK);
+	void loginIssuesTokenPairWhenPasswordMatches() {
+		User user = User.createLocal(
+			"golgo01",
+			passwordEncoder.encode("Password!1"),
+			"홍길동",
+			"user@example.com",
+			"투자초보",
+			CLOCK
+		);
 		user.assignIdForTest(USER_ID);
-		TestLoginCredential credential = new TestLoginCredential("test01", passwordEncoder.encode("test01"), user);
-		when(testLoginCredentialRepository.findByLoginId("test01")).thenReturn(Optional.of(credential));
+		when(userRepository.findByLoginIdAndDeletedAtIsNull("golgo01")).thenReturn(Optional.of(user));
 
-		org.assertj.core.api.ThrowableAssert.ThrowingCallable action =
-			() -> authService.loginWithTestCredential("test01", "wrong");
+		TokenPair tokens = authService.loginWithPassword("golgo01", "Password!1");
 
-		assertThat(org.assertj.core.api.Assertions.catchThrowable(action))
+		assertThat(tokens.accessToken()).isNotBlank();
+		assertThat(tokens.refreshToken()).isNotBlank();
+		assertThat(tokens.expiresIn()).isEqualTo(900);
+	}
+
+	@Test
+	void registerRejectsWeakPassword() {
+		RegisterRequest request = new RegisterRequest("golgo01", "password", "홍길동", "user@example.com", "투자초보");
+
+		Throwable thrown = catchThrowable(() -> authService.register(request));
+
+		assertThat(thrown)
+			.isInstanceOf(AuthException.class)
+			.hasMessage("비밀번호는 대문자, 특수문자를 포함해 8자 이상이어야 합니다.")
+			.extracting(error -> ((AuthException) error).status(), error -> ((AuthException) error).code())
+			.containsExactly(HttpStatus.BAD_REQUEST, "AUTH_013");
+	}
+
+	@Test
+	void loginThrowsUnauthorizedWhenPasswordDoesNotMatch() {
+		User user = User.createLocal(
+			"golgo01",
+			passwordEncoder.encode("Password!1"),
+			"홍길동",
+			"user@example.com",
+			"투자초보",
+			CLOCK
+		);
+		user.assignIdForTest(USER_ID);
+		when(userRepository.findByLoginIdAndDeletedAtIsNull("golgo01")).thenReturn(Optional.of(user));
+
+		Throwable thrown = catchThrowable(() -> authService.loginWithPassword("golgo01", "wrong"));
+
+		assertThat(thrown)
 			.isInstanceOf(AuthException.class)
 			.hasMessage("아이디 또는 비밀번호가 올바르지 않습니다.")
 			.extracting(error -> ((AuthException) error).status(), error -> ((AuthException) error).code())

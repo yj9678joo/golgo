@@ -14,3 +14,5 @@ ALTER TABLE users ALTER COLUMN password_hash SET NOT NULL;
 ALTER TABLE users ALTER COLUMN name SET NOT NULL;
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_users_login_id ON users (login_id);
+
+DROP TABLE IF EXISTS test_login_credentials;

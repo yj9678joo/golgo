@@ -8,7 +8,8 @@ import com.app.golgo.auth.dto.NicknameUpdateResponse;
 import com.app.golgo.auth.dto.ProviderListResponse;
 import com.app.golgo.auth.dto.RefreshTokenRequest;
 import com.app.golgo.auth.dto.RemainingProvidersResponse;
-import com.app.golgo.auth.dto.TestLoginRequest;
+import com.app.golgo.auth.dto.LoginRequest;
+import com.app.golgo.auth.dto.RegisterRequest;
 import com.app.golgo.auth.dto.TokenPair;
 import com.app.golgo.auth.entity.SocialProvider;
 import com.app.golgo.auth.security.JwtPrincipal;
@@ -52,9 +53,14 @@ public class AuthController {
 		return ApiResponse.ok(authService.refreshAccessToken(request.refreshToken()));
 	}
 
-	@PostMapping("/test-login")
-	public ApiResponse<TokenPair> testLogin(@Valid @RequestBody TestLoginRequest request) {
-		return ApiResponse.ok(authService.loginWithTestCredential(request.loginId(), request.password()));
+	@PostMapping("/register")
+	public ApiResponse<TokenPair> register(@Valid @RequestBody RegisterRequest request) {
+		return ApiResponse.ok(authService.register(request));
+	}
+
+	@PostMapping("/login")
+	public ApiResponse<TokenPair> login(@Valid @RequestBody LoginRequest request) {
+		return ApiResponse.ok(authService.loginWithPassword(request.loginId(), request.password()));
 	}
 
 	@PostMapping("/logout")
