@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { MobilePage } from '@/components/layout/MobilePage'
 import logo from '@/assets/golgo-logo.png'
 import { useAuthStore } from '@/features/auth/store/auth-store'
+import { getPostLoginPath } from '@/features/auth/utils/get-post-login-path'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -19,8 +20,10 @@ export function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      await loginWithPassword(loginId, password)
-      navigate('/onboarding', { replace: true })
+      const user = await loginWithPassword(loginId, password)
+      navigate(getPostLoginPath(user.onboardingCompleted, '/onboarding'), {
+        replace: true,
+      })
     } catch {
       const message = '아이디 또는 비밀번호를 확인해 주세요.'
       setError(message)

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/features/auth/store/auth-store'
+import { getPostLoginPath } from '@/features/auth/utils/get-post-login-path'
 
 export function AuthCallbackPage() {
   const navigate = useNavigate()
@@ -48,7 +49,9 @@ export function AuthCallbackPage() {
             `연결 Provider: ${user.connectedProviders.join(', ')}`,
           ].join('\n'),
         )
-        navigate('/nickname', { replace: true })
+        navigate(getPostLoginPath(user.onboardingCompleted, '/nickname'), {
+          replace: true,
+        })
       })
       .catch(() => {
         const message = '로그인 정보를 불러오지 못했습니다.'
