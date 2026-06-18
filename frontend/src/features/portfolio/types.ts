@@ -15,29 +15,40 @@ export type BrokerAccount = {
 export type Holding = {
   symbol: string
   name: string
+  market: string
   quantity: number
   averagePrice: number
   currentPrice: number
+  currency: string
   currentValueKrw: number
+  manuallyEdited: boolean
 }
 
 export type ScreenshotUploadResult = {
   jobId: string
-  accountId: string
   status: ScreenshotStatus
-  holdings: Holding[]
+  estimatedSeconds: number
 }
 
 export type ScreenshotJob = {
   jobId: string
-  accountId: string
-  brokerName: string
   status: ScreenshotStatus
+  brokerName: string
+  accountNickname: string
+  parsedAt: string | null
+  confirmedAt: string | null
+  confidence: number | null
   holdings: Holding[]
+  totalAssetKrw: number
+  warnings: string[]
+  errorReason: string | null
+  message: string
+  estimatedSeconds: number
 }
 
 export type ScreenshotConfirmResult = {
-  screenshotId: string
-  accountId: string
-  savedHoldingCount: number
+  jobId: string
+  status: ScreenshotStatus
+  savedHoldingsCount: number
+  savedAt: string
 }

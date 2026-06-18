@@ -3,10 +3,14 @@ import type {
   BrokerAccount,
   Holding,
   ScreenshotConfirmResult,
-  ScreenshotJob,
   ScreenshotUploadResult,
 } from '@/features/portfolio/types'
 import { createScreenshotAccountPayload } from '@/features/portfolio/api/screenshot-account-contract'
+import {
+  mapScreenshotJobResponse,
+  toHoldingPayload,
+  type ScreenshotJobResponse,
+} from '@/features/portfolio/api/screenshot-job-contract'
 
 export async function createScreenshotAccount() {
   const response = await api.post<ApiResponse<BrokerAccount>>(
@@ -41,26 +45,28 @@ export async function uploadPortfolioScreenshot(accountId: string, image: File) 
 }
 
 export async function fetchScreenshotJob(jobId: string) {
-  const response = await api.get<ApiResponse<ScreenshotJob>>(`/portfolio/screenshot/${jobId}`)
-  return response.data.data
+  const response = await api.get<ApiResponse<ScreenshotJobResponse>>(
+    `/portfolio/screenshot/${jobId}`,
+  )
+  return mapScreenshotJobResponse(response.data.data)
 }
 
 export async function updateScreenshotHoldings(jobId: string, holdings: Holding[]) {
-  const response = await api.patch<ApiResponse<ScreenshotJob>>(
+  const response = await api.patch<ApiResponse<ScreenshotJobResponse>>(
     `/portfolio/screenshot/${jobId}/holdings`,
     {
-      holdings,
+      holdings: holdings.map(toHoldingPayload),
     },
   )
 
-  return response.data.data
+  return mapScreenshotJobResponse(response.data.data)
 }
 
 export async function confirmScreenshotHoldings(jobId: string, holdings: Holding[]) {
   const response = await api.post<ApiResponse<ScreenshotConfirmResult>>(
     `/portfolio/screenshot/${jobId}/confirm`,
     {
-      holdings,
+      holdings: holdings.map(toHoldingPayload),
     },
   )
 
