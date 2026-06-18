@@ -71,3 +71,9 @@ export function toHoldingPayload(holding: Holding) {
     currency: holding.currency,
   }
 }
+
+export function toHoldingConfirmRequest(holdings: Holding[]) {
+  return {
+    confirmedHoldings: holdings.map(toHoldingPayload),
+  }
+}

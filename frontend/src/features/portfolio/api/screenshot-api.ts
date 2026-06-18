@@ -8,6 +8,7 @@ import type {
 import { createScreenshotAccountPayload } from '@/features/portfolio/api/screenshot-account-contract'
 import {
   mapScreenshotJobResponse,
+  toHoldingConfirmRequest,
   toHoldingPayload,
   type ScreenshotJobResponse,
 } from '@/features/portfolio/api/screenshot-job-contract'
@@ -65,9 +66,7 @@ export async function updateScreenshotHoldings(jobId: string, holdings: Holding[
 export async function confirmScreenshotHoldings(jobId: string, holdings: Holding[]) {
   const response = await api.post<ApiResponse<ScreenshotConfirmResult>>(
     `/portfolio/screenshot/${jobId}/confirm`,
-    {
-      holdings: holdings.map(toHoldingPayload),
-    },
+    toHoldingConfirmRequest(holdings),
   )
 
   return response.data.data

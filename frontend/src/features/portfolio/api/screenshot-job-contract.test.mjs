@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
   mapScreenshotJobResponse,
+  toHoldingConfirmRequest,
   toHoldingPayload,
 } from './screenshot-job-contract.ts'
 
@@ -52,5 +53,23 @@ test('UI 보유 종목을 백엔드 수정 요청 필드로 변환한다', () =>
     avgPrice: 70000,
     currentPrice: 75000,
     currency: 'KRW',
+  })
+})
+
+test('확정 요청은 confirmedHoldings 키를 사용한다', () => {
+  const holding = mapScreenshotJobResponse(response).holdings[0]
+
+  assert.deepEqual(toHoldingConfirmRequest([holding]), {
+    confirmedHoldings: [
+      {
+        ticker: '005930',
+        name: '삼성전자',
+        market: 'KRX',
+        quantity: 10,
+        avgPrice: 70000,
+        currentPrice: 75000,
+        currency: 'KRW',
+      },
+    ],
   })
 })
