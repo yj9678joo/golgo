@@ -34,7 +34,7 @@ export function ScreenshotUploadPage() {
     try {
       const account = screenshotAccount ?? (await createAccount.mutateAsync())
       const result = await uploadScreenshot.mutateAsync({
-        accountId: account.id,
+        accountId: account.accountId,
         image: selectedFile,
       })
 

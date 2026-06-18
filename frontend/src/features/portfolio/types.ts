@@ -3,11 +3,13 @@ export type BrokerConnectionType = 'SCREENSHOT' | 'API_KEY'
 export type ScreenshotStatus = 'UPLOADED' | 'PARSED' | 'CONFIRMED' | 'FAILED'
 
 export type BrokerAccount = {
-  id: string
-  brokerName: string
-  displayName: string
+  accountId: string
+  brokerCode: string
   connectionType: BrokerConnectionType
+  accountNickname: string
   connectedAt: string
+  lastSyncedAt: string | null
+  notice: string
 }
 
 export type Holding = {

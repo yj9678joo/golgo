@@ -6,12 +6,13 @@ import type {
   ScreenshotJob,
   ScreenshotUploadResult,
 } from '@/features/portfolio/types'
+import { createScreenshotAccountPayload } from '@/features/portfolio/api/screenshot-account-contract'
 
 export async function createScreenshotAccount() {
-  const response = await api.post<ApiResponse<BrokerAccount>>('/brokers/connect/screenshot', {
-    brokerName: 'MTS 캡처',
-    displayName: 'MTS 캡처 계좌',
-  })
+  const response = await api.post<ApiResponse<BrokerAccount>>(
+    '/brokers/connect/screenshot',
+    createScreenshotAccountPayload(),
+  )
 
   return response.data.data
 }
