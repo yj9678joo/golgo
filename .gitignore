@@ -44,7 +44,7 @@ Thumbs.db
 frontend/.gstack
 
 # Agent instructions
-AGENT.md
+AGENTS.md
 .codex/back-end/back_end.md
 .codex/front-end/font_end.md
 
