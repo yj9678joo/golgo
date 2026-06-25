@@ -90,7 +90,7 @@ export function ScreenshotReviewPage() {
             확인해주세요
           </h1>
           <p className="mt-2 text-[14px] leading-6 text-[#6B7684]">
-            임시 파서 결과라 실제 수치와 다를 수 있어요.
+            캡처 인식 결과를 확인하고 필요한 항목을 수정해주세요.
           </p>
         </header>
 

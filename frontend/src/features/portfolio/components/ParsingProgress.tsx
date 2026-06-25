@@ -20,7 +20,7 @@ export function ParsingProgress({ isUploading }: ParsingProgressProps) {
             {isUploading ? '캡처를 분석 중이에요' : '캡처 파일 준비 완료'}
           </p>
           <p className="mt-1 text-[12px] leading-5 text-[#6B7684]">
-            {isUploading ? '임시 파서로 보유 종목 후보를 생성합니다' : '업로드하면 검토 화면으로 이동합니다'}
+            {isUploading ? '캡처에서 보유 종목 후보를 인식합니다' : '업로드하면 검토 화면으로 이동합니다'}
           </p>
         </div>
       </div>

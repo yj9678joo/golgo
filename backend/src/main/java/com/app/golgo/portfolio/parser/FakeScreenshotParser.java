@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(prefix = "golgo.screenshot", name = "parser", havingValue = "fake", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "golgo.screenshot", name = "parser", havingValue = "fake")
 public class FakeScreenshotParser implements ScreenshotParser {
 
 	@Override

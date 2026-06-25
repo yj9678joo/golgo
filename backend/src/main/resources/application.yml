@@ -72,7 +72,7 @@ golgo:
     auth-callback-url: ${FRONTEND_AUTH_CALLBACK_URL:http://localhost:3000/auth/callback}
   screenshot:
     storage-dir: ${GOLGO_SCREENSHOT_STORAGE_DIR:./data/screenshots}
-    parser: ${GOLGO_SCREENSHOT_PARSER:fake}
+    parser: ${GOLGO_SCREENSHOT_PARSER:gemini}
     gemini:
       api-key: ${GEMINI_API_KEY:}
       model: ${GEMINI_MODEL:gemini-2.5-flash}

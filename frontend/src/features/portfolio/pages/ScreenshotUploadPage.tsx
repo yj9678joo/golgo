@@ -69,7 +69,7 @@ export function ScreenshotUploadPage() {
             업로드해주세요
           </h1>
           <p className="mt-2 text-[14px] leading-6 text-[#6B7684]">
-            Week 5에서는 캡처 파일 저장과 임시 파싱 결과 검토까지 지원합니다.
+            업로드한 캡처를 분석해 보유 종목 후보를 보여드립니다.
           </p>
         </header>
 
