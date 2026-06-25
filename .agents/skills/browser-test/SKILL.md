@@ -16,17 +16,19 @@ Validate the implemented user flow in a real browser with Playwright. If the bro
 - The implementation is committed or the intended verification scope is clear.
 - Internal tests, lint, and build relevant to the change have passed.
 - A realistic user flow and success criteria are known.
+- Browser tests use the existing QA account with login ID `codexqa`.
 
 ## Procedure
 
 1. Announce that `browser-test` is being used.
 2. Confirm the internal verification commands and results.
 3. Start the required backend/frontend dev servers without changing production settings.
-4. Use Playwright to run the actual user entry point through the success state.
-5. Check visible UI state, console errors, network failures, and the expected persisted/API result.
-6. If the browser test fails, investigate, fix, rerun internal verification, and repeat the browser test.
-7. If the browser test passes and a work branch exists, call `merge-master`.
-8. Report the tested URL, scenario, result, screenshots/logs if useful, and merge result.
+4. Sign in with the existing QA login ID `codexqa`.
+5. Use Playwright to run the actual user entry point through the success state.
+6. Check visible UI state, console errors, network failures, and the expected persisted/API result.
+7. If the browser test fails, investigate, fix, rerun internal verification, and repeat the browser test.
+8. If the browser test passes and a work branch exists, call `merge-master`.
+9. Report the tested URL, login ID, scenario, result, screenshots/logs if useful, and merge result.
 
 ## Scope Control
 
@@ -44,4 +46,3 @@ Validate the implemented user flow in a real browser with Playwright. If the bro
 | Network | Expected API calls return successful responses |
 | Data | Saved or returned values match the scenario |
 | Cleanup | Generated local artifacts are not left in git status |
-
