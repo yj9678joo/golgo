@@ -8,6 +8,7 @@ import {
   useScreenshotJob,
   useUpdateScreenshotHoldings,
 } from '@/features/portfolio/hooks/use-screenshot-upload'
+import { getHoldingRowKey } from '@/features/portfolio/pages/screenshot-review-key'
 import type { Holding } from '@/features/portfolio/types'
 
 export function ScreenshotReviewPage() {
@@ -102,9 +103,9 @@ export function ScreenshotReviewPage() {
         </section>
 
         <div className="mt-4 grid gap-2.5">
-          {holdings.map((holding) => (
+          {holdings.map((holding, index) => (
             <button
-              key={holding.symbol}
+              key={getHoldingRowKey(holding, index)}
               className="flex w-full items-center justify-between gap-3 rounded-[16px] bg-white p-4 text-left"
               type="button"
               onClick={() => setEditing(holding)}

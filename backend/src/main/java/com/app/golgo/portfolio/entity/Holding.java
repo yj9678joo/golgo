@@ -33,7 +33,7 @@ public class Holding {
 	@JoinColumn(name = "broker_account_id", nullable = false)
 	private BrokerAccount brokerAccount;
 
-	@Column(nullable = false, length = 20)
+	@Column(length = 20)
 	private String ticker;
 
 	@Column(nullable = false, length = 100)
@@ -62,7 +62,7 @@ public class Holding {
 
 	private Holding(BrokerAccount brokerAccount, HoldingPayload payload, Clock clock) {
 		this.brokerAccount = brokerAccount;
-		this.ticker = payload.ticker();
+		this.ticker = payload.ticker().isBlank() ? null : payload.ticker();
 		this.name = payload.name();
 		this.market = payload.market();
 		this.quantity = payload.quantity();
