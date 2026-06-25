@@ -9,6 +9,7 @@ public record ParsedHolding(
 	BigDecimal quantity,
 	BigDecimal avgPrice,
 	BigDecimal currentPrice,
-	String currency
+	String currency,
+	BigDecimal currentValueKrw
 ) {
 }

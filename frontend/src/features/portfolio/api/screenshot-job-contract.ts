@@ -69,6 +69,7 @@ export function toHoldingPayload(holding: Holding) {
     avgPrice: holding.averagePrice,
     currentPrice: holding.currentPrice,
     currency: holding.currency,
+    currentValueKrw: holding.currentValueKrw,
   }
 }
 

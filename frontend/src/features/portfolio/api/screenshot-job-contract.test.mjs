@@ -53,6 +53,7 @@ test('UI 보유 종목을 백엔드 수정 요청 필드로 변환한다', () =>
     avgPrice: 70000,
     currentPrice: 75000,
     currency: 'KRW',
+    currentValueKrw: 750000,
   })
 })
 
@@ -69,6 +70,7 @@ test('확정 요청은 confirmedHoldings 키를 사용한다', () => {
         avgPrice: 70000,
         currentPrice: 75000,
         currency: 'KRW',
+        currentValueKrw: 750000,
       },
     ],
   })

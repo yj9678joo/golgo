@@ -54,6 +54,9 @@ public class Holding {
 	@Column(nullable = false, length = 3)
 	private String currency;
 
+	@Column(name = "current_value_krw", nullable = false, precision = 20, scale = 2)
+	private java.math.BigDecimal currentValueKrw;
+
 	@Column(name = "updated_at", nullable = false)
 	private Instant updatedAt;
 
@@ -66,6 +69,7 @@ public class Holding {
 		this.avgPrice = payload.avgPrice();
 		this.currentPrice = payload.currentPrice();
 		this.currency = payload.currency();
+		this.currentValueKrw = payload.currentValueKrw();
 		this.updatedAt = Instant.now(clock);
 	}
 

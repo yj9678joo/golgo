@@ -72,6 +72,11 @@ golgo:
     auth-callback-url: ${FRONTEND_AUTH_CALLBACK_URL:http://localhost:3000/auth/callback}
   screenshot:
     storage-dir: ${GOLGO_SCREENSHOT_STORAGE_DIR:./data/screenshots}
+    parser: ${GOLGO_SCREENSHOT_PARSER:fake}
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      model: ${GEMINI_MODEL:gemini-2.5-flash}
+      base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
   jwt:
     access-token-validity-seconds: ${JWT_ACCESS_TOKEN_VALIDITY_SECONDS:900}
     refresh-token-validity-seconds: ${JWT_REFRESH_TOKEN_VALIDITY_SECONDS:604800}

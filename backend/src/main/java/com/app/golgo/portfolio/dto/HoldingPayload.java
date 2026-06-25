@@ -27,7 +27,10 @@ public record HoldingPayload(
 	BigDecimal currentPrice,
 	@NotBlank
 	@Size(min = 3, max = 3)
-	String currency
+	String currency,
+	@NotNull
+	@DecimalMin(value = "0.0")
+	BigDecimal currentValueKrw
 ) {
 	public HoldingPayload normalized() {
 		return new HoldingPayload(
@@ -37,7 +40,8 @@ public record HoldingPayload(
 			quantity,
 			avgPrice,
 			currentPrice,
-			currency.trim().toUpperCase()
+			currency.trim().toUpperCase(),
+			currentValueKrw
 		);
 	}
 }

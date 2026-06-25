@@ -27,7 +27,6 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -203,7 +202,8 @@ public class PortfolioScreenshotService {
 			holding.quantity(),
 			holding.avgPrice(),
 			holding.currentPrice(),
-			holding.currency()
+			holding.currency(),
+			holding.currentValueKrw()
 		);
 	}
 
@@ -213,11 +213,8 @@ public class PortfolioScreenshotService {
 			.toList();
 		Set<String> tickers = new HashSet<>();
 		for (HoldingPayload holding : normalized) {
-			if (!tickers.add(holding.ticker())) {
+			if (!holding.ticker().isBlank() && !tickers.add(holding.ticker())) {
 				throw new ScreenshotException(HttpStatus.BAD_REQUEST, "SCREENSHOT_006", "중복된 종목 코드가 있습니다.");
-			}
-			if (!"KRW".equals(holding.currency().toUpperCase(Locale.ROOT))) {
-				throw new ScreenshotException(HttpStatus.BAD_REQUEST, "SCREENSHOT_006", "Week 5에서는 KRW 종목만 저장할 수 있습니다.");
 			}
 		}
 		return normalized;
@@ -225,7 +222,7 @@ public class PortfolioScreenshotService {
 
 	private BigDecimal totalAssetKrw(List<HoldingPayload> holdings) {
 		return holdings.stream()
-			.map(holding -> holding.quantity().multiply(holding.currentPrice()))
+			.map(HoldingPayload::currentValueKrw)
 			.reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 

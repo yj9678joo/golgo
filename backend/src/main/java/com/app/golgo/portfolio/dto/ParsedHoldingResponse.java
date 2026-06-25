@@ -22,7 +22,7 @@ public record ParsedHoldingResponse(
 			payload.avgPrice(),
 			payload.currentPrice(),
 			payload.currency(),
-			payload.quantity().multiply(payload.currentPrice()),
+			payload.currentValueKrw(),
 			manuallyEdited
 		);
 	}

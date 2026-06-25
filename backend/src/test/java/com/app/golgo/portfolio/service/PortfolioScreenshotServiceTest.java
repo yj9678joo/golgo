@@ -16,6 +16,7 @@ import com.app.golgo.portfolio.dto.ScreenshotConfirmResponse;
 import com.app.golgo.portfolio.dto.ScreenshotUploadResponse;
 import com.app.golgo.portfolio.entity.PortfolioScreenshot;
 import com.app.golgo.portfolio.parser.ParsedPortfolio;
+import com.app.golgo.portfolio.parser.ParsedHolding;
 import com.app.golgo.portfolio.parser.ScreenshotParser;
 import com.app.golgo.portfolio.repository.HoldingRepository;
 import com.app.golgo.portfolio.repository.PortfolioScreenshotRepository;
@@ -116,6 +117,27 @@ class PortfolioScreenshotServiceTest {
 	}
 
 	@Test
+	void uploadAllowsMissingTickersForManualReview() {
+		MockMultipartFile file = new MockMultipartFile("image", "mts.png", "image/png", new byte[] {1, 2, 3});
+		when(brokerService.findActiveAccountForUser(USER_ID, ACCOUNT_ID)).thenReturn(account);
+		when(storage.store(USER_ID, file)).thenReturn(new StoredScreenshot("user/mts.png", Path.of("D:/tmp/mts.png")));
+		when(parser.parse(Path.of("D:/tmp/mts.png"))).thenReturn(new ParsedPortfolio(
+			List.of(parsedHolding("ETF A"), parsedHolding("ETF B")),
+			new BigDecimal("0.9"),
+			List.of("종목 코드를 확인해 주세요.")
+		));
+		when(screenshotRepository.saveAndFlush(any(PortfolioScreenshot.class))).thenAnswer(invocation -> {
+			PortfolioScreenshot screenshot = invocation.getArgument(0);
+			screenshot.assignIdForTest(JOB_ID);
+			return screenshot;
+		});
+
+		ScreenshotUploadResponse response = service.upload(USER_ID, ACCOUNT_ID, file);
+
+		assertThat(response.status()).isEqualTo("COMPLETED");
+	}
+
+	@Test
 	void confirmReplacesAccountHoldingsAndMarksJobConfirmed() {
 		PortfolioScreenshot screenshot = completedScreenshot();
 		when(screenshotRepository.findByIdAndUserId(JOB_ID, USER_ID)).thenReturn(Optional.of(screenshot));
@@ -130,6 +152,7 @@ class PortfolioScreenshotServiceTest {
 		verify(holdingRepository).saveAll(anyList());
 		assertThat(response.status()).isEqualTo("CONFIRMED");
 		assertThat(response.savedHoldingsCount()).isEqualTo(1);
+		assertThat(screenshot.getTotalAssetKrw()).isEqualByComparingTo("4000000");
 	}
 
 	@Test
@@ -150,6 +173,21 @@ class PortfolioScreenshotServiceTest {
 			.isEqualTo("SCREENSHOT_005");
 	}
 
+	@Test
+	void confirmAcceptsUsdHoldingWithDisplayedKrwValue() {
+		PortfolioScreenshot screenshot = completedScreenshot();
+		when(screenshotRepository.findByIdAndUserId(JOB_ID, USER_ID)).thenReturn(Optional.of(screenshot));
+
+		ScreenshotConfirmResponse response = service.confirm(
+			USER_ID,
+			JOB_ID,
+			new HoldingConfirmRequest(List.of(holding("2", "USD", "410000")), new BigDecimal("410000"))
+		);
+
+		assertThat(response.status()).isEqualTo("CONFIRMED");
+		assertThat(screenshot.getTotalAssetKrw()).isEqualByComparingTo("410000");
+	}
+
 	private PortfolioScreenshot completedScreenshot() {
 		PortfolioScreenshot screenshot = PortfolioScreenshot.processing(user, account, "user/mts.png", CLOCK);
 		screenshot.assignIdForTest(JOB_ID);
@@ -164,6 +202,10 @@ class PortfolioScreenshotServiceTest {
 	}
 
 	private HoldingPayload holding(String quantity) {
+		return holding(quantity, "KRW", "4000000");
+	}
+
+	private HoldingPayload holding(String quantity, String currency, String currentValueKrw) {
 		return new HoldingPayload(
 			"005930",
 			"삼성전자",
@@ -171,7 +213,21 @@ class PortfolioScreenshotServiceTest {
 			new BigDecimal(quantity),
 			new BigDecimal("68000"),
 			new BigDecimal("72000"),
-			"KRW"
+			currency,
+			new BigDecimal(currentValueKrw)
+		);
+	}
+
+	private ParsedHolding parsedHolding(String name) {
+		return new ParsedHolding(
+			"",
+			name,
+			"KOSPI",
+			BigDecimal.ONE,
+			new BigDecimal("1000"),
+			new BigDecimal("1100"),
+			"KRW",
+			new BigDecimal("1100")
 		);
 	}
 }
