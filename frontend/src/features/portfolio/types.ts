@@ -96,3 +96,15 @@ export type PortfolioAccountSyncStatus = {
   daysSinceSync: number | null
   nudgeMessage: string | null
 }
+
+export type PortfolioHistoryPeriod = '1W' | '1M' | '3M' | '6M' | '1Y' | 'ALL'
+
+export type PortfolioHistorySnapshot = {
+  date: string
+  totalAssetKrw: number
+}
+
+export type PortfolioHistoryResponse = {
+  period: string
+  snapshots: PortfolioHistorySnapshot[]
+}
