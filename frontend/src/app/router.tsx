@@ -1,12 +1,13 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AuthGuard } from '@/features/auth/components/AuthGuard'
 import { AuthCallbackPage } from '@/features/auth/pages/AuthCallbackPage'
-import { HomePage } from '@/features/auth/pages/HomePage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { NicknamePage } from '@/features/auth/pages/NicknamePage'
 import { RegisterPage } from '@/features/auth/pages/RegisterPage'
 import { BrokerSetupPage } from '@/features/onboarding/pages/BrokerSetupPage'
 import { OnboardingPage } from '@/features/onboarding/pages/OnboardingPage'
+import { DashboardPage } from '@/features/portfolio/pages/DashboardPage'
+import { PortfolioDetailPage } from '@/features/portfolio/pages/PortfolioDetailPage'
 import { ScreenshotReviewPage } from '@/features/portfolio/pages/ScreenshotReviewPage'
 import { ScreenshotUploadPage } from '@/features/portfolio/pages/ScreenshotUploadPage'
 
@@ -28,7 +29,11 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <HomePage />,
+        element: <DashboardPage />,
+      },
+      {
+        path: '/portfolio',
+        element: <PortfolioDetailPage />,
       },
       {
         path: '/nickname',

@@ -52,3 +52,47 @@ export type ScreenshotConfirmResult = {
   savedHoldingsCount: number
   savedAt: string
 }
+
+export type PortfolioSyncStatus = 'SYNCED' | 'OUTDATED' | 'ERROR'
+
+export type PortfolioAccount = {
+  accountId: string
+  brokerCode: string
+  accountNickname: string
+  connectionType: BrokerConnectionType
+  lastSyncedAt: string | null
+  syncStatus: PortfolioSyncStatus
+  daysSinceSync: number | null
+}
+
+export type PortfolioHolding = {
+  ticker: string | null
+  name: string
+  market: string
+  quantity: number
+  avgPrice: number
+  currentPrice: number | null
+  currentValueKrw: number
+  weight: number
+  profitRate: number
+  accountId: string
+}
+
+export type PortfolioDashboard = {
+  totalAssetKrw: number
+  totalProfitKrw: number
+  profitRate: number
+  accounts: PortfolioAccount[]
+  holdings: PortfolioHolding[]
+  updatedAt: string
+}
+
+export type PortfolioAccountSyncStatus = {
+  accountId: string
+  brokerCode: string
+  connectionType: BrokerConnectionType
+  syncStatus: PortfolioSyncStatus
+  lastSyncedAt: string | null
+  daysSinceSync: number | null
+  nudgeMessage: string | null
+}
