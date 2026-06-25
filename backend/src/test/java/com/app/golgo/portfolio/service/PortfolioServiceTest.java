@@ -8,6 +8,7 @@ import com.app.golgo.broker.entity.BrokerAccount;
 import com.app.golgo.broker.repository.BrokerAccountRepository;
 import com.app.golgo.portfolio.dto.HoldingPayload;
 import com.app.golgo.portfolio.dto.PortfolioDashboardResponse;
+import com.app.golgo.portfolio.dto.PortfolioHistoryResponse;
 import com.app.golgo.portfolio.dto.PortfolioSyncStatusResponse;
 import com.app.golgo.portfolio.entity.Holding;
 import com.app.golgo.portfolio.repository.HoldingRepository;
@@ -70,6 +71,42 @@ class PortfolioServiceTest {
 				assertThat(holding.weight()).isEqualByComparingTo("100.00");
 				assertThat(holding.profitRate()).isEqualByComparingTo("5.88");
 			});
+	}
+
+	@Test
+	void historyReturnsDerivedDashboardHistoryForRequestedPeriodWithoutPersistedSnapshots() {
+		when(holdingRepository.findAllActiveByUserId(USER_ID))
+			.thenReturn(List.of(holding("005930", "삼성전자", "4000000", "68000", "72000")));
+
+		PortfolioHistoryResponse response = service.history(USER_ID, "1W");
+
+		assertThat(response.period()).isEqualTo("1W");
+		assertThat(response.snapshots()).hasSize(7);
+		assertThat(response.snapshots().getFirst().date()).isEqualTo("2026-06-11");
+		assertThat(response.snapshots().getLast().date()).isEqualTo("2026-06-17");
+		assertThat(response.snapshots().getLast().totalAssetKrw()).isEqualByComparingTo("4000000.00");
+	}
+
+	@Test
+	void historyDefaultsToDerivedDashboardHistoryForThreeMonths() {
+		when(holdingRepository.findAllActiveByUserId(USER_ID))
+			.thenReturn(List.of(holding("005930", "삼성전자", "4000000", "68000", "72000")));
+
+		PortfolioHistoryResponse response = service.history(USER_ID, null);
+
+		assertThat(response.period()).isEqualTo("3M");
+		assertThat(response.snapshots()).hasSize(60);
+	}
+
+	@Test
+	void historyReturnsEmptyDerivedDashboardHistoryWhenNoHoldingsExist() {
+		when(holdingRepository.findAllActiveByUserId(USER_ID))
+			.thenReturn(List.of());
+
+		PortfolioHistoryResponse response = service.history(USER_ID, "6M");
+
+		assertThat(response.period()).isEqualTo("6M");
+		assertThat(response.snapshots()).isEmpty();
 	}
 
 	@Test

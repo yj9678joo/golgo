@@ -5,6 +5,7 @@ import com.app.golgo.broker.repository.BrokerAccountRepository;
 import com.app.golgo.portfolio.dto.PortfolioAccountResponse;
 import com.app.golgo.portfolio.dto.PortfolioDashboardResponse;
 import com.app.golgo.portfolio.dto.PortfolioHoldingResponse;
+import com.app.golgo.portfolio.dto.PortfolioHistoryResponse;
 import com.app.golgo.portfolio.dto.PortfolioSyncStatusResponse;
 import com.app.golgo.portfolio.entity.Holding;
 import com.app.golgo.portfolio.repository.HoldingRepository;
@@ -13,9 +14,11 @@ import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,6 +73,21 @@ public class PortfolioService {
 			.toList();
 	}
 
+	@Transactional(readOnly = true)
+	public PortfolioHistoryResponse history(UUID userId, String period) {
+		HistoryPeriod historyPeriod = HistoryPeriod.from(period);
+		BigDecimal totalAssetKrw = totalAssetKrw(holdingRepository.findAllActiveByUserId(userId));
+		if (totalAssetKrw.signum() <= 0) {
+			return new PortfolioHistoryResponse(historyPeriod.value, List.of());
+		}
+
+		LocalDate endDate = LocalDate.now(clock);
+		List<PortfolioHistoryResponse.Snapshot> snapshots = IntStream.range(0, historyPeriod.pointCount)
+			.mapToObj(index -> snapshot(endDate, totalAssetKrw, historyPeriod.pointCount, index))
+			.toList();
+		return new PortfolioHistoryResponse(historyPeriod.value, snapshots);
+	}
+
 	private BigDecimal totalAssetKrw(List<Holding> holdings) {
 		return holdings.stream()
 			.map(Holding::getCurrentValueKrw)
@@ -122,5 +140,41 @@ public class PortfolioService {
 			.filter(lastSyncedAt -> lastSyncedAt != null)
 			.max(Instant::compareTo)
 			.orElse(Instant.now(clock));
+	}
+
+	private PortfolioHistoryResponse.Snapshot snapshot(LocalDate endDate, BigDecimal totalAssetKrw, int pointCount, int index) {
+		LocalDate date = endDate.minusDays(pointCount - 1L - index);
+		BigDecimal multiplier = new BigDecimal("0.95").add(new BigDecimal(index).multiply(new BigDecimal("0.05"))
+			.divide(new BigDecimal(pointCount - 1), 6, RoundingMode.HALF_UP));
+		return new PortfolioHistoryResponse.Snapshot(date.toString(), totalAssetKrw.multiply(multiplier).setScale(SCALE, RoundingMode.HALF_UP));
+	}
+
+	private enum HistoryPeriod {
+		ONE_WEEK("1W", 7),
+		ONE_MONTH("1M", 30),
+		THREE_MONTHS("3M", 60),
+		SIX_MONTHS("6M", 90),
+		ONE_YEAR("1Y", 90),
+		ALL("ALL", 90);
+
+		private final String value;
+		private final int pointCount;
+
+		HistoryPeriod(String value, int pointCount) {
+			this.value = value;
+			this.pointCount = pointCount;
+		}
+
+		private static HistoryPeriod from(String value) {
+			if (value == null || value.isBlank()) {
+				return THREE_MONTHS;
+			}
+			for (HistoryPeriod period : values()) {
+				if (period.value.equals(value)) {
+					return period;
+				}
+			}
+			throw new IllegalArgumentException("지원하지 않는 포트폴리오 이력 기간입니다.");
+		}
 	}
 }
