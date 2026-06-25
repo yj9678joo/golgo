@@ -44,9 +44,9 @@ Thumbs.db
 frontend/.gstack
 
 # Agent instructions
-AGENTS.md
-.codex/back-end/back_end.md
-.codex/front-end/font_end.md
+# AGENTS.md
+# .codex/back-end/back_end.md
+# .codex/front-end/font_end.md
 
 project_info.txt
 Golgo_design/
