@@ -20,8 +20,14 @@ export default defineConfig({
         start_url: "/",
         icons: [
           {
-            src: "/golgo-logo.png",
-            sizes: "1024x1024",
+            src: "/golgo-icon-128.png",
+            sizes: "128x128",
+            type: "image/png",
+            purpose: "any",
+          },
+          {
+            src: "/golgo-icon-512.png",
+            sizes: "512x512",
             type: "image/png",
             purpose: "any maskable",
           },
