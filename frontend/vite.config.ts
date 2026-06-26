@@ -18,6 +18,14 @@ export default defineConfig({
         background_color: "#f8fafc",
         display: "standalone",
         start_url: "/",
+        icons: [
+          {
+            src: "/golgo-logo.png",
+            sizes: "1024x1024",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+        ],
       },
     }),
   ],
