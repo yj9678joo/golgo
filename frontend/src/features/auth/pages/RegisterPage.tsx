@@ -155,7 +155,7 @@ export function RegisterPage() {
               </label>
               <div className="relative">
                 <input
-                  className="h-12 w-full rounded-[14px] border border-[#DDE2E7] bg-[#F7F8FA] px-3 pr-14 text-[15px] font-semibold text-[#191F28] outline-none transition focus:border-[#00A37A] focus:bg-white"
+                  className="h-12 w-full rounded-[14px] border border-[#DDE2E7] bg-[#F7F8FA] px-3 pr-14 text-[16px] font-semibold text-[#191F28] outline-none transition focus:border-[#00A37A] focus:bg-white"
                   id="nickname"
                   maxLength={12}
                   name="nickname"
@@ -242,7 +242,7 @@ function TextField({
       {label}
       <input
         autoComplete={autoComplete}
-        className="h-12 rounded-[14px] border border-[#DDE2E7] bg-[#F7F8FA] px-3 text-[15px] text-[#191F28] outline-none transition focus:border-[#00A37A] focus:bg-white"
+        className="h-12 rounded-[14px] border border-[#DDE2E7] bg-[#F7F8FA] px-3 text-[16px] text-[#191F28] outline-none transition focus:border-[#00A37A] focus:bg-white"
         name={name}
         onChange={(event) => onChange(event.target.value)}
         type={type}

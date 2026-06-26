@@ -11,7 +11,7 @@ export function MobilePage({ children, className, contentClassName }: MobilePage
   return (
     <main
       className={cn(
-        'min-h-[100svh] bg-background px-4 py-4 text-foreground [padding-bottom:max(1rem,env(safe-area-inset-bottom))] [padding-top:max(1rem,env(safe-area-inset-top))]',
+        'min-h-[100svh] bg-background px-4 py-4 text-foreground [padding-bottom:max(1rem,env(safe-area-inset-bottom))] [padding-top:max(1rem,env(safe-area-inset-top))] supports-[height:100dvh]:min-h-[100dvh]',
         className,
       )}
     >

@@ -17,7 +17,7 @@
 html {
   min-width: 320px;
   min-height: 100%;
-  background: hsl(210 40% 98%);
+  background: #F2F4F6;
 }
 
 * {
@@ -28,7 +28,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100%;
-  background: hsl(210 40% 98%);
+  background: #F2F4F6;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
   text-rendering: optimizeLegibility;
@@ -36,4 +36,5 @@ body {
 
 #root {
   min-height: 100svh;
+  background: #F2F4F6;
 }

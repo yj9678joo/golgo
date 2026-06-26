@@ -7,8 +7,19 @@ type HoldingEditSheetProps = {
   onSave: (holding: Holding) => void
 }
 
+type NumberInputValue = number | ''
+type HoldingEditForm = Omit<
+  Holding,
+  'quantity' | 'averagePrice' | 'currentPrice' | 'currentValueKrw'
+> & {
+  quantity: NumberInputValue
+  averagePrice: NumberInputValue
+  currentPrice: NumberInputValue
+  currentValueKrw: NumberInputValue
+}
+
 export function HoldingEditSheet({ holding, onClose, onSave }: HoldingEditSheetProps) {
-  const [form, setForm] = useState<Holding | null>(holding)
+  const [form, setForm] = useState<HoldingEditForm | null>(holding)
 
   useEffect(() => {
     setForm(holding)
@@ -66,10 +77,7 @@ export function HoldingEditSheet({ holding, onClose, onSave }: HoldingEditSheetP
             className="h-12 rounded-[14px] bg-[#03ba8c] text-[14px] font-semibold text-white"
             type="button"
             onClick={() =>
-              onSave({
-                ...form,
-                currentValueKrw: Number((form.quantity * form.currentPrice).toFixed(2)),
-              })
+              onSave(toHolding(form))
             }
           >
             저장
@@ -78,6 +86,24 @@ export function HoldingEditSheet({ holding, onClose, onSave }: HoldingEditSheetP
       </div>
     </div>
   )
+}
+
+function toHolding(form: HoldingEditForm): Holding {
+  const quantity = toNumber(form.quantity)
+  const averagePrice = toNumber(form.averagePrice)
+  const currentPrice = toNumber(form.currentPrice)
+
+  return {
+    ...form,
+    quantity,
+    averagePrice,
+    currentPrice,
+    currentValueKrw: Number((quantity * currentPrice).toFixed(2)),
+  }
+}
+
+function toNumber(value: NumberInputValue) {
+  return value === '' ? 0 : value
 }
 
 function Field({
@@ -93,7 +119,7 @@ function Field({
     <label className="grid gap-1.5">
       <span className="text-[12px] font-semibold text-[#6B7684]">{label}</span>
       <input
-        className="h-11 rounded-[12px] border border-[#E5E8EB] px-3 text-[14px] font-medium outline-none focus:border-[#03ba8c]"
+        className="h-11 rounded-[12px] border border-[#E5E8EB] px-3 text-[16px] font-medium outline-none focus:border-[#03ba8c]"
         value={value}
         onChange={(event) => onChange(event.target.value)}
       />
@@ -107,18 +133,21 @@ function NumberField({
   onChange,
 }: {
   label: string
-  value: number
-  onChange: (value: number) => void
+  value: NumberInputValue
+  onChange: (value: NumberInputValue) => void
 }) {
   return (
     <label className="grid gap-1.5">
       <span className="text-[12px] font-semibold text-[#6B7684]">{label}</span>
       <input
-        className="h-11 rounded-[12px] border border-[#E5E8EB] px-3 text-[14px] font-medium outline-none focus:border-[#03ba8c]"
+        className="h-11 rounded-[12px] border border-[#E5E8EB] px-3 text-[16px] font-medium outline-none focus:border-[#03ba8c]"
         inputMode="decimal"
         type="number"
         value={value}
-        onChange={(event) => onChange(Number(event.target.value))}
+        onChange={(event) => {
+          const nextValue = event.target.value
+          onChange(nextValue === '' ? '' : Number(nextValue))
+        }}
       />
     </label>
   )

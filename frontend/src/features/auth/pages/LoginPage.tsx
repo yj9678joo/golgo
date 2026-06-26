@@ -51,15 +51,12 @@ export function LoginPage() {
         </div>
 
         <div className="grid gap-2.5">
-          <form
-            className="rounded-[18px] border border-[#E5E8EB] bg-white p-4 shadow-sm"
-            onSubmit={handleDirectLogin}
-          >
+          <form className="rounded-[18px] bg-white p-4 shadow-sm" onSubmit={handleDirectLogin}>
             <div className="grid gap-2.5">
               <label className="grid gap-1.5 text-[12px] font-medium text-[#4E5968]">
                 아이디
                 <input
-                  className="h-11 rounded-[12px] border border-[#DDE2E7] bg-[#F7F8FA] px-3 text-[15px] text-[#191F28] outline-none transition focus:border-[#03ba8c] focus:bg-white"
+                  className="h-11 rounded-[12px] border border-[#DDE2E7] bg-[#F7F8FA] px-3 text-[16px] text-[#191F28] outline-none transition focus:border-[#03ba8c] focus:bg-white"
                   name="loginId"
                   value={loginId}
                   onChange={(event) => setLoginId(event.target.value)}
@@ -69,7 +66,7 @@ export function LoginPage() {
               <label className="grid gap-1.5 text-[12px] font-medium text-[#4E5968]">
                 비밀번호
                 <input
-                  className="h-11 rounded-[12px] border border-[#DDE2E7] bg-[#F7F8FA] px-3 text-[15px] text-[#191F28] outline-none transition focus:border-[#03ba8c] focus:bg-white"
+                  className="h-11 rounded-[12px] border border-[#DDE2E7] bg-[#F7F8FA] px-3 text-[16px] text-[#191F28] outline-none transition focus:border-[#03ba8c] focus:bg-white"
                   name="password"
                   type="password"
                   value={password}

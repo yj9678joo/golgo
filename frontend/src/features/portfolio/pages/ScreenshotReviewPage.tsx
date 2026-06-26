@@ -8,6 +8,7 @@ import {
   useScreenshotJob,
   useUpdateScreenshotHoldings,
 } from '@/features/portfolio/hooks/use-screenshot-upload'
+import { replaceHoldingAt } from '@/features/portfolio/pages/screenshot-review-holdings'
 import { getHoldingRowKey } from '@/features/portfolio/pages/screenshot-review-key'
 import type { Holding } from '@/features/portfolio/types'
 
@@ -17,7 +18,7 @@ export function ScreenshotReviewPage() {
   const jobQuery = useScreenshotJob(jobId)
   const updateHoldings = useUpdateScreenshotHoldings(jobId ?? '')
   const confirmHoldings = useConfirmScreenshotHoldings(jobId ?? '')
-  const [editing, setEditing] = useState<Holding | null>(null)
+  const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [draftHoldings, setDraftHoldings] = useState<Holding[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -31,10 +32,12 @@ export function ScreenshotReviewPage() {
   )
 
   const saveHolding = (next: Holding) => {
-    setDraftHoldings(
-      holdings.map((holding) => (holding.symbol === editing?.symbol ? next : holding)),
-    )
-    setEditing(null)
+    if (editingIndex === null) {
+      return
+    }
+
+    setDraftHoldings(replaceHoldingAt(holdings, editingIndex, next))
+    setEditingIndex(null)
   }
 
   const saveDraft = async () => {
@@ -108,7 +111,7 @@ export function ScreenshotReviewPage() {
               key={getHoldingRowKey(holding, index)}
               className="flex w-full items-center justify-between gap-3 rounded-[16px] bg-white p-4 text-left"
               type="button"
-              onClick={() => setEditing(holding)}
+              onClick={() => setEditingIndex(index)}
             >
               <span className="min-w-0">
                 <span className="block text-[15px] font-semibold text-[#191F28]">
@@ -162,8 +165,8 @@ export function ScreenshotReviewPage() {
       </div>
 
       <HoldingEditSheet
-        holding={editing}
-        onClose={() => setEditing(null)}
+        holding={editingIndex === null ? null : holdings[editingIndex]}
+        onClose={() => setEditingIndex(null)}
         onSave={saveHolding}
       />
     </MobilePage>
