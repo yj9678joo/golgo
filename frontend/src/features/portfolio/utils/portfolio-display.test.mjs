@@ -6,7 +6,9 @@ import {
   formatCompactKrw,
   formatKrw,
   formatSignedPercent,
+  getKoreanProfitTone,
   getPortfolioHasOutdatedAccount,
+  getPortfolioOwnerLabel,
   getSparklineLimit,
   getTargetWeight,
   getTickerBadgeLabel,
@@ -71,5 +73,22 @@ describe('portfolio display helpers', () => {
     assert.equal(estimateHoldingProfitKrw(110000, 10), 10000)
     assert.equal(estimateHoldingProfitKrw(80000, -20), -20000)
     assert.equal(estimateHoldingProfitKrw(100000, -100), 0)
+  })
+
+  it('maps profit values to Korean trading colors', () => {
+    assert.equal(getKoreanProfitTone(1), 'profit')
+    assert.equal(getKoreanProfitTone(0), 'flat')
+    assert.equal(getKoreanProfitTone(-1), 'loss')
+  })
+
+  it('derives portfolio owner label from the first account nickname', () => {
+    assert.equal(
+      getPortfolioOwnerLabel({
+        accounts: [{ accountNickname: '용주' }],
+      }),
+      '용주님',
+    )
+    assert.equal(getPortfolioOwnerLabel({ accounts: [{ accountNickname: '' }] }), '투자자님')
+    assert.equal(getPortfolioOwnerLabel(undefined), '투자자님')
   })
 })

@@ -1,4 +1,4 @@
-import { ArrowRight, Bot, RefreshCw, TrendingUp } from 'lucide-react'
+import { ArrowRight, Bot, RefreshCw, Settings } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -23,7 +23,9 @@ import {
   formatCompactKrw,
   formatKrw,
   formatSignedPercent,
+  getKoreanProfitTone,
   getPortfolioHasOutdatedAccount,
+  getPortfolioOwnerLabel,
   getSparklineLimit,
   getTickerBadgeLabel,
 } from '@/features/portfolio/utils/portfolio-display'
@@ -40,7 +42,10 @@ export function DashboardPage() {
     getPortfolioHasOutdatedAccount(account.syncStatus),
   )
   const historySeries = buildPortfolioHistorySeries(historyQuery.data).slice(-getSparklineLimit(period))
-  const profitUp = (portfolio?.totalProfitKrw ?? 0) >= 0
+  const profitTone = getKoreanProfitTone(portfolio?.totalProfitKrw ?? 0)
+  const profitColorClass = getProfitColorClass(profitTone)
+  const profitBadgeClass = getProfitBadgeClass(profitTone)
+  const profitChartColor = getProfitChartColor(profitTone)
 
   return (
     <AppTabLayout>
@@ -48,12 +53,17 @@ export function DashboardPage() {
         <div>
           <p className="text-[13px] font-semibold text-[#8B95A1]">안녕하세요</p>
           <h1 className="mt-1 text-[22px] font-semibold leading-[1.3] text-[#191F28]">
-            오늘의 포트폴리오
+            {getPortfolioOwnerLabel(portfolio)}
           </h1>
         </div>
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-[15px] bg-white text-[#03ba8c] shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
-          <TrendingUp className="size-5" aria-hidden="true" />
-        </span>
+        <button
+          className="flex size-11 shrink-0 items-center justify-center rounded-[15px] bg-white text-[#4E5968] shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]"
+          type="button"
+          aria-label="설정"
+          aria-disabled="true"
+        >
+          <Settings className="size-5" aria-hidden="true" />
+        </button>
       </header>
 
       <div className="mt-5 grid gap-3">
@@ -95,11 +105,7 @@ export function DashboardPage() {
             <section className="rounded-[20px] bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-[12px] font-semibold text-[#8B95A1]">총 평가금액</p>
-                <span
-                  className={`rounded-full px-2 py-1 text-[11px] font-semibold ${
-                    profitUp ? 'bg-[#E9FBF6] text-[#008F6B]' : 'bg-[#FEECEF] text-[#D92D3A]'
-                  }`}
-                >
+                <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${profitBadgeClass}`}>
                   {formatSignedPercent(portfolio.profitRate)}
                 </span>
               </div>
@@ -107,9 +113,7 @@ export function DashboardPage() {
                 {formatKrw(portfolio.totalAssetKrw)}
               </p>
               <p
-                className={`mt-2 font-mono text-[13px] font-semibold ${
-                  profitUp ? 'text-[#008F6B]' : 'text-[#D92D3A]'
-                }`}
+                className={`mt-2 font-mono text-[13px] font-semibold ${profitColorClass}`}
               >
                 {formatKrw(portfolio.totalProfitKrw)}
                 <span className="ml-1 font-sans font-medium text-[#8B95A1]">원금 대비</span>
@@ -138,15 +142,15 @@ export function DashboardPage() {
                     <AreaChart data={historySeries} margin={{ top: 10, right: 2, bottom: 0, left: 2 }}>
                       <defs>
                         <linearGradient id="dashboardAssetFill" x1="0" x2="0" y1="0" y2="1">
-                          <stop offset="0%" stopColor={profitUp ? '#03ba8c' : '#E5484D'} stopOpacity={0.24} />
-                          <stop offset="100%" stopColor={profitUp ? '#03ba8c' : '#E5484D'} stopOpacity={0} />
+                          <stop offset="0%" stopColor={profitChartColor} stopOpacity={0.24} />
+                          <stop offset="100%" stopColor={profitChartColor} stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <Tooltip content={<HistoryTooltip />} cursor={false} />
                       <Area
                         dataKey="value"
                         fill="url(#dashboardAssetFill)"
-                        stroke={profitUp ? '#03ba8c' : '#E5484D'}
+                        stroke={profitChartColor}
                         strokeLinecap="round"
                         strokeWidth={2.5}
                         type="monotone"
@@ -260,7 +264,7 @@ function QuickActionTile({
 }
 
 function HoldingRow({ holding }: { holding: PortfolioHolding }) {
-  const profitUp = holding.profitRate >= 0
+  const profitColorClass = getProfitColorClass(getKoreanProfitTone(holding.profitRate))
 
   return (
     <div className="flex min-w-0 items-center gap-3 py-3">
@@ -273,19 +277,55 @@ function HoldingRow({ holding }: { holding: PortfolioHolding }) {
           </span>
         </div>
         <p className="mt-1 truncate text-[12px] text-[#8B95A1]">
-          {holding.quantity.toLocaleString('ko-KR')}주 · {holding.market}
+          {holding.quantity.toLocaleString('ko-KR')}주 · 평단 {formatCompactKrw(holding.avgPrice)}원 · {holding.market}
         </p>
       </div>
       <div className="shrink-0 text-right">
         <p className="font-mono text-[13px] font-bold text-[#191F28]">
           {formatCompactKrw(holding.currentValueKrw)}원
         </p>
-        <p className={`mt-1 font-mono text-[12px] font-semibold ${profitUp ? 'text-[#008F6B]' : 'text-[#D92D3A]'}`}>
+        <p className={`mt-1 font-mono text-[12px] font-semibold ${profitColorClass}`}>
           {formatSignedPercent(holding.profitRate)}
         </p>
       </div>
     </div>
   )
+}
+
+function getProfitColorClass(tone: ReturnType<typeof getKoreanProfitTone>) {
+  if (tone === 'profit') {
+    return 'text-[#D92D3A]'
+  }
+
+  if (tone === 'loss') {
+    return 'text-[#1E64D8]'
+  }
+
+  return 'text-[#4E5968]'
+}
+
+function getProfitBadgeClass(tone: ReturnType<typeof getKoreanProfitTone>) {
+  if (tone === 'profit') {
+    return 'bg-[#FEECEF] text-[#D92D3A]'
+  }
+
+  if (tone === 'loss') {
+    return 'bg-[#EAF2FF] text-[#1E64D8]'
+  }
+
+  return 'bg-[#F2F4F6] text-[#4E5968]'
+}
+
+function getProfitChartColor(tone: ReturnType<typeof getKoreanProfitTone>) {
+  if (tone === 'profit') {
+    return '#D92D3A'
+  }
+
+  if (tone === 'loss') {
+    return '#1E64D8'
+  }
+
+  return '#4E5968'
 }
 
 function TickerBadge({ holding }: { holding: PortfolioHolding }) {

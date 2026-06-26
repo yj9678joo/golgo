@@ -13,9 +13,9 @@ import {
   formatCompactKrw,
   formatKrw,
   formatSignedPercent,
+  getKoreanProfitTone,
   getPortfolioHasOutdatedAccount,
   getTargetWeight,
-  getTickerBadgeLabel,
 } from '@/features/portfolio/utils/portfolio-display'
 
 const COLORS = ['#03ba8c', '#3182F6', '#FFB020', '#E5484D', '#7C3AED', '#8B95A1']
@@ -161,10 +161,9 @@ export function PortfolioDetailPage() {
             <section className="rounded-[20px] bg-white px-4 pb-2 pt-4 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
               <h2 className="text-[16px] font-semibold text-[#191F28]">종목별 수익률</h2>
               <div className="mt-2 divide-y divide-[#F2F4F6]">
-                {sortedHoldings.map((holding, index) => (
+                {sortedHoldings.map((holding) => (
                   <ProfitRow
                     key={`${holding.accountId}-${holding.ticker ?? holding.name}`}
-                    color={COLORS[index % COLORS.length]}
                     holding={holding}
                   />
                 ))}
@@ -231,14 +230,21 @@ function LegendRow({
   const value = view === 'current' ? holding.weight : getTargetWeight(holding, index, count)
 
   return (
-    <div className="flex min-w-0 items-center gap-2">
-      <span className="size-2.5 shrink-0 rounded-[3px]" style={{ backgroundColor: color }} />
-      <span className="min-w-0 flex-1 truncate text-[12px] font-medium text-[#4E5968]">
-        {holding.ticker ?? holding.name}
-      </span>
-      <span className="shrink-0 font-mono text-[12px] font-bold text-[#191F28]">
-        {value.toFixed(1)}%
-      </span>
+    <div className="min-w-0">
+      <div className="flex min-w-0 items-start gap-2">
+        <span className="mt-1.5 size-2.5 shrink-0 rounded-[3px]" style={{ backgroundColor: color }} />
+        <span className="min-w-0 flex-1 break-keep text-[12px] font-semibold leading-[1.35] text-[#191F28]">
+          {holding.name}
+        </span>
+      </div>
+      <div className="mt-1 flex items-center justify-between gap-2 pl-[18px]">
+        <span className="truncate font-mono text-[11px] font-semibold text-[#8B95A1]">
+          {holding.ticker ?? holding.market}
+        </span>
+        <span className="shrink-0 font-mono text-[12px] font-bold text-[#191F28]">
+          {value.toFixed(1)}%
+        </span>
+      </div>
     </div>
   )
 }
@@ -268,53 +274,61 @@ function WeightRow({
   const max = Math.max(holding.weight, targetWeight, 1)
 
   return (
-    <div className="grid grid-cols-[66px_1fr_52px] items-center gap-2 py-3">
-      <div className="flex min-w-0 items-center gap-1.5">
-        <span className="size-2 shrink-0 rounded-[2px]" style={{ backgroundColor: color }} />
-        <span className="truncate text-[12px] font-semibold text-[#191F28]">
-          {holding.ticker ?? holding.name}
+    <div className="py-3">
+      <div className="flex min-w-0 items-start gap-2">
+        <span className="mt-1.5 size-2 shrink-0 rounded-[2px]" style={{ backgroundColor: color }} />
+        <span className="min-w-0 flex-1 break-keep text-[13px] font-semibold leading-[1.35] text-[#191F28]">
+          {holding.name}
         </span>
       </div>
-      <div className="grid min-w-0 gap-1.5">
-        <div className="h-2 overflow-hidden rounded-full bg-[#F2F4F6]">
-          <div
-            className="h-full rounded-full"
-            style={{ width: `${(holding.weight / max) * 100}%`, backgroundColor: color }}
-          />
+      <div className="mt-2 grid gap-1.5 pl-4">
+        <div className="grid grid-cols-[44px_1fr_48px] items-center gap-2">
+          <span className="text-[11px] font-semibold text-[#8B95A1]">현재</span>
+          <div className="h-2 overflow-hidden rounded-full bg-[#F2F4F6]">
+            <div
+              className="h-full rounded-full"
+              style={{ width: `${(holding.weight / max) * 100}%`, backgroundColor: color }}
+            />
+          </div>
+          <span className="justify-self-end font-mono text-[11px] font-bold text-[#191F28]">
+            {holding.weight.toFixed(1)}%
+          </span>
         </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-[#F2F4F6]">
-          <div
-            className="h-full rounded-full bg-[#B0B8C1]"
-            style={{ width: `${(targetWeight / max) * 100}%` }}
-          />
+        <div className="grid grid-cols-[44px_1fr_48px] items-center gap-2">
+          <span className="text-[11px] font-semibold text-[#8B95A1]">목표</span>
+          <div className="h-1.5 overflow-hidden rounded-full bg-[#F2F4F6]">
+            <div
+              className="h-full rounded-full bg-[#B0B8C1]"
+              style={{ width: `${(targetWeight / max) * 100}%` }}
+            />
+          </div>
+          <span className="justify-self-end font-mono text-[11px] font-bold text-[#4E5968]">
+            {targetWeight.toFixed(1)}%
+          </span>
         </div>
       </div>
-      <span
-        className={`justify-self-end rounded-full px-2 py-1 font-mono text-[10px] font-bold ${
+      <div className="mt-2 flex justify-end">
+        <span
+          className={`rounded-full px-2 py-1 font-mono text-[10px] font-bold ${
           Math.abs(deviation) >= 5 ? 'bg-[#FFF4E5] text-[#B95E00]' : 'bg-[#F2F4F6] text-[#4E5968]'
-        }`}
-      >
-        {deviation > 0 ? '+' : ''}
-        {deviation.toFixed(1)}%
-      </span>
+          }`}
+        >
+          {deviation > 0 ? '+' : ''}
+          {deviation.toFixed(1)}%
+        </span>
+      </div>
     </div>
   )
 }
 
-function ProfitRow({ color, holding }: { color: string; holding: PortfolioHolding }) {
-  const profitUp = holding.profitRate >= 0
+function ProfitRow({ holding }: { holding: PortfolioHolding }) {
+  const profitColorClass = getProfitColorClass(getKoreanProfitTone(holding.profitRate))
   const profitKrw = estimateHoldingProfitKrw(holding.currentValueKrw, holding.profitRate)
 
   return (
     <div className="flex min-w-0 items-center gap-3 py-3">
-      <span
-        className="flex size-9 shrink-0 items-center justify-center rounded-[11px] font-mono text-[10px] font-bold text-white"
-        style={{ backgroundColor: color }}
-      >
-        {getTickerBadgeLabel(holding.ticker, holding.name)}
-      </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[14px] font-semibold text-[#191F28]">{holding.name}</p>
+        <p className="break-keep text-[14px] font-semibold leading-[1.35] text-[#191F28]">{holding.name}</p>
         <p className="mt-1 truncate text-[12px] text-[#8B95A1]">
           {holding.quantity.toLocaleString('ko-KR')}주 · 평단 {formatCompactKrw(holding.avgPrice)}
           원
@@ -324,10 +338,22 @@ function ProfitRow({ color, holding }: { color: string; holding: PortfolioHoldin
         <p className="font-mono text-[13px] font-bold text-[#191F28]">
           {formatCompactKrw(holding.currentValueKrw)}원
         </p>
-        <p className={`mt-1 font-mono text-[11px] font-bold ${profitUp ? 'text-[#008F6B]' : 'text-[#D92D3A]'}`}>
+        <p className={`mt-1 font-mono text-[11px] font-bold ${profitColorClass}`}>
           {formatCompactKrw(profitKrw)}원 ({formatSignedPercent(holding.profitRate)})
         </p>
       </div>
     </div>
   )
+}
+
+function getProfitColorClass(tone: ReturnType<typeof getKoreanProfitTone>) {
+  if (tone === 'profit') {
+    return 'text-[#D92D3A]'
+  }
+
+  if (tone === 'loss') {
+    return 'text-[#1E64D8]'
+  }
+
+  return 'text-[#4E5968]'
 }

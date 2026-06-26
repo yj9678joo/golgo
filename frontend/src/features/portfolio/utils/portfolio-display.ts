@@ -1,4 +1,5 @@
 import type {
+  PortfolioDashboard,
   PortfolioHistoryResponse,
   PortfolioHolding,
 } from '@/features/portfolio/types'
@@ -22,6 +23,25 @@ export function formatCompactKrw(value: number) {
 export function formatSignedPercent(value: number) {
   const sign = value > 0 ? '+' : ''
   return `${sign}${value.toFixed(2)}%`
+}
+
+export function getKoreanProfitTone(value: number) {
+  if (value > 0) {
+    return 'profit'
+  }
+
+  if (value < 0) {
+    return 'loss'
+  }
+
+  return 'flat'
+}
+
+export function getPortfolioOwnerLabel(
+  portfolio?: Pick<PortfolioDashboard, 'accounts'> | { accounts: { accountNickname: string }[] },
+) {
+  const nickname = portfolio?.accounts[0]?.accountNickname.trim()
+  return nickname ? `${nickname}님` : '투자자님'
 }
 
 export function getTargetWeight(holding: PortfolioHolding, index: number, count: number) {
