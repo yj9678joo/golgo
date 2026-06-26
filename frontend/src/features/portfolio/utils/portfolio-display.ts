@@ -1,5 +1,4 @@
 import type {
-  PortfolioDashboard,
   PortfolioHistoryResponse,
   PortfolioHolding,
 } from '@/features/portfolio/types'
@@ -37,11 +36,9 @@ export function getKoreanProfitTone(value: number) {
   return 'flat'
 }
 
-export function getPortfolioOwnerLabel(
-  portfolio?: Pick<PortfolioDashboard, 'accounts'> | { accounts: { accountNickname: string }[] },
-) {
-  const nickname = portfolio?.accounts[0]?.accountNickname.trim()
-  return nickname ? `${nickname}님` : '투자자님'
+export function getPortfolioOwnerLabel(nickname?: string | null) {
+  const displayName = nickname?.trim()
+  return displayName ? `${displayName}님` : '투자자님'
 }
 
 export function getTargetWeight(holding: PortfolioHolding, index: number, count: number) {
@@ -95,11 +92,6 @@ export function buildPortfolioHistorySeries(history?: PortfolioHistoryResponse) 
       date: snapshot.date,
       value: snapshot.totalAssetKrw,
     }))
-}
-
-export function getTickerBadgeLabel(ticker: string | null, name: string) {
-  const source = ticker?.trim() || name.trim()
-  return source.slice(0, 4).toUpperCase()
 }
 
 export function estimateHoldingProfitKrw(currentValueKrw: number, profitRate: number) {

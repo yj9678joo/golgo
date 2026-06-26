@@ -11,7 +11,6 @@ import {
   getPortfolioOwnerLabel,
   getSparklineLimit,
   getTargetWeight,
-  getTickerBadgeLabel,
 } from './portfolio-display.ts'
 
 describe('portfolio display helpers', () => {
@@ -63,12 +62,6 @@ describe('portfolio display helpers', () => {
     assert.equal(getSparklineLimit('unknown'), 90)
   })
 
-  it('creates compact ticker badge labels', () => {
-    assert.equal(getTickerBadgeLabel('005930', '삼성전자'), '0059')
-    assert.equal(getTickerBadgeLabel('QQQ', 'Invesco QQQ'), 'QQQ')
-    assert.equal(getTickerBadgeLabel(null, 'Apple'), 'APPL')
-  })
-
   it('estimates profit amount from holding value and profit rate', () => {
     assert.equal(estimateHoldingProfitKrw(110000, 10), 10000)
     assert.equal(estimateHoldingProfitKrw(80000, -20), -20000)
@@ -81,14 +74,9 @@ describe('portfolio display helpers', () => {
     assert.equal(getKoreanProfitTone(-1), 'loss')
   })
 
-  it('derives portfolio owner label from the first account nickname', () => {
-    assert.equal(
-      getPortfolioOwnerLabel({
-        accounts: [{ accountNickname: '용주' }],
-      }),
-      '용주님',
-    )
-    assert.equal(getPortfolioOwnerLabel({ accounts: [{ accountNickname: '' }] }), '투자자님')
+  it('derives portfolio owner label from the user nickname', () => {
+    assert.equal(getPortfolioOwnerLabel('용주'), '용주님')
+    assert.equal(getPortfolioOwnerLabel(''), '투자자님')
     assert.equal(getPortfolioOwnerLabel(undefined), '투자자님')
   })
 })

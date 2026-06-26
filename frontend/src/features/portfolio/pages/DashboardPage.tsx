@@ -12,6 +12,7 @@ import { AppTabLayout } from '@/components/layout/AppTabLayout'
 import { EmptyState } from '@/components/common/EmptyState'
 import { ErrorState } from '@/components/common/ErrorState'
 import { SkeletonBlock } from '@/components/common/SkeletonBlock'
+import { useAuthStore } from '@/features/auth/store/auth-store'
 import { OutdatedPortfolioBanner } from '@/features/portfolio/components/OutdatedPortfolioBanner'
 import { usePortfolio, usePortfolioHistory } from '@/features/portfolio/hooks/use-portfolio'
 import type {
@@ -27,7 +28,6 @@ import {
   getPortfolioHasOutdatedAccount,
   getPortfolioOwnerLabel,
   getSparklineLimit,
-  getTickerBadgeLabel,
 } from '@/features/portfolio/utils/portfolio-display'
 
 const PERIODS: PortfolioHistoryPeriod[] = ['1W', '1M', '3M', '6M', '1Y', 'ALL']
@@ -35,6 +35,7 @@ const PERIODS: PortfolioHistoryPeriod[] = ['1W', '1M', '3M', '6M', '1Y', 'ALL']
 export function DashboardPage() {
   const navigate = useNavigate()
   const [period, setPeriod] = useState<PortfolioHistoryPeriod>('3M')
+  const user = useAuthStore((state) => state.user)
   const portfolioQuery = usePortfolio()
   const historyQuery = usePortfolioHistory(period)
   const portfolio = portfolioQuery.data
@@ -53,7 +54,7 @@ export function DashboardPage() {
         <div>
           <p className="text-[13px] font-semibold text-[#8B95A1]">안녕하세요</p>
           <h1 className="mt-1 text-[22px] font-semibold leading-[1.3] text-[#191F28]">
-            {getPortfolioOwnerLabel(portfolio)}
+            {getPortfolioOwnerLabel(user?.nickname)}
           </h1>
         </div>
         <button
@@ -267,8 +268,7 @@ function HoldingRow({ holding }: { holding: PortfolioHolding }) {
   const profitColorClass = getProfitColorClass(getKoreanProfitTone(holding.profitRate))
 
   return (
-    <div className="flex min-w-0 items-center gap-3 py-3">
-      <TickerBadge holding={holding} />
+    <div className="flex min-w-0 items-center py-3">
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-2">
           <p className="truncate text-[14px] font-semibold text-[#191F28]">{holding.name}</p>
@@ -328,10 +328,3 @@ function getProfitChartColor(tone: ReturnType<typeof getKoreanProfitTone>) {
   return '#4E5968'
 }
 
-function TickerBadge({ holding }: { holding: PortfolioHolding }) {
-  return (
-    <span className="flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-[#191F28] font-mono text-[10px] font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]">
-      {getTickerBadgeLabel(holding.ticker, holding.name)}
-    </span>
-  )
-}
