@@ -1,0 +1,10 @@
+sandbox_mode = "workspace-write"
+
+[shell_environment_policy]
+inherit = "core"
+
+[shell_environment_policy.set]
+CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1"
+
+[projects.'d:\김용주\project\golgo']
+trust_level = "trusted"
