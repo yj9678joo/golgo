@@ -101,9 +101,11 @@ export function ScreenshotUploadPage() {
           onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
         />
 
-        <div className="mt-4">
-          <ParsingProgress isUploading={isWorking} />
-        </div>
+        {isWorking ? (
+          <div className="mt-4">
+            <ParsingProgress isUploading={isWorking} />
+          </div>
+        ) : null}
 
         {error ? (
           <p className="mt-4 rounded-[14px] bg-white p-3 text-center text-[13px] font-semibold text-[#E5484D]">
