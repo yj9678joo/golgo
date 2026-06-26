@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { lockBodyScroll } from '@/lib/scroll-lock'
 import type { Holding } from '@/features/portfolio/types'
 
 type HoldingEditSheetProps = {
@@ -29,6 +30,14 @@ export function HoldingEditSheet({
 
   useEffect(() => {
     setForm(holding)
+  }, [holding])
+
+  useEffect(() => {
+    if (!holding) {
+      return undefined
+    }
+
+    return lockBodyScroll()
   }, [holding])
 
   if (!holding || !form) {
