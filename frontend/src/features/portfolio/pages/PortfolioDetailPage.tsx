@@ -14,9 +14,9 @@ import {
   formatKrw,
   formatSignedPercent,
   getKoreanProfitTone,
-  getPortfolioHasOutdatedAccount,
   getTargetWeight,
 } from '@/features/portfolio/utils/portfolio-display'
+import { getPortfolioRefreshNotice } from '@/features/portfolio/utils/portfolio-detail-display'
 
 const COLORS = ['#03ba8c', '#3182F6', '#FFB020', '#E5484D', '#7C3AED', '#8B95A1']
 
@@ -27,9 +27,7 @@ export function PortfolioDetailPage() {
   const [donutView, setDonutView] = useState<DonutView>('current')
   const portfolioQuery = usePortfolio()
   const portfolio = portfolioQuery.data
-  const outdatedAccount = portfolio?.accounts.find((account) =>
-    getPortfolioHasOutdatedAccount(account.syncStatus),
-  )
+  const refreshNotice = getPortfolioRefreshNotice(portfolio?.accounts ?? [])
   const sortedHoldings = useMemo(
     () => [...(portfolio?.holdings ?? [])].sort((a, b) => b.weight - a.weight),
     [portfolio?.holdings],
@@ -69,25 +67,23 @@ export function PortfolioDetailPage() {
 
         {portfolio && portfolio.holdings.length > 0 ? (
           <>
-            <section className="flex items-center gap-3 rounded-[16px] bg-[#FFF4E5] px-4 py-3 text-[#8A4B00]">
-              <RefreshCw className="size-4 shrink-0" aria-hidden="true" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-semibold">
-                  {outdatedAccount?.daysSinceSync === null || outdatedAccount === undefined
-                    ? '포트폴리오 최신화가 필요해요'
-                    : `${outdatedAccount.accountNickname} 계좌가 ${outdatedAccount.daysSinceSync}일 전 기준이에요`}
-                </p>
-                <p className="truncate text-[12px] text-[#8A4B00]/75">최신 캡처로 리밸런싱 정확도를 높여요</p>
-              </div>
-              <button
-                className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-[10px] bg-[#03ba8c] px-3 text-[12px] font-semibold text-white"
-                type="button"
-                onClick={() => navigate('/portfolio/screenshot')}
-              >
-                <Upload className="size-3.5" aria-hidden="true" />
-                업로드
-              </button>
-            </section>
+            {refreshNotice ? (
+              <section className="flex items-center gap-3 rounded-[16px] bg-[#FFF4E5] px-4 py-3 text-[#8A4B00]">
+                <RefreshCw className="size-4 shrink-0" aria-hidden="true" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13px] font-semibold">{refreshNotice.title}</p>
+                  <p className="truncate text-[12px] text-[#8A4B00]/75">{refreshNotice.description}</p>
+                </div>
+                <button
+                  className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-[10px] bg-[#03ba8c] px-3 text-[12px] font-semibold text-white"
+                  type="button"
+                  onClick={() => navigate('/portfolio/screenshot')}
+                >
+                  <Upload className="size-3.5" aria-hidden="true" />
+                  업로드
+                </button>
+              </section>
+            ) : null}
 
             <section className="rounded-[20px] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
               <div className="flex items-center justify-between gap-3">
