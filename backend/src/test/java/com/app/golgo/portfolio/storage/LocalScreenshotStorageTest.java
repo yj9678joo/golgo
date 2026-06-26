@@ -27,4 +27,15 @@ class LocalScreenshotStorageTest {
 		assertThat(Files.exists(stored.absolutePath())).isTrue();
 		assertThat(stored.absolutePath()).startsWith(tempDir.toAbsolutePath());
 	}
+
+	@Test
+	void deleteRemovesStoredFile() {
+		LocalScreenshotStorage storage = new LocalScreenshotStorage(tempDir.toString());
+		MockMultipartFile file = new MockMultipartFile("image", "mts.png", "image/png", new byte[] {1, 2, 3});
+		StoredScreenshot stored = storage.store(USER_ID, file);
+
+		storage.delete(stored);
+
+		assertThat(Files.exists(stored.absolutePath())).isFalse();
+	}
 }

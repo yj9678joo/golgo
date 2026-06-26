@@ -99,6 +99,8 @@ public class PortfolioScreenshotService {
 			);
 		} catch (RuntimeException exception) {
 			screenshot.fail("PARSE_ERROR", clock);
+		} finally {
+			storage.delete(stored);
 		}
 
 		return new ScreenshotUploadResponse(screenshot.getId(), screenshot.getStatus().name(), 10);

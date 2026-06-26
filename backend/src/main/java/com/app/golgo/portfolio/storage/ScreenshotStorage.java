@@ -6,4 +6,6 @@ import org.springframework.web.multipart.MultipartFile;
 public interface ScreenshotStorage {
 
 	StoredScreenshot store(UUID userId, MultipartFile image);
+
+	void delete(StoredScreenshot screenshot);
 }

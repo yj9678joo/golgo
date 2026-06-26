@@ -40,6 +40,15 @@ public class LocalScreenshotStorage implements ScreenshotStorage {
 		return new StoredScreenshot(storageRoot.relativize(target).toString().replace('\\', '/'), target);
 	}
 
+	@Override
+	public void delete(StoredScreenshot screenshot) {
+		try {
+			Files.deleteIfExists(screenshot.absolutePath());
+		} catch (IOException exception) {
+			throw new ScreenshotException(HttpStatus.INTERNAL_SERVER_ERROR, "SCREENSHOT_009", "이미지를 삭제하지 못했습니다.");
+		}
+	}
+
 	private String extension(String contentType) {
 		String normalized = contentType == null ? "" : contentType.toLowerCase(Locale.ROOT);
 		if ("image/png".equals(normalized)) {

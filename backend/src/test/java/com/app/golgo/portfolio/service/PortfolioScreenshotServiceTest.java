@@ -101,8 +101,9 @@ class PortfolioScreenshotServiceTest {
 	@Test
 	void uploadStoresParsedCompletedJob() {
 		MockMultipartFile file = new MockMultipartFile("image", "mts.png", "image/png", new byte[] {1, 2, 3});
+		StoredScreenshot stored = new StoredScreenshot("user/mts.png", Path.of("D:/tmp/mts.png"));
 		when(brokerService.findActiveAccountForUser(USER_ID, ACCOUNT_ID)).thenReturn(account);
-		when(storage.store(USER_ID, file)).thenReturn(new StoredScreenshot("user/mts.png", Path.of("D:/tmp/mts.png")));
+		when(storage.store(USER_ID, file)).thenReturn(stored);
 		when(parser.parse(Path.of("D:/tmp/mts.png"))).thenReturn(ParsedPortfolio.sample());
 		when(screenshotRepository.saveAndFlush(any(PortfolioScreenshot.class))).thenAnswer(invocation -> {
 			PortfolioScreenshot screenshot = invocation.getArgument(0);
@@ -114,6 +115,26 @@ class PortfolioScreenshotServiceTest {
 
 		assertThat(response.jobId()).isEqualTo(JOB_ID);
 		assertThat(response.status()).isEqualTo("COMPLETED");
+		verify(storage).delete(stored);
+	}
+
+	@Test
+	void uploadDeletesStoredImageAfterParseFailure() {
+		MockMultipartFile file = new MockMultipartFile("image", "mts.png", "image/png", new byte[] {1, 2, 3});
+		StoredScreenshot stored = new StoredScreenshot("user/mts.png", Path.of("D:/tmp/mts.png"));
+		when(brokerService.findActiveAccountForUser(USER_ID, ACCOUNT_ID)).thenReturn(account);
+		when(storage.store(USER_ID, file)).thenReturn(stored);
+		when(parser.parse(Path.of("D:/tmp/mts.png"))).thenThrow(new IllegalStateException("parse failed"));
+		when(screenshotRepository.saveAndFlush(any(PortfolioScreenshot.class))).thenAnswer(invocation -> {
+			PortfolioScreenshot screenshot = invocation.getArgument(0);
+			screenshot.assignIdForTest(JOB_ID);
+			return screenshot;
+		});
+
+		ScreenshotUploadResponse response = service.upload(USER_ID, ACCOUNT_ID, file);
+
+		assertThat(response.status()).isEqualTo("FAILED");
+		verify(storage).delete(stored);
 	}
 
 	@Test
