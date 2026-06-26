@@ -1,6 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { replaceHoldingAt } from './screenshot-review-holdings.ts'
+import {
+  appendHolding,
+  replaceHoldingAt,
+} from './screenshot-review-holdings.ts'
 
 const baseHolding = {
   symbol: '',
@@ -22,4 +25,13 @@ test('종목 코드가 비어 있어도 선택한 보유 종목만 교체한다'
   const nextHoldings = replaceHoldingAt([first, second], 1, updated)
 
   assert.deepEqual(nextHoldings, [first, updated])
+})
+
+test('새 보유 종목을 마지막에 추가한다', () => {
+  const first = { ...baseHolding, name: '삼성전자', symbol: '005930' }
+  const added = { ...baseHolding, name: 'Apple', symbol: 'AAPL', manuallyEdited: true }
+
+  const nextHoldings = appendHolding([first], added)
+
+  assert.deepEqual(nextHoldings, [first, added])
 })

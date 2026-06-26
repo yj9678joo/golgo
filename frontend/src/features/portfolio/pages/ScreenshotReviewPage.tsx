@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Check, Pencil, RefreshCw } from 'lucide-react'
+import { ArrowLeft, Check, Plus, RefreshCw } from 'lucide-react'
 import { MobilePage } from '@/components/layout/MobilePage'
 import { HoldingEditSheet } from '@/features/portfolio/components/HoldingEditSheet'
 import {
@@ -8,9 +8,28 @@ import {
   useScreenshotJob,
   useUpdateScreenshotHoldings,
 } from '@/features/portfolio/hooks/use-screenshot-upload'
-import { replaceHoldingAt } from '@/features/portfolio/pages/screenshot-review-holdings'
+import {
+  appendHolding,
+  replaceHoldingAt,
+} from '@/features/portfolio/pages/screenshot-review-holdings'
 import { getHoldingRowKey } from '@/features/portfolio/pages/screenshot-review-key'
 import type { Holding } from '@/features/portfolio/types'
+
+type EditingTarget =
+  | { mode: 'add' }
+  | { mode: 'edit'; index: number }
+
+const emptyHolding: Holding = {
+  symbol: '',
+  name: '',
+  market: 'KRX',
+  quantity: 0,
+  averagePrice: 0,
+  currentPrice: 0,
+  currency: 'KRW',
+  currentValueKrw: 0,
+  manuallyEdited: true,
+}
 
 export function ScreenshotReviewPage() {
   const { jobId } = useParams()
@@ -18,7 +37,7 @@ export function ScreenshotReviewPage() {
   const jobQuery = useScreenshotJob(jobId)
   const updateHoldings = useUpdateScreenshotHoldings(jobId ?? '')
   const confirmHoldings = useConfirmScreenshotHoldings(jobId ?? '')
-  const [editingIndex, setEditingIndex] = useState<number | null>(null)
+  const [editingTarget, setEditingTarget] = useState<EditingTarget | null>(null)
   const [draftHoldings, setDraftHoldings] = useState<Holding[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -32,12 +51,16 @@ export function ScreenshotReviewPage() {
   )
 
   const saveHolding = (next: Holding) => {
-    if (editingIndex === null) {
+    if (!editingTarget) {
       return
     }
 
-    setDraftHoldings(replaceHoldingAt(holdings, editingIndex, next))
-    setEditingIndex(null)
+    setDraftHoldings(
+      editingTarget.mode === 'add'
+        ? appendHolding(holdings, next)
+        : replaceHoldingAt(holdings, editingTarget.index, next),
+    )
+    setEditingTarget(null)
   }
 
   const saveDraft = async () => {
@@ -106,12 +129,20 @@ export function ScreenshotReviewPage() {
         </section>
 
         <div className="mt-4 grid gap-2.5">
+          <button
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-[16px] border border-dashed border-[#B0B8C1] bg-white text-[14px] font-semibold text-[#03ba8c]"
+            type="button"
+            onClick={() => setEditingTarget({ mode: 'add' })}
+          >
+            <Plus className="size-4" aria-hidden="true" />
+            종목 추가
+          </button>
           {holdings.map((holding, index) => (
             <button
               key={getHoldingRowKey(holding, index)}
               className="flex w-full items-center justify-between gap-3 rounded-[16px] bg-white p-4 text-left"
               type="button"
-              onClick={() => setEditingIndex(index)}
+              onClick={() => setEditingTarget({ mode: 'edit', index })}
             >
               <span className="min-w-0">
                 <span className="block text-[15px] font-semibold text-[#191F28]">
@@ -126,7 +157,9 @@ export function ScreenshotReviewPage() {
                 <span className="block text-[13px] font-semibold text-[#191F28]">
                   {holding.currentValueKrw.toLocaleString('ko-KR')}원
                 </span>
-                <Pencil className="ml-auto mt-1 size-4 text-[#8B95A1]" aria-hidden="true" />
+                <span className="mt-1 block text-[12px] font-semibold text-[#8B95A1]">
+                  수정
+                </span>
               </span>
             </button>
           ))}
@@ -165,8 +198,15 @@ export function ScreenshotReviewPage() {
       </div>
 
       <HoldingEditSheet
-        holding={editingIndex === null ? null : holdings[editingIndex]}
-        onClose={() => setEditingIndex(null)}
+        holding={
+          !editingTarget
+            ? null
+            : editingTarget.mode === 'add'
+              ? emptyHolding
+              : holdings[editingTarget.index]
+        }
+        mode={editingTarget?.mode ?? 'edit'}
+        onClose={() => setEditingTarget(null)}
         onSave={saveHolding}
       />
     </MobilePage>

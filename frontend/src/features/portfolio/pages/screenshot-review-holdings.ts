@@ -9,3 +9,7 @@ export function replaceHoldingAt(
     holdingIndex === index ? next : holding,
   )
 }
+
+export function appendHolding(holdings: Holding[], next: Holding) {
+  return [...holdings, next]
+}

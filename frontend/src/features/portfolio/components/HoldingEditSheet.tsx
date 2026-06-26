@@ -3,6 +3,7 @@ import type { Holding } from '@/features/portfolio/types'
 
 type HoldingEditSheetProps = {
   holding: Holding | null
+  mode?: 'add' | 'edit'
   onClose: () => void
   onSave: (holding: Holding) => void
 }
@@ -18,7 +19,12 @@ type HoldingEditForm = Omit<
   currentValueKrw: NumberInputValue
 }
 
-export function HoldingEditSheet({ holding, onClose, onSave }: HoldingEditSheetProps) {
+export function HoldingEditSheet({
+  holding,
+  mode = 'edit',
+  onClose,
+  onSave,
+}: HoldingEditSheetProps) {
   const [form, setForm] = useState<HoldingEditForm | null>(holding)
 
   useEffect(() => {
@@ -30,11 +36,18 @@ export function HoldingEditSheet({ holding, onClose, onSave }: HoldingEditSheetP
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-black/35 px-4 pb-4">
-      <div className="mx-auto w-full max-w-[430px] rounded-[22px] bg-white p-5 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-end bg-black/35 px-4 pb-4" onClick={onClose}>
+      <div
+        className="mx-auto w-full max-w-[430px] rounded-[22px] bg-white p-5 shadow-xl"
+        onClick={(event) => event.stopPropagation()}
+      >
         <header className="mb-4">
-          <p className="text-[12px] font-semibold text-[#8B95A1]">보유 종목 수정</p>
-          <h2 className="mt-1 text-[20px] font-semibold text-[#191F28]">{holding.name}</h2>
+          <p className="text-[12px] font-semibold text-[#8B95A1]">
+            {mode === 'add' ? '보유 종목 추가' : '보유 종목 수정'}
+          </p>
+          <h2 className="mt-1 text-[20px] font-semibold text-[#191F28]">
+            {mode === 'add' ? '새 종목' : holding.name}
+          </h2>
         </header>
 
         <div className="grid gap-3">
@@ -80,7 +93,7 @@ export function HoldingEditSheet({ holding, onClose, onSave }: HoldingEditSheetP
               onSave(toHolding(form))
             }
           >
-            저장
+            {mode === 'add' ? '추가' : '저장'}
           </button>
         </div>
       </div>
