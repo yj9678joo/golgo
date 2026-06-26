@@ -40,7 +40,7 @@ Thumbs.db
 
 # Agent local state
 .claude/
-.codex/
+# .codex/
 frontend/.gstack
 
 # Agent instructions
