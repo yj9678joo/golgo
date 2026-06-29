@@ -6,6 +6,8 @@ import { AppTabLayout } from '@/components/layout/AppTabLayout'
 import { EmptyState } from '@/components/common/EmptyState'
 import { ErrorState } from '@/components/common/ErrorState'
 import { SkeletonBlock } from '@/components/common/SkeletonBlock'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { usePortfolio } from '@/features/portfolio/hooks/use-portfolio'
 import type { PortfolioHolding } from '@/features/portfolio/types'
 import {
@@ -68,24 +70,24 @@ export function PortfolioDetailPage() {
         {portfolio && portfolio.holdings.length > 0 ? (
           <>
             {refreshNotice ? (
-              <section className="flex items-center gap-3 rounded-[16px] bg-[#FFF4E5] px-4 py-3 text-[#8A4B00]">
+              <Card className="flex items-center gap-3 rounded-[16px] border-0 bg-[#FFF4E5] px-4 py-3 text-[#8A4B00] shadow-none">
                 <RefreshCw className="size-4 shrink-0" aria-hidden="true" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[13px] font-semibold">{refreshNotice.title}</p>
                   <p className="truncate text-[12px] text-[#8A4B00]/75">{refreshNotice.description}</p>
                 </div>
-                <button
+                <Button
                   className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-[10px] bg-[#03ba8c] px-3 text-[12px] font-semibold text-white"
                   type="button"
                   onClick={() => navigate('/portfolio/screenshot')}
                 >
                   <Upload className="size-3.5" aria-hidden="true" />
                   업로드
-                </button>
-              </section>
+                </Button>
+              </Card>
             ) : null}
 
-            <section className="rounded-[20px] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
+            <Card className="rounded-[20px] border-0 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <h2 className="text-[16px] font-semibold text-[#191F28]">자산 비중</h2>
@@ -131,9 +133,9 @@ export function PortfolioDetailPage() {
                   ))}
                 </div>
               </div>
-            </section>
+            </Card>
 
-            <section className="rounded-[20px] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
+            <Card className="rounded-[20px] border-0 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <h2 className="text-[16px] font-semibold text-[#191F28]">현재 vs 목표</h2>
                 <div className="flex shrink-0 items-center gap-3">
@@ -152,9 +154,9 @@ export function PortfolioDetailPage() {
                   />
                 ))}
               </div>
-            </section>
+            </Card>
 
-            <section className="rounded-[20px] bg-white px-4 pb-2 pt-4 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
+            <Card className="rounded-[20px] border-0 bg-white px-4 pb-2 pt-4 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
               <h2 className="text-[16px] font-semibold text-[#191F28]">종목별 수익률</h2>
               <div className="mt-2 divide-y divide-[#F2F4F6]">
                 {sortedHoldings.map((holding) => (
@@ -164,7 +166,7 @@ export function PortfolioDetailPage() {
                   />
                 ))}
               </div>
-            </section>
+            </Card>
           </>
         ) : null}
       </div>
@@ -195,16 +197,17 @@ function SegmentToggle({
   return (
     <div className="grid grid-cols-2 rounded-[10px] bg-[#F2F4F6] p-1">
       {(['current', 'target'] as const).map((item) => (
-        <button
+        <Button
           key={item}
           className={`h-7 rounded-[8px] px-3 text-[11px] font-semibold ${
             value === item ? 'bg-white text-[#191F28] shadow-sm' : 'text-[#8B95A1]'
           }`}
           type="button"
+          variant="ghost"
           onClick={() => onChange(item)}
         >
           {item === 'current' ? '현재' : '목표'}
-        </button>
+        </Button>
       ))}
     </div>
   )

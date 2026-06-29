@@ -12,6 +12,8 @@ import { AppTabLayout } from "@/components/layout/AppTabLayout";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { SkeletonBlock } from "@/components/common/SkeletonBlock";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { useAuthStore } from "@/features/auth/store/auth-store";
 import { OutdatedPortfolioBanner } from "@/features/portfolio/components/OutdatedPortfolioBanner";
 import {
@@ -64,14 +66,15 @@ export function DashboardPage() {
             {getPortfolioOwnerLabel(user?.nickname)}
           </h1>
         </div>
-        <button
+        <Button
           className="flex size-11 shrink-0 items-center justify-center rounded-[15px] bg-white text-[#4E5968] shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]"
           type="button"
+          variant="ghost"
           aria-label="설정"
           aria-disabled="true"
         >
           <Settings className="size-5" aria-hidden="true" />
-        </button>
+        </Button>
       </header>
 
       <div className="mt-5 grid gap-3">
@@ -95,13 +98,13 @@ export function DashboardPage() {
             title="아직 보유 종목이 없어요"
             description="MTS 캡처를 업로드하면 포트폴리오 대시보드를 만들 수 있어요."
             action={
-              <button
+              <Button
                 className="h-12 rounded-[15px] bg-[#03ba8c] px-5 text-[14px] font-semibold text-white"
                 type="button"
                 onClick={() => navigate("/portfolio/screenshot")}
               >
                 캡처 업로드
-              </button>
+              </Button>
             }
           />
         ) : null}
@@ -110,7 +113,7 @@ export function DashboardPage() {
           <>
             {outdatedAccount ? <OutdatedPortfolioBanner /> : null}
 
-            <section className="rounded-[20px] bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
+            <Card className="rounded-[20px] border-0 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-[12px] font-semibold text-[#8B95A1]">
                   총 평가금액
@@ -135,18 +138,19 @@ export function DashboardPage() {
 
               <div className="mt-4 grid grid-cols-6 gap-1 rounded-[12px] bg-[#F7F8FA] p-1">
                 {PERIODS.map((item) => (
-                  <button
+                  <Button
                     key={item}
-                    className={`h-8 rounded-[9px] text-[11px] font-semibold transition ${
+                    className={`h-8 rounded-[9px] px-0 text-[11px] font-semibold transition ${
                       period === item
                         ? "bg-white text-[#191F28] shadow-sm"
                         : "text-[#8B95A1]"
                     }`}
                     type="button"
+                    variant="ghost"
                     onClick={() => setPeriod(item)}
                   >
                     {item === "ALL" ? "전체" : item}
-                  </button>
+                  </Button>
                 ))}
               </div>
 
@@ -211,7 +215,7 @@ export function DashboardPage() {
                   value={`${portfolio.holdings.length}개`}
                 />
               </div>
-            </section>
+            </Card>
 
             <div className="grid grid-cols-2 gap-2">
               <QuickActionTile
@@ -228,19 +232,20 @@ export function DashboardPage() {
               />
             </div>
 
-            <section className="rounded-[20px] bg-white px-4 pb-2 pt-3 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
+            <Card className="rounded-[20px] border-0 bg-white px-4 pb-2 pt-3 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
               <div className="flex items-center justify-between">
                 <h2 className="text-[16px] font-semibold text-[#191F28]">
                   보유 종목
                 </h2>
-                <button
-                  className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#8B95A1]"
+                <Button
+                  className="inline-flex h-auto items-center gap-1 bg-transparent px-0 text-[12px] font-semibold text-[#8B95A1] hover:bg-transparent"
                   type="button"
+                  variant="ghost"
                   onClick={() => navigate("/portfolio")}
                 >
                   전체보기
                   <ArrowRight className="size-3.5" aria-hidden="true" />
-                </button>
+                </Button>
               </div>
               <div className="mt-2 divide-y divide-[#F2F4F6]">
                 {portfolio.holdings.slice(0, 4).map((holding) => (
@@ -250,7 +255,7 @@ export function DashboardPage() {
                   />
                 ))}
               </div>
-            </section>
+            </Card>
           </>
         ) : null}
       </div>
@@ -297,9 +302,10 @@ function QuickActionTile({
   onClick: () => void;
 }) {
   return (
-    <button
-      className="rounded-[18px] bg-white p-4 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]"
+    <Button
+      className="block rounded-[18px] bg-white p-4 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]"
       type="button"
+      variant="ghost"
       onClick={onClick}
     >
       <span className="flex size-9 items-center justify-center rounded-[12px] bg-[#F2F4F6] text-[#03ba8c]">
@@ -311,7 +317,7 @@ function QuickActionTile({
       <span className="mt-1 block truncate text-[12px] font-medium text-[#8B95A1]">
         {sub}
       </span>
-    </button>
+    </Button>
   );
 }
 

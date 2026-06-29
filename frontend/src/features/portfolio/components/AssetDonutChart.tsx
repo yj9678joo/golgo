@@ -1,4 +1,5 @@
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts'
+import { Card } from '@/components/ui/card'
 import type { PortfolioHolding } from '@/features/portfolio/types'
 
 const COLORS = ['#03ba8c', '#3182F6', '#FFB020', '#E5484D', '#8B95A1', '#7C3AED']
@@ -17,14 +18,14 @@ export function AssetDonutChart({ holdings }: AssetDonutChartProps) {
 
   if (data.length === 0) {
     return (
-      <div className="flex h-[210px] items-center justify-center rounded-[18px] bg-white text-[13px] font-semibold text-[#8B95A1]">
+      <Card className="flex h-[210px] items-center justify-center rounded-[18px] border-0 bg-white text-[13px] font-semibold text-[#8B95A1] shadow-none">
         표시할 보유 종목이 없어요
-      </div>
+      </Card>
     )
   }
 
   return (
-    <section className="rounded-[18px] bg-white p-4">
+    <Card className="rounded-[18px] border-0 bg-white p-4 shadow-none">
       <div className="h-[210px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -60,6 +61,6 @@ export function AssetDonutChart({ holdings }: AssetDonutChartProps) {
           </div>
         ))}
       </div>
-    </section>
+    </Card>
   )
 }

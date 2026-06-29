@@ -38,7 +38,7 @@ export function getKoreanProfitTone(value: number) {
 
 export function getPortfolioOwnerLabel(nickname?: string | null) {
   const displayName = nickname?.trim();
-  return displayName ? `${displayName} 님` : "투자자 님";
+  return displayName ? `${displayName}님` : "투자자님";
 }
 
 export function getTargetWeight(
