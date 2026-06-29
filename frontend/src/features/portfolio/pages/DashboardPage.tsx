@@ -1,5 +1,5 @@
-import { ArrowRight, Bot, RefreshCw, Settings } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { AlertTriangle, ArrowRight, Settings } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Area,
@@ -33,6 +33,7 @@ import {
   getPortfolioHasOutdatedAccount,
   getPortfolioOwnerLabel,
   getSparklineLimit,
+  getTargetWeight,
 } from "@/features/portfolio/utils/portfolio-display";
 
 const PERIODS: PortfolioHistoryPeriod[] = ["1W", "1M", "3M", "6M", "1Y", "ALL"];
@@ -54,6 +55,9 @@ export function DashboardPage() {
   const profitColorClass = getProfitColorClass(profitTone);
   const profitBadgeClass = getProfitBadgeClass(profitTone);
   const profitChartColor = getProfitChartColor(profitTone);
+  const rebalancingAlert = portfolio
+    ? getRebalancingAlert(portfolio.holdings)
+    : null;
 
   return (
     <AppTabLayout>
@@ -217,20 +221,25 @@ export function DashboardPage() {
               </div>
             </Card>
 
-            <div className="grid grid-cols-2 gap-2">
-              <QuickActionTile
-                icon={<Bot className="size-5" aria-hidden="true" />}
-                label="오늘의 분석"
-                sub="AI 리포트 보기"
-                onClick={() => navigate("/analysis")}
-              />
-              <QuickActionTile
-                icon={<RefreshCw className="size-5" aria-hidden="true" />}
-                label="리밸런싱"
-                sub="목표 비중 점검"
-                onClick={() => navigate("/rebalancing")}
-              />
-            </div>
+            {rebalancingAlert ? (
+              <Card className="flex items-center gap-3 rounded-[20px] border border-[#FFE0B2] border-l-4 border-l-[#F79009] bg-white p-4 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-[12px] bg-[#FFF4E5] text-[#F79009]">
+                  <AlertTriangle className="size-5" aria-hidden="true" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-[15px] font-semibold text-[#191F28]">
+                    리밸런싱이 필요해요
+                  </h2>
+                  <p className="mt-1 text-[12px] font-medium leading-[1.45] text-[#4E5968]">
+                    {rebalancingAlert.name} 비중이 목표 대비{" "}
+                    <span className="font-mono font-bold text-[#F79009]">
+                      {formatWeightPoint(rebalancingAlert.deviation)}
+                    </span>
+                    {rebalancingAlert.deviation > 0 ? " 초과됐어요" : " 부족해요"}
+                  </p>
+                </div>
+              </Card>
+            ) : null}
 
             <Card className="rounded-[20px] border-0 bg-white px-4 pb-2 pt-3 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
               <div className="flex items-center justify-between">
@@ -287,37 +296,6 @@ function AssetStat({ label, value }: { label: string; value: string }) {
         {value}
       </p>
     </div>
-  );
-}
-
-function QuickActionTile({
-  icon,
-  label,
-  sub,
-  onClick,
-}: {
-  icon: ReactNode;
-  label: string;
-  sub: string;
-  onClick: () => void;
-}) {
-  return (
-    <Button
-      className="block rounded-[18px] bg-white p-4 text-left shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]"
-      type="button"
-      variant="ghost"
-      onClick={onClick}
-    >
-      <span className="flex size-9 items-center justify-center rounded-[12px] bg-[#F2F4F6] text-[#03ba8c]">
-        {icon}
-      </span>
-      <span className="mt-3 block text-[14px] font-semibold text-[#191F28]">
-        {label}
-      </span>
-      <span className="mt-1 block truncate text-[12px] font-medium text-[#8B95A1]">
-        {sub}
-      </span>
-    </Button>
   );
 }
 
@@ -390,4 +368,23 @@ function getProfitChartColor(tone: ReturnType<typeof getKoreanProfitTone>) {
   }
 
   return "#4E5968";
+}
+
+function getRebalancingAlert(holdings: PortfolioHolding[]) {
+  return holdings
+    .map((holding, index) => ({
+      name: holding.ticker ?? holding.name,
+      deviation: Number(
+        (holding.weight - getTargetWeight(holding, index, holdings.length)).toFixed(
+          1,
+        ),
+      ),
+    }))
+    .filter((item) => Math.abs(item.deviation) >= 5)
+    .sort((a, b) => Math.abs(b.deviation) - Math.abs(a.deviation))[0];
+}
+
+function formatWeightPoint(value: number) {
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${value.toFixed(1)}%p`;
 }
