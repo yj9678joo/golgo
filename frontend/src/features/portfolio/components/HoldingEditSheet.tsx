@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { lockBodyScroll } from '@/lib/scroll-lock'
+import { Label } from '@/components/ui/label'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet'
 import type { Holding } from '@/features/portfolio/types'
 
 type HoldingEditSheetProps = {
@@ -33,32 +40,31 @@ export function HoldingEditSheet({
     setForm(holding)
   }, [holding])
 
-  useEffect(() => {
-    if (!holding) {
-      return undefined
-    }
-
-    return lockBodyScroll()
-  }, [holding])
-
   if (!holding || !form) {
     return null
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-black/35 px-4 pb-4" onClick={onClose}>
-      <div
-        className="mx-auto w-full max-w-[430px] rounded-[22px] bg-white p-5 shadow-xl"
-        onClick={(event) => event.stopPropagation()}
+    <Sheet
+      open
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose()
+        }
+      }}
+    >
+      <SheetContent
+        className="bottom-4 w-[calc(100%-2rem)] rounded-[22px] bg-white p-5 shadow-xl"
+        showClose={false}
       >
-        <header className="mb-4">
+        <SheetHeader className="mb-4 space-y-0">
           <p className="text-[12px] font-semibold text-[#8B95A1]">
             {mode === 'add' ? '보유 종목 추가' : '보유 종목 수정'}
           </p>
-          <h2 className="mt-1 text-[20px] font-semibold text-[#191F28]">
+          <SheetTitle className="mt-1 text-[20px] font-semibold text-[#191F28]">
             {mode === 'add' ? '새 종목' : holding.name}
-          </h2>
-        </header>
+          </SheetTitle>
+        </SheetHeader>
 
         <div className="grid gap-3">
           <Field
@@ -89,14 +95,15 @@ export function HoldingEditSheet({
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-2">
-          <button
+          <Button
             className="h-12 rounded-[14px] bg-[#F2F4F6] text-[14px] font-semibold text-[#4E5968]"
             type="button"
+            variant="ghost"
             onClick={onClose}
           >
             닫기
-          </button>
-          <button
+          </Button>
+          <Button
             className="h-12 rounded-[14px] bg-[#03ba8c] text-[14px] font-semibold text-white"
             type="button"
             onClick={() =>
@@ -104,10 +111,10 @@ export function HoldingEditSheet({
             }
           >
             {mode === 'add' ? '추가' : '저장'}
-          </button>
+          </Button>
         </div>
-      </div>
-    </div>
+      </SheetContent>
+    </Sheet>
   )
 }
 
@@ -139,14 +146,14 @@ function Field({
   onChange: (value: string) => void
 }) {
   return (
-    <label className="grid gap-1.5">
+    <Label className="grid gap-1.5">
       <span className="text-[12px] font-semibold text-[#6B7684]">{label}</span>
       <Input
         className="h-11 rounded-[12px] border border-[#E5E8EB] px-3 text-[16px] font-medium outline-none focus:border-[#03ba8c]"
         value={value}
         onChange={(event) => onChange(event.target.value)}
       />
-    </label>
+    </Label>
   )
 }
 
@@ -160,7 +167,7 @@ function NumberField({
   onChange: (value: NumberInputValue) => void
 }) {
   return (
-    <label className="grid gap-1.5">
+    <Label className="grid gap-1.5">
       <span className="text-[12px] font-semibold text-[#6B7684]">{label}</span>
       <Input
         className="h-11 rounded-[12px] border border-[#E5E8EB] px-3 text-[16px] font-medium outline-none focus:border-[#03ba8c]"
@@ -172,6 +179,6 @@ function NumberField({
           onChange(nextValue === '' ? '' : Number(nextValue))
         }}
       />
-    </label>
+    </Label>
   )
 }

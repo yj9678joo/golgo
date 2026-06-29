@@ -183,8 +183,8 @@ function MethodButton({
     <Button
       className={
         selected
-          ? 'flex w-full items-center gap-3 rounded-[16px] border border-[#191F28] bg-white p-3.5 text-left shadow-sm'
-          : 'flex w-full items-center gap-3 rounded-[16px] border border-[#E5E8EB] bg-white p-3.5 text-left'
+          ? 'flex w-full items-center gap-3 whitespace-normal rounded-[16px] border border-[#191F28] bg-white p-3.5 text-left shadow-sm'
+          : 'flex w-full items-center gap-3 whitespace-normal rounded-[16px] border border-[#E5E8EB] bg-white p-3.5 text-left'
       }
       type="button"
       variant="outline"

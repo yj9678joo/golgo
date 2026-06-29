@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Check, Plus, RefreshCw } from 'lucide-react'
 import { MobilePage } from '@/components/layout/MobilePage'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { HoldingEditSheet } from '@/features/portfolio/components/HoldingEditSheet'
 import {
   useConfirmScreenshotHoldings,
@@ -99,14 +101,15 @@ export function ScreenshotReviewPage() {
       contentClassName="flex max-w-[430px]"
     >
       <div className="flex min-h-[calc(100svh-2rem)] w-full flex-col px-2 py-4">
-        <button
+        <Button
           className="mb-5 flex size-11 items-center justify-center rounded-[12px] bg-white text-[#4E5968]"
           type="button"
+          variant="ghost"
           onClick={() => navigate(-1)}
           aria-label="뒤로가기"
         >
           <ArrowLeft className="size-5" aria-hidden="true" />
-        </button>
+        </Button>
 
         <header>
           <p className="text-[13px] font-semibold text-[#03ba8c]">{jobQuery.data.brokerName}</p>
@@ -120,28 +123,30 @@ export function ScreenshotReviewPage() {
           </p>
         </header>
 
-        <section className="mt-6 rounded-[18px] bg-white p-4">
+        <Card className="mt-6 rounded-[18px] border-0 bg-white p-4 shadow-none">
           <p className="text-[12px] font-semibold text-[#8B95A1]">평가 금액</p>
           <p className="mt-2 text-[24px] font-semibold text-[#191F28]">
             {totalValue.toLocaleString('ko-KR')}원
           </p>
           <p className="mt-1 text-[12px] text-[#6B7684]">총 {holdings.length}개 종목</p>
-        </section>
+        </Card>
 
         <div className="mt-4 grid gap-2.5">
-          <button
+          <Button
             className="flex h-12 w-full items-center justify-center gap-2 rounded-[16px] border border-dashed border-[#B0B8C1] bg-white text-[14px] font-semibold text-[#03ba8c]"
             type="button"
+            variant="outline"
             onClick={() => setEditingTarget({ mode: 'add' })}
           >
             <Plus className="size-4" aria-hidden="true" />
             종목 추가
-          </button>
+          </Button>
           {holdings.map((holding, index) => (
-            <button
+            <Button
               key={getHoldingRowKey(holding, index)}
               className="flex w-full items-center justify-between gap-3 rounded-[16px] bg-white p-4 text-left"
               type="button"
+              variant="ghost"
               onClick={() => setEditingTarget({ mode: 'edit', index })}
             >
               <span className="min-w-0">
@@ -161,7 +166,7 @@ export function ScreenshotReviewPage() {
                   수정
                 </span>
               </span>
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -175,7 +180,7 @@ export function ScreenshotReviewPage() {
 
         <div className="mt-6 grid gap-2">
           {draftHoldings ? (
-            <button
+            <Button
               className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-[14px] bg-[#191F28] px-4 text-[14px] font-semibold text-white"
               type="button"
               onClick={() => void saveDraft()}
@@ -183,9 +188,9 @@ export function ScreenshotReviewPage() {
             >
               <RefreshCw className="size-4" aria-hidden="true" />
               수정사항 저장
-            </button>
+            </Button>
           ) : null}
-          <button
+          <Button
             className="inline-flex h-13 w-full items-center justify-center gap-2 rounded-[16px] bg-[#03ba8c] px-4 text-[15px] font-semibold text-white disabled:bg-[#B0B8C1]"
             type="button"
             onClick={() => void confirm()}
@@ -193,7 +198,7 @@ export function ScreenshotReviewPage() {
           >
             <Check className="size-4" aria-hidden="true" />
             {confirmHoldings.isPending ? '저장 중...' : '보유 종목 확정'}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -226,17 +231,18 @@ function ReviewShell({
       contentClassName="flex max-w-[430px]"
     >
       <div className="flex min-h-[calc(100svh-2rem)] w-full flex-col px-2 py-4">
-        <button
+        <Button
           className="mb-5 flex size-11 items-center justify-center rounded-[12px] bg-white text-[#4E5968]"
           type="button"
+          variant="ghost"
           onClick={onBack}
           aria-label="뒤로가기"
         >
           <ArrowLeft className="size-5" aria-hidden="true" />
-        </button>
-        <div className="flex flex-1 items-center justify-center rounded-[18px] bg-white p-5 text-center text-[14px] font-semibold text-[#4E5968]">
+        </Button>
+        <Card className="flex flex-1 items-center justify-center rounded-[18px] border-0 bg-white p-5 text-center text-[14px] font-semibold text-[#4E5968] shadow-none">
           {children}
-        </div>
+        </Card>
       </div>
     </MobilePage>
   )

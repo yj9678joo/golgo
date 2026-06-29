@@ -2,6 +2,8 @@ import { useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Camera, ImageUp, Plus } from 'lucide-react'
 import { MobilePage } from '@/components/layout/MobilePage'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { ParsingProgress } from '@/features/portfolio/components/ParsingProgress'
 import {
   useCreateScreenshotAccount,
@@ -52,14 +54,15 @@ export function ScreenshotUploadPage() {
       contentClassName="flex max-w-[430px]"
     >
       <div className="flex min-h-[calc(100svh-2rem)] w-full flex-col px-2 py-4">
-        <button
+        <Button
           className="mb-5 flex size-11 items-center justify-center rounded-[12px] bg-white text-[#4E5968]"
           type="button"
+          variant="ghost"
           onClick={() => navigate(-1)}
           aria-label="뒤로가기"
         >
           <ArrowLeft className="size-5" aria-hidden="true" />
-        </button>
+        </Button>
 
         <header>
           <p className="text-[13px] font-semibold text-[#03ba8c]">MTS 캡처 연동</p>
@@ -73,9 +76,10 @@ export function ScreenshotUploadPage() {
           </p>
         </header>
 
-        <button
-          className="mt-6 flex min-h-[210px] w-full flex-col items-center justify-center rounded-[22px] border border-dashed border-[#B0B8C1] bg-white px-5 text-center"
+        <Button
+          className="mt-6 flex min-h-[210px] w-full flex-col items-center justify-center whitespace-normal rounded-[22px] border border-dashed border-[#B0B8C1] bg-white px-5 text-center"
           type="button"
+          variant="outline"
           onClick={() => fileInputRef.current?.click()}
         >
           <span className="flex size-16 items-center justify-center rounded-[20px] bg-[#E9FBF6] text-[#03ba8c]">
@@ -91,9 +95,9 @@ export function ScreenshotUploadPage() {
           <span className="mt-2 text-[12px] leading-5 text-[#6B7684]">
             PNG, JPG 파일을 최대 10MB까지 업로드할 수 있어요.
           </span>
-        </button>
+        </Button>
 
-        <input
+        <Input
           ref={fileInputRef}
           className="hidden"
           type="file"
@@ -115,7 +119,7 @@ export function ScreenshotUploadPage() {
 
         <div className="flex-1" />
 
-        <button
+        <Button
           className="mt-6 inline-flex h-13 w-full items-center justify-center gap-2 rounded-[16px] bg-[#03ba8c] px-4 text-[15px] font-semibold text-white disabled:bg-[#B0B8C1]"
           type="button"
           onClick={() => void submit()}
@@ -123,7 +127,7 @@ export function ScreenshotUploadPage() {
         >
           <Plus className="size-4" aria-hidden="true" />
           {isWorking ? '분석 중...' : '업로드하고 검토하기'}
-        </button>
+        </Button>
       </div>
     </MobilePage>
   )
