@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Check, ImageUp, KeyRound } from 'lucide-react'
 import { MobilePage } from '@/components/layout/MobilePage'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { SelectableOption } from '@/features/onboarding/components/SelectableOption'
 import {
   brokerOptions,
@@ -42,21 +44,21 @@ export function BrokerSetupPage() {
             <p className="mt-3 text-[14px] leading-6 text-[#6B7684]">
               다음 단계에서 실제 App Key 등록 또는 캡처 업로드 기능을 연결할 수 있어요.
             </p>
-            <div className="mt-7 w-full rounded-[18px] bg-white p-4 text-left">
+            <Card className="mt-7 w-full rounded-[18px] border-0 bg-white p-4 text-left shadow-none">
               <SummaryRow label="증권사" value={selectedBroker.name} />
               <SummaryRow
                 label="연결 방식"
                 value={effectiveMethod === 'api-key' ? 'App Key 연결' : 'MTS 캡처'}
               />
-            </div>
+            </Card>
           </div>
-          <button
+          <Button
             className="inline-flex h-13 w-full items-center justify-center rounded-[16px] bg-[#191F28] px-4 text-[15px] font-semibold text-white"
             type="button"
             onClick={() => navigate('/', { replace: true })}
           >
             홈으로 이동
-          </button>
+          </Button>
         </div>
       </MobilePage>
     )
@@ -68,14 +70,15 @@ export function BrokerSetupPage() {
       contentClassName="flex max-w-[430px]"
     >
       <div className="flex min-h-[calc(100svh-2rem)] w-full flex-col px-2 py-4">
-        <button
+        <Button
           className="mb-5 flex size-11 items-center justify-center rounded-[12px] bg-white text-[#4E5968]"
           type="button"
+          variant="ghost"
           onClick={() => navigate(-1)}
           aria-label="뒤로가기"
         >
           <ArrowLeft className="size-5" aria-hidden="true" />
-        </button>
+        </Button>
 
         <header>
           <h1 className="text-[27px] font-semibold leading-[1.25] text-[#191F28]">
@@ -136,7 +139,7 @@ export function BrokerSetupPage() {
           )}
         </section>
 
-        <div className="mt-5 grid gap-2 rounded-[18px] bg-white p-4">
+        <Card className="mt-5 grid gap-2 rounded-[18px] border-0 bg-white p-4 shadow-none">
           {brokerSetupNotes.map((note) => {
             const Icon = note.icon
 
@@ -147,17 +150,17 @@ export function BrokerSetupPage() {
               </div>
             )
           })}
-        </div>
+        </Card>
 
         <div className="flex-1" />
 
-        <button
+        <Button
           className="mt-6 inline-flex h-13 w-full items-center justify-center rounded-[16px] bg-[#191F28] px-4 text-[15px] font-semibold text-white"
           type="button"
           onClick={() => setIsDone(true)}
         >
           설정 준비 완료
-        </button>
+        </Button>
       </div>
     </MobilePage>
   )
@@ -177,13 +180,14 @@ function MethodButton({
   onClick: () => void
 }) {
   return (
-    <button
+    <Button
       className={
         selected
           ? 'flex w-full items-center gap-3 rounded-[16px] border border-[#191F28] bg-white p-3.5 text-left shadow-sm'
           : 'flex w-full items-center gap-3 rounded-[16px] border border-[#E5E8EB] bg-white p-3.5 text-left'
       }
       type="button"
+      variant="outline"
       onClick={onClick}
     >
       <span
@@ -201,7 +205,7 @@ function MethodButton({
           {description}
         </span>
       </span>
-    </button>
+    </Button>
   )
 }
 

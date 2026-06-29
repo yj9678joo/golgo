@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import { Check } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 type SelectableOptionProps = {
   icon?: ComponentType<{ className?: string }>
@@ -19,13 +20,14 @@ export function SelectableOption({
   onClick,
 }: SelectableOptionProps) {
   return (
-    <button
+    <Button
       className={
         selected
           ? 'flex w-full items-center gap-3 rounded-[16px] border border-[#03ba8c] bg-white p-3.5 text-left'
           : 'flex w-full items-center gap-3 rounded-[16px] border border-[#E5E8EB] bg-white p-3.5 text-left'
       }
       type="button"
+      variant="outline"
       onClick={onClick}
     >
       <span
@@ -54,6 +56,6 @@ export function SelectableOption({
       >
         {selected ? <Check className="size-3" aria-hidden="true" /> : null}
       </span>
-    </button>
+    </Button>
   )
 }

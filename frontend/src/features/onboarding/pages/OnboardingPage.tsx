@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Check, ImageUp } from 'lucide-react'
 import { MobilePage } from '@/components/layout/MobilePage'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { OnboardingStepBar } from '@/features/onboarding/components/OnboardingStepBar'
 import { SelectableOption } from '@/features/onboarding/components/SelectableOption'
 import { useAuthStore } from '@/features/auth/store/auth-store'
@@ -71,23 +73,24 @@ export function OnboardingPage() {
             ))}
           </div>
           <div className="mt-auto grid gap-2 pt-5 sm:mt-7">
-            <button
+            <Button
               className="inline-flex h-13 w-full items-center justify-center rounded-[16px] bg-[#03ba8c] px-4 text-[15px] font-semibold text-white transition hover:bg-[#02a77e]"
               type="button"
               onClick={() => setStep('broker')}
             >
               다음
-            </button>
-            <button
-              className="h-11 text-[14px] font-semibold text-[#8B95A1]"
+            </Button>
+            <Button
+              className="h-11 bg-transparent px-0 text-[14px] font-semibold text-[#8B95A1] hover:bg-transparent"
               type="button"
+              variant="ghost"
               onClick={() => {
                 setPersona('balanced')
                 setStep('broker')
               }}
             >
               나중에 설정할게요
-            </button>
+            </Button>
           </div>
         </OnboardingFrame>
       ) : null}
@@ -95,14 +98,15 @@ export function OnboardingPage() {
       {step === 'broker' ? (
         <OnboardingFrame>
           <OnboardingStepBar current={3} total={3} />
-          <button
+          <Button
             className="mb-2 inline-flex h-10 w-fit items-center gap-1.5 rounded-[12px] bg-white px-3 text-[13px] font-semibold text-[#4E5968]"
             type="button"
+            variant="outline"
             onClick={() => setStep('persona')}
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
             이전 단계 수정
-          </button>
+          </Button>
           <OnboardingHeading
             title={
               <>
@@ -113,7 +117,7 @@ export function OnboardingPage() {
             }
             description="보유 종목 화면 캡처 업로드는 다음 단계에서 이어갈 수 있어요"
           />
-          <div className="rounded-[20px] border border-dashed border-[#B0B8C1] bg-white p-5 text-center">
+          <Card className="rounded-[20px] border border-dashed border-[#B0B8C1] bg-white p-5 text-center shadow-none">
             <div className="mx-auto flex size-15 items-center justify-center rounded-[18px] bg-[#E9FBF6] text-[#03ba8c]">
               <ImageUp className="size-7" aria-hidden="true" />
             </div>
@@ -123,35 +127,36 @@ export function OnboardingPage() {
             <p className="mt-2 text-[13px] leading-6 text-[#6B7684]">
               지금은 온보딩 완료 여부만 저장하고 캡처 파일은 저장하지 않아요.
             </p>
-          </div>
-          <div className="mt-4 grid gap-2 rounded-[16px] bg-white p-3.5">
+          </Card>
+          <Card className="mt-4 grid gap-2 rounded-[16px] border-0 bg-white p-3.5 shadow-none">
             <p className="text-[12px] font-semibold text-[#8B95A1]">고도화 예정</p>
             <p className="text-[12px] leading-5 text-[#4E5968]">
               증권사 계좌 연결과 MTS 캡처 데이터 연동은 이후 포트폴리오 연동 단계에서 연결합니다.
             </p>
-          </div>
+          </Card>
           <div className="mt-auto grid gap-2 pt-5 sm:mt-7">
             {completionError ? (
               <p className="text-center text-[13px] font-semibold text-[#E5484D]">
                 {completionError}
               </p>
             ) : null}
-            <button
+            <Button
               className="inline-flex h-13 w-full items-center justify-center rounded-[16px] bg-[#03ba8c] px-4 text-[15px] font-semibold text-white transition hover:bg-[#02a77e]"
               type="button"
               onClick={() => void complete()}
               disabled={isCompleting}
             >
               {isCompleting ? '저장 중...' : '고르고 시작하기'}
-            </button>
-            <button
-              className="h-11 text-[14px] font-semibold text-[#8B95A1]"
+            </Button>
+            <Button
+              className="h-11 bg-transparent px-0 text-[14px] font-semibold text-[#8B95A1] hover:bg-transparent"
               type="button"
+              variant="ghost"
               onClick={() => void complete()}
               disabled={isCompleting}
             >
               캡처는 나중에 업로드할게요
-            </button>
+            </Button>
           </div>
         </OnboardingFrame>
       ) : null}
@@ -172,18 +177,18 @@ export function OnboardingPage() {
             <p className="mt-3 text-[14px] leading-6 text-[#6B7684]">
               선택한 설정을 기준으로 대시보드를 준비했어요
             </p>
-            <div className="mt-6 w-full rounded-[18px] bg-white p-4 text-left">
+            <Card className="mt-6 w-full rounded-[18px] border-0 bg-white p-4 text-left shadow-none">
               <SummaryRow label="투자 성향" value={personaLabels[persona]} />
               <SummaryRow label="연동 방식" value="MTS 캡처 업로드" />
-            </div>
+            </Card>
           </div>
-          <button
+          <Button
             className="inline-flex h-13 w-full items-center justify-center rounded-[16px] bg-[#03ba8c] px-4 text-[15px] font-semibold text-white transition hover:bg-[#02a77e]"
             type="button"
             onClick={() => navigate('/', { replace: true })}
           >
             대시보드 보러가기
-          </button>
+          </Button>
         </OnboardingFrame>
       ) : null}
     </MobilePage>
