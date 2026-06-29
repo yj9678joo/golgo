@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { useAuthStore } from '@/features/auth/store/auth-store'
 import { getPostLoginPath } from '@/features/auth/utils/get-post-login-path'
 
@@ -62,17 +64,17 @@ export function AuthCallbackPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-5 text-foreground">
-      <section className="w-full max-w-sm rounded-lg border border-border bg-card p-6 text-center shadow-sm">
+      <Card className="w-full max-w-sm rounded-lg border border-border bg-card p-6 text-center shadow-sm">
         {error ? (
           <>
             <h1 className="text-xl font-semibold">로그인 처리 실패</h1>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">{error}</p>
-            <a
+            <Button
+              asChild
               className="mt-6 inline-flex h-11 items-center rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground"
-              href="/login"
             >
-              다시 로그인
-            </a>
+              <a href="/login">다시 로그인</a>
+            </Button>
           </>
         ) : (
           <>
@@ -83,7 +85,7 @@ export function AuthCallbackPage() {
             </p>
           </>
         )}
-      </section>
+      </Card>
     </main>
   )
 }

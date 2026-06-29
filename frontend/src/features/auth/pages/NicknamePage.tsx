@@ -2,6 +2,9 @@ import { FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Check, Loader2, LogOut } from 'lucide-react'
 import { MobilePage } from '@/components/layout/MobilePage'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { updateNickname } from '@/features/auth/api/auth-api'
 import { useAuthStore } from '@/features/auth/store/auth-store'
 import { OnboardingStepBar } from '@/features/onboarding/components/OnboardingStepBar'
@@ -61,22 +64,23 @@ export function NicknamePage() {
               포트폴리오에 표시되는 이름이에요
             </p>
           </div>
-          <button
+          <Button
             className="inline-flex size-11 shrink-0 items-center justify-center rounded-[12px] border border-[#E5E8EB] bg-white text-[#6B7684]"
             type="button"
+            variant="outline"
             onClick={() => void signOut().then(() => navigate('/login', { replace: true }))}
             aria-label="로그아웃"
           >
             <LogOut className="size-4" aria-hidden="true" />
-          </button>
+          </Button>
         </div>
 
         <form className="mt-7 flex flex-1 flex-col" onSubmit={handleSubmit}>
-          <label className="sr-only" htmlFor="nickname">
+          <Label className="sr-only" htmlFor="nickname">
             닉네임
-          </label>
+          </Label>
           <div className="relative">
-            <input
+            <Input
               className="h-14 w-full rounded-[16px] border border-[#191F28] bg-white px-4 pr-14 text-[18px] font-semibold text-[#191F28] outline-none transition focus:border-[#00A37A]"
               id="nickname"
               maxLength={12}
@@ -109,21 +113,22 @@ export function NicknamePage() {
             </p>
             <div className="flex flex-wrap gap-1.5">
               {nicknameSuggestions.map((suggestion) => (
-                <button
+                <Button
                   key={suggestion}
                   className="h-9 rounded-full border border-[#E5E8EB] bg-white px-3.5 text-[13px] font-medium text-[#4E5968]"
                   type="button"
+                  variant="outline"
                   onClick={() => setNickname(suggestion)}
                 >
                   {suggestion}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
 
           <div className="flex-1" />
 
-          <button
+          <Button
             className="mt-8 inline-flex h-13 w-full items-center justify-center rounded-[16px] bg-[#191F28] px-4 text-[15px] font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-35"
             type="submit"
             disabled={!isValid || isSubmitting}
@@ -133,7 +138,7 @@ export function NicknamePage() {
             ) : (
               '다음'
             )}
-          </button>
+          </Button>
         </form>
       </div>
     </MobilePage>

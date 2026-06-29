@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight, ImageUp, Landmark, LogOut, Sparkles, UserRound } from 'lucide-react'
 import { MobilePage } from '@/components/layout/MobilePage'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { useAuthStore } from '@/features/auth/store/auth-store'
 
 export function HomePage() {
@@ -15,17 +17,18 @@ export function HomePage() {
           <p className="text-sm font-semibold text-primary">Golgo</p>
           <h1 className="mt-2 text-[26px] font-semibold leading-tight">대시보드</h1>
         </div>
-        <button
+        <Button
           className="inline-flex h-11 shrink-0 items-center gap-2 rounded-md border border-border bg-card px-3 text-sm font-medium hover:bg-muted"
           type="button"
+          variant="outline"
           onClick={() => void signOut().then(() => navigate('/login', { replace: true }))}
         >
           <LogOut className="size-4" aria-hidden="true" />
           로그아웃
-        </button>
+        </Button>
       </header>
 
-      <div className="mt-6 rounded-lg border border-border bg-card p-4 shadow-sm min-[375px]:p-5">
+      <Card className="mt-6 rounded-lg border border-border bg-card p-4 shadow-sm min-[375px]:p-5">
         <div className="flex items-center gap-4">
           {user?.profileImage ? (
             <img
@@ -55,7 +58,7 @@ export function HomePage() {
             </p>
             <div className="mt-4 grid gap-2">
               {!user?.onboardingCompleted ? (
-                <button
+                <Button
                   className="inline-flex h-11 w-full items-center justify-between rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground"
                   type="button"
                   onClick={() => navigate('/onboarding')}
@@ -65,11 +68,12 @@ export function HomePage() {
                     온보딩 시작
                   </span>
                   <ArrowRight className="size-4" aria-hidden="true" />
-                </button>
+                </Button>
               ) : null}
-              <button
+              <Button
                 className="inline-flex h-11 w-full items-center justify-between rounded-md border border-border bg-card px-3 text-sm font-semibold text-foreground"
                 type="button"
+                variant="outline"
                 onClick={() => navigate('/portfolio/screenshot')}
               >
                 <span className="inline-flex items-center gap-2">
@@ -77,10 +81,11 @@ export function HomePage() {
                   MTS 캡처 업로드
                 </span>
                 <ArrowRight className="size-4" aria-hidden="true" />
-              </button>
-              <button
+              </Button>
+              <Button
                 className="inline-flex h-11 w-full items-center justify-between rounded-md border border-border bg-card px-3 text-sm font-semibold text-foreground"
                 type="button"
+                variant="outline"
                 onClick={() => navigate('/broker-setup')}
               >
                 <span className="inline-flex items-center gap-2">
@@ -88,11 +93,11 @@ export function HomePage() {
                   증권사 설정
                 </span>
                 <ArrowRight className="size-4" aria-hidden="true" />
-              </button>
+              </Button>
             </div>
           </div>
         </div>
-      </div>
+      </Card>
     </MobilePage>
   )
 }

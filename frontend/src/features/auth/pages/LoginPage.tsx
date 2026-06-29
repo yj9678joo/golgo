@@ -1,6 +1,9 @@
 import { FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MobilePage } from '@/components/layout/MobilePage'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import logo from '@/assets/golgo-logo.png'
 import { useAuthStore } from '@/features/auth/store/auth-store'
 import { getPostLoginPath } from '@/features/auth/utils/get-post-login-path'
@@ -53,19 +56,19 @@ export function LoginPage() {
         <div className="grid gap-2.5">
           <form className="rounded-[18px] bg-white p-4 shadow-sm" onSubmit={handleDirectLogin}>
             <div className="grid gap-2.5">
-              <label className="grid gap-1.5 text-[12px] font-medium text-[#4E5968]">
+              <Label className="grid gap-1.5 text-[12px] font-medium text-[#4E5968]">
                 아이디
-                <input
+                <Input
                   className="h-11 rounded-[12px] border border-[#DDE2E7] bg-[#F7F8FA] px-3 text-[16px] text-[#191F28] outline-none transition focus:border-[#03ba8c] focus:bg-white"
                   name="loginId"
                   value={loginId}
                   onChange={(event) => setLoginId(event.target.value)}
                   autoComplete="username"
                 />
-              </label>
-              <label className="grid gap-1.5 text-[12px] font-medium text-[#4E5968]">
+              </Label>
+              <Label className="grid gap-1.5 text-[12px] font-medium text-[#4E5968]">
                 비밀번호
-                <input
+                <Input
                   className="h-11 rounded-[12px] border border-[#DDE2E7] bg-[#F7F8FA] px-3 text-[16px] text-[#191F28] outline-none transition focus:border-[#03ba8c] focus:bg-white"
                   name="password"
                   type="password"
@@ -73,27 +76,28 @@ export function LoginPage() {
                   onChange={(event) => setPassword(event.target.value)}
                   autoComplete="current-password"
                 />
-              </label>
+              </Label>
             </div>
 
             {error ? (
               <p className="mt-3 text-[12px] leading-5 text-red-600">{error}</p>
             ) : null}
 
-            <button
+            <Button
               className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-[14px] bg-[#03ba8c] px-4 text-[14px] font-semibold text-white transition hover:bg-[#02a77e] disabled:cursor-not-allowed disabled:opacity-60"
               type="submit"
               disabled={isSubmitting}
             >
               {isSubmitting ? '로그인 중...' : '로그인'}
-            </button>
-            <button
-              className="mt-2 h-10 w-full text-[13px] font-semibold text-[#03ba8c] transition hover:text-[#02a77e]"
+            </Button>
+            <Button
+              className="mt-2 h-10 w-full bg-transparent px-0 text-[13px] font-semibold text-[#03ba8c] transition hover:bg-transparent hover:text-[#02a77e]"
               type="button"
+              variant="ghost"
               onClick={() => navigate('/register')}
             >
               회원가입
-            </button>
+            </Button>
           </form>
 
           <p className="mt-2 text-center text-[11px] leading-5 text-[#8B95A1] min-[375px]:mt-3 min-[375px]:text-[12px]">

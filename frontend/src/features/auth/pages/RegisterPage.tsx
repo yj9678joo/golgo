@@ -2,6 +2,9 @@ import { FormEvent, useState } from 'react'
 import { ArrowLeft, Check, Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { MobilePage } from '@/components/layout/MobilePage'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import logo from '@/assets/golgo-logo.png'
 import { useAuthStore } from '@/features/auth/store/auth-store'
 
@@ -88,14 +91,15 @@ export function RegisterPage() {
         </div>
 
         <header className="flex items-center justify-between pt-1 sm:pt-4">
-          <button
+          <Button
             className="inline-flex size-11 items-center justify-center rounded-[12px] border border-[#E5E8EB] bg-white text-[#4E5968] transition hover:bg-[#F2F4F6]"
             type="button"
+            variant="outline"
             onClick={() => navigate('/login')}
             aria-label="로그인으로 돌아가기"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
-          </button>
+          </Button>
           <BrandLogo />
         </header>
 
@@ -150,11 +154,11 @@ export function RegisterPage() {
               value={email}
             />
             <div className="grid gap-1.5">
-              <label className="text-[12px] font-medium text-[#4E5968]" htmlFor="nickname">
+              <Label className="text-[12px] font-medium text-[#4E5968]" htmlFor="nickname">
                 닉네임
-              </label>
+              </Label>
               <div className="relative">
-                <input
+                <Input
                   className="h-12 w-full rounded-[14px] border border-[#DDE2E7] bg-[#F7F8FA] px-3 pr-14 text-[16px] font-semibold text-[#191F28] outline-none transition focus:border-[#00A37A] focus:bg-white"
                   id="nickname"
                   maxLength={12}
@@ -182,14 +186,15 @@ export function RegisterPage() {
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {nicknameSuggestions.map((suggestion) => (
-                  <button
+                  <Button
                     key={suggestion}
                     className="h-9 rounded-full border border-[#E5E8EB] bg-white px-3.5 text-[13px] font-medium text-[#4E5968] transition hover:border-[#00A37A] hover:text-[#00A37A]"
                     type="button"
+                    variant="outline"
                     onClick={() => setNickname(suggestion)}
                   >
                     {suggestion}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -201,7 +206,7 @@ export function RegisterPage() {
 
           <div className="flex-1" />
 
-          <button
+          <Button
             className="mt-6 inline-flex h-13 w-full items-center justify-center rounded-[16px] bg-[#00A37A] px-4 text-[15px] font-semibold text-white transition hover:bg-[#008F6C] disabled:cursor-not-allowed disabled:opacity-45"
             type="submit"
             disabled={isSubmitting}
@@ -211,7 +216,7 @@ export function RegisterPage() {
             ) : (
               '회원가입'
             )}
-          </button>
+          </Button>
         </form>
       </div>
     </MobilePage>
@@ -238,9 +243,9 @@ function TextField({
   value,
 }: TextFieldProps) {
   return (
-    <label className="grid gap-1.5 text-[12px] font-medium text-[#4E5968]">
+    <Label className="grid gap-1.5 text-[12px] font-medium text-[#4E5968]">
       {label}
-      <input
+      <Input
         autoComplete={autoComplete}
         className="h-12 rounded-[14px] border border-[#DDE2E7] bg-[#F7F8FA] px-3 text-[16px] text-[#191F28] outline-none transition focus:border-[#00A37A] focus:bg-white"
         name={name}
@@ -249,7 +254,7 @@ function TextField({
         value={value}
       />
       {error ? <span className="text-[12px] leading-5 text-red-600">{error}</span> : null}
-    </label>
+    </Label>
   )
 }
 
