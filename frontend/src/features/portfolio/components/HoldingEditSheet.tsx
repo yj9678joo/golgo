@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Input } from '@/components/ui/input'
 import { lockBodyScroll } from '@/lib/scroll-lock'
 import type { Holding } from '@/features/portfolio/types'
 
@@ -140,7 +141,7 @@ function Field({
   return (
     <label className="grid gap-1.5">
       <span className="text-[12px] font-semibold text-[#6B7684]">{label}</span>
-      <input
+      <Input
         className="h-11 rounded-[12px] border border-[#E5E8EB] px-3 text-[16px] font-medium outline-none focus:border-[#03ba8c]"
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -161,7 +162,7 @@ function NumberField({
   return (
     <label className="grid gap-1.5">
       <span className="text-[12px] font-semibold text-[#6B7684]">{label}</span>
-      <input
+      <Input
         className="h-11 rounded-[12px] border border-[#E5E8EB] px-3 text-[16px] font-medium outline-none focus:border-[#03ba8c]"
         inputMode="decimal"
         type="number"
