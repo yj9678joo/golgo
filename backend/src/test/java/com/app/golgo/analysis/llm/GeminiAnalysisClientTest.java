@@ -35,7 +35,10 @@ class GeminiAnalysisClientTest {
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("businessModel")))
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("revenueStreams")))
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("peg")))
-			.andExpect(content().string(org.hamcrest.Matchers.containsString("responseJsonSchema")))
+			.andExpect(content().string(org.hamcrest.Matchers.containsString("responseSchema")))
+			.andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("responseJsonSchema"))))
+			.andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("additionalProperties"))))
+			.andExpect(content().string(org.hamcrest.Matchers.containsString("\"enum\":[\"BUY\",\"HOLD\",\"SELL\"]")))
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("NVDA")))
 			.andRespond(withSuccess(geminiResponse(), MediaType.APPLICATION_JSON));
 

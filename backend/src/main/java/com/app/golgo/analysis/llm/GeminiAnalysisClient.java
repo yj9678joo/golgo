@@ -45,9 +45,7 @@ public class GeminiAnalysisClient implements AnalysisLlmClient {
 	}
 
 	private AnalysisStructuredResult parseResponse(JsonNode response) {
-		String json = response == null
-			? ""
-			: response.path("candidates").path(0).path("content").path("parts").path(0).path("text").asText();
+		String json = responseText(response);
 		if (json.isBlank()) {
 			throw AnalysisException.providerUnavailable("LLM 응답이 비어 있습니다.");
 		}
@@ -57,6 +55,21 @@ public class GeminiAnalysisClient implements AnalysisLlmClient {
 		} catch (IOException exception) {
 			throw AnalysisException.parseFailed("LLM 응답 파싱 실패", exception);
 		}
+	}
+
+	private String responseText(JsonNode response) {
+		JsonNode parts = response == null
+			? objectMapper.createArrayNode()
+			: response.path("candidates").path(0).path("content").path("parts");
+		if (!parts.isArray()) {
+			return "";
+		}
+
+		StringBuilder text = new StringBuilder();
+		for (JsonNode part : parts) {
+			text.append(part.path("text").asText());
+		}
+		return text.toString();
 	}
 
 	private JsonNode requestBody(AnalysisPromptRequest request) {
@@ -69,7 +82,7 @@ public class GeminiAnalysisClient implements AnalysisLlmClient {
 		ObjectNode generationConfig = root.putObject("generationConfig");
 		generationConfig.put("temperature", 0);
 		generationConfig.put("responseMimeType", "application/json");
-		generationConfig.set("responseJsonSchema", responseSchema());
+		generationConfig.set("responseSchema", responseSchema());
 		return root;
 	}
 
@@ -98,7 +111,12 @@ public class GeminiAnalysisClient implements AnalysisLlmClient {
 		);
 		propertiesNode.putObject("investmentThesis").put("type", "string");
 		propertiesNode.putObject("overallScore").put("type", "number");
-		propertiesNode.putObject("recommendation").put("type", "string");
+		propertiesNode.putObject("recommendation")
+			.put("type", "string")
+			.putArray("enum")
+			.add("BUY")
+			.add("HOLD")
+			.add("SELL");
 		schema.putArray("required")
 			.add("businessModel")
 			.add("industryStructure")
@@ -126,7 +144,6 @@ public class GeminiAnalysisClient implements AnalysisLlmClient {
 			propertiesNode.putObject(field).put("type", "array").putObject("items").put("type", "string");
 			required.add(field);
 		}
-		schema.put("additionalProperties", false);
 		return schema;
 	}
 
