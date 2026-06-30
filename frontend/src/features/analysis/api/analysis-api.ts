@@ -5,6 +5,7 @@ import type {
   AnalysisReportStatusResponse,
   AnalysisReportSummary,
   AnalysisStatus,
+  AssetType,
   LlmProvider,
 } from '@/features/analysis/types'
 
@@ -26,10 +27,12 @@ async function getApi() {
 
 export function createAnalysisReportPayload(
   ticker: string,
+  assetType: AssetType,
   llmProvider: LlmProvider,
 ): AnalysisReportCreateRequest {
   return {
     ticker: ticker.trim().toUpperCase(),
+    assetType,
     analysisType: 'DEEP_INFERENCE',
     llmProvider,
   }

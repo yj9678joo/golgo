@@ -2,12 +2,15 @@ export type AnalysisType = 'QUICK' | 'DEEP_INFERENCE'
 
 export type LlmProvider = 'GEMINI' | 'GPT' | 'CLAUDE'
 
+export type AssetType = 'STOCK' | 'ETF'
+
 export type AnalysisStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
 
 export type Recommendation = 'BUY' | 'HOLD' | 'SELL'
 
 export type AnalysisReportCreateRequest = {
   ticker: string
+  assetType: AssetType
   analysisType: AnalysisType
   llmProvider: LlmProvider
 }
@@ -28,6 +31,7 @@ export type AnalysisReportStatusResponse = {
 export type AnalysisReportSummary = {
   reportId: string
   ticker: string
+  assetType: AssetType
   analysisType: AnalysisType
   llmProvider: LlmProvider
   status: AnalysisStatus

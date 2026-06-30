@@ -7,8 +7,9 @@ import {
 } from './analysis-api.ts'
 
 test('분석 생성 요청은 백엔드 DTO 키를 사용한다', () => {
-  assert.deepEqual(createAnalysisReportPayload(' nvda ', 'GEMINI'), {
-    ticker: 'NVDA',
+  assert.deepEqual(createAnalysisReportPayload(' spy ', 'ETF', 'GEMINI'), {
+    ticker: 'SPY',
+    assetType: 'ETF',
     analysisType: 'DEEP_INFERENCE',
     llmProvider: 'GEMINI',
   })

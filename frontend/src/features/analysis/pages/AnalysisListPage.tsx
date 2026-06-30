@@ -22,6 +22,7 @@ import { useAnalysisStatus } from "@/features/analysis/hooks/use-analysis-status
 import type {
   AnalysisReportSummary,
   AnalysisStatus,
+  AssetType,
   Recommendation,
 } from "@/features/analysis/types";
 
@@ -29,6 +30,7 @@ const DEFAULT_PROVIDER = "GEMINI";
 
 export function AnalysisListPage() {
   const [ticker, setTicker] = useState("");
+  const [assetType, setAssetType] = useState<AssetType>("STOCK");
   const [activeReportId, setActiveReportId] = useState<string | null>(null);
   const reportsQuery = useAnalysisReports();
   const createMutation = useCreateAnalysisReport();
@@ -54,7 +56,7 @@ export function AnalysisListPage() {
     }
 
     const report = await createMutation.mutateAsync(
-      createAnalysisReportPayload(normalizedTicker, DEFAULT_PROVIDER),
+      createAnalysisReportPayload(normalizedTicker, assetType, DEFAULT_PROVIDER),
     );
     setActiveReportId(report.reportId);
     setTicker("");
@@ -77,6 +79,26 @@ export function AnalysisListPage() {
       <div className="mt-5 grid gap-3">
         <Card className="rounded-[20px] border-0 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
           <form className="grid gap-4" onSubmit={handleSubmit}>
+            <div>
+              <p className="text-[12px] font-semibold text-[#8B95A1]">
+                종목 유형
+              </p>
+              <div className="mt-2 grid grid-cols-2 rounded-[14px] bg-[#F2F4F6] p-1">
+                <AssetTypeButton
+                  assetType="STOCK"
+                  currentAssetType={assetType}
+                  label="주식"
+                  onSelect={setAssetType}
+                />
+                <AssetTypeButton
+                  assetType="ETF"
+                  currentAssetType={assetType}
+                  label="ETF"
+                  onSelect={setAssetType}
+                />
+              </div>
+            </div>
+
             <div>
               <label
                 className="text-[12px] font-semibold text-[#8B95A1]"
@@ -154,6 +176,34 @@ export function AnalysisListPage() {
   );
 }
 
+function AssetTypeButton({
+  assetType,
+  currentAssetType,
+  label,
+  onSelect,
+}: {
+  assetType: AssetType;
+  currentAssetType: AssetType;
+  label: string;
+  onSelect: (assetType: AssetType) => void;
+}) {
+  const selected = assetType === currentAssetType;
+
+  return (
+    <button
+      className={`h-10 rounded-[12px] text-[14px] font-semibold transition ${
+        selected
+          ? "bg-white text-[#191F28] shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+          : "text-[#6B7684]"
+      }`}
+      onClick={() => onSelect(assetType)}
+      type="button"
+    >
+      {label}
+    </button>
+  );
+}
+
 function ReportRow({ report }: { report: AnalysisReportSummary }) {
   return (
     <div className="flex min-w-0 items-center gap-3 py-3">
@@ -162,6 +212,9 @@ function ReportRow({ report }: { report: AnalysisReportSummary }) {
           <p className="truncate font-mono text-[15px] font-bold text-[#191F28]">
             {report.ticker}
           </p>
+          <Badge className="rounded-full border-0 bg-[#F2F4F6] px-2 py-0.5 text-[10px] text-[#4E5968]">
+            {ASSET_TYPE_LABELS[report.assetType]}
+          </Badge>
           <StatusBadge status={report.status} />
         </div>
         <p className="mt-1 truncate text-[12px] font-medium text-[#8B95A1]">
@@ -185,6 +238,11 @@ function ReportRow({ report }: { report: AnalysisReportSummary }) {
     </div>
   );
 }
+
+const ASSET_TYPE_LABELS: Record<AssetType, string> = {
+  STOCK: "주식",
+  ETF: "ETF",
+};
 
 function StatusBadge({ status }: { status: AnalysisStatus }) {
   return (
