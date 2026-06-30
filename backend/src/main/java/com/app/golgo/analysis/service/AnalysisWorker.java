@@ -53,7 +53,12 @@ public class AnalysisWorker {
 			AnalysisReport report = analysisReportRepository.findByIdAndUserId(reportId, userId)
 				.orElseThrow(AnalysisException::notFound);
 			report.markProcessing("DATA_COLLECTION", 10);
-			return new AnalysisPromptRequest(report.getTicker(), report.getAnalysisType(), report.getLlmProvider());
+			return new AnalysisPromptRequest(
+				report.getTicker(),
+				report.getAssetType(),
+				report.getAnalysisType(),
+				report.getLlmProvider()
+			);
 		});
 	}
 

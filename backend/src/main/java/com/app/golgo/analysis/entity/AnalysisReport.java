@@ -45,6 +45,10 @@ public class AnalysisReport {
 	private String ticker;
 
 	@Enumerated(EnumType.STRING)
+	@Column(name = "asset_type", nullable = false, length = 20)
+	private AssetType assetType;
+
+	@Enumerated(EnumType.STRING)
 	@Column(name = "analysis_type", nullable = false, length = 20)
 	private AnalysisType analysisType;
 
@@ -85,9 +89,17 @@ public class AnalysisReport {
 	@OrderBy("sectionOrder ASC")
 	private List<ReportSection> sections = new ArrayList<>();
 
-	private AnalysisReport(User user, String ticker, AnalysisType analysisType, LlmProvider llmProvider, Clock clock) {
+	private AnalysisReport(
+		User user,
+		String ticker,
+		AssetType assetType,
+		AnalysisType analysisType,
+		LlmProvider llmProvider,
+		Clock clock
+	) {
 		this.user = user;
 		this.ticker = ticker;
+		this.assetType = assetType;
 		this.analysisType = analysisType;
 		this.llmProvider = llmProvider;
 		this.status = AnalysisStatus.PENDING;
@@ -98,11 +110,12 @@ public class AnalysisReport {
 	public static AnalysisReport createPending(
 		User user,
 		String ticker,
+		AssetType assetType,
 		AnalysisType analysisType,
 		LlmProvider llmProvider,
 		Clock clock
 	) {
-		return new AnalysisReport(user, ticker, analysisType, llmProvider, clock);
+		return new AnalysisReport(user, ticker, assetType, analysisType, llmProvider, clock);
 	}
 
 	public void markProcessing(String currentStep, int progressPct) {

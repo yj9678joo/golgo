@@ -7,6 +7,7 @@ import java.util.UUID;
 public record AnalysisReportSummaryResponse(
 	UUID reportId,
 	String ticker,
+	String assetType,
 	String analysisType,
 	String llmProvider,
 	String status,

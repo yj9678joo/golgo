@@ -22,10 +22,11 @@ class AnalysisEntityTest {
 	void createPendingStoresOwnerAndInitialState() {
 		User user = User.createLocal("golgo01", "hash", "홍길동", "user@example.com", "투자초보", CLOCK);
 
-		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
+		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AssetType.STOCK, AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
 
 		assertThat(report.getUser()).isSameAs(user);
 		assertThat(report.getTicker()).isEqualTo("NVDA");
+		assertThat(report.getAssetType()).isEqualTo(AssetType.STOCK);
 		assertThat(report.getAnalysisType()).isEqualTo(AnalysisType.DEEP_INFERENCE);
 		assertThat(report.getLlmProvider()).isEqualTo(LlmProvider.GEMINI);
 		assertThat(report.getStatus()).isEqualTo(AnalysisStatus.PENDING);
@@ -52,7 +53,7 @@ class AnalysisEntityTest {
 	@Test
 	void statusTransitionsStoreProcessingCompletedAndFailedDetails() {
 		User user = User.createLocal("golgo01", "hash", "홍길동", "user@example.com", "투자초보", CLOCK);
-		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
+		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AssetType.STOCK, AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
 
 		report.markProcessing("VALUATION", 55);
 
@@ -78,7 +79,7 @@ class AnalysisEntityTest {
 	@Test
 	void reportRejectsDuplicateSectionCodeWithinSameReport() {
 		User user = User.createLocal("golgo01", "hash", "홍길동", "user@example.com", "투자초보", CLOCK);
-		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
+		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AssetType.STOCK, AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
 		report.assignIdForTest(UUID.randomUUID());
 		JsonNode content = OBJECT_MAPPER.createObjectNode().put("summary", "wide moat");
 
@@ -92,7 +93,7 @@ class AnalysisEntityTest {
 	@Test
 	void reportCanContainAllSevenUniqueSections() {
 		User user = User.createLocal("golgo01", "hash", "홍길동", "user@example.com", "투자초보", CLOCK);
-		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
+		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AssetType.STOCK, AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
 		JsonNode content = OBJECT_MAPPER.createObjectNode().put("summary", "ok");
 
 		int order = 1;

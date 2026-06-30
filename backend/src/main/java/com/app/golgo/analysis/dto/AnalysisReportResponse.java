@@ -9,6 +9,7 @@ import java.util.UUID;
 public record AnalysisReportResponse(
 	UUID reportId,
 	String ticker,
+	String assetType,
 	String status,
 	Instant generatedAt,
 	Map<String, JsonNode> sections,

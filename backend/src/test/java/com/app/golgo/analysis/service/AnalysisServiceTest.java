@@ -11,6 +11,7 @@ import com.app.golgo.analysis.dto.AnalysisReportResponse;
 import com.app.golgo.analysis.dto.AnalysisReportStatusResponse;
 import com.app.golgo.analysis.entity.AnalysisReport;
 import com.app.golgo.analysis.entity.AnalysisType;
+import com.app.golgo.analysis.entity.AssetType;
 import com.app.golgo.analysis.entity.LlmProvider;
 import com.app.golgo.analysis.entity.Recommendation;
 import com.app.golgo.analysis.entity.ReportSection;
@@ -68,6 +69,7 @@ class AnalysisServiceTest {
 
 		AnalysisReportCreateResponse response = service.createReport(USER_ID, new AnalysisReportCreateRequest(
 			" nvda ",
+			AssetType.STOCK,
 			AnalysisType.DEEP_INFERENCE,
 			LlmProvider.GEMINI
 		));
@@ -80,7 +82,7 @@ class AnalysisServiceTest {
 
 	@Test
 	void statusReturnsProgressForOwnedReport() {
-		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
+		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AssetType.STOCK, AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
 		report.assignIdForTest(REPORT_ID);
 		report.markProcessing("VALUATION", 60);
 		when(analysisReportRepository.findByIdAndUserId(REPORT_ID, USER_ID)).thenReturn(Optional.of(report));
@@ -105,7 +107,7 @@ class AnalysisServiceTest {
 
 	@Test
 	void detailReturnsCompletedReportWithSevenSections() {
-		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
+		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AssetType.STOCK, AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
 		report.assignIdForTest(REPORT_ID);
 		int order = 1;
 		for (SectionCode sectionCode : SectionCode.values()) {
@@ -124,13 +126,14 @@ class AnalysisServiceTest {
 		AnalysisReportResponse response = service.detail(USER_ID, REPORT_ID);
 
 		assertThat(response.reportId()).isEqualTo(REPORT_ID);
+		assertThat(response.assetType()).isEqualTo("STOCK");
 		assertThat(response.sections()).hasSize(7);
 		assertThat(response.recommendation()).isEqualTo("HOLD");
 	}
 
 	@Test
 	void listIncludesAnalysisTypeAndProviderForFrontendSummary() {
-		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
+		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AssetType.ETF, AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
 		report.assignIdForTest(REPORT_ID);
 		when(analysisReportRepository.findAllByUserIdOrderByRequestedAtDesc(USER_ID)).thenReturn(java.util.List.of(report));
 
@@ -138,6 +141,7 @@ class AnalysisServiceTest {
 
 		assertThat(response).singleElement()
 			.satisfies(summary -> {
+				assertThat(summary.assetType()).isEqualTo("ETF");
 				assertThat(summary.analysisType()).isEqualTo("DEEP_INFERENCE");
 				assertThat(summary.llmProvider()).isEqualTo("GEMINI");
 			});

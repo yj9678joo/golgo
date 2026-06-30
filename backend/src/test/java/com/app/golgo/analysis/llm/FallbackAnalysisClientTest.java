@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.app.golgo.analysis.entity.AnalysisType;
+import com.app.golgo.analysis.entity.AssetType;
 import com.app.golgo.analysis.entity.LlmProvider;
 import com.app.golgo.analysis.entity.Recommendation;
 import com.app.golgo.analysis.service.AnalysisException;
@@ -24,6 +25,7 @@ class FallbackAnalysisClientTest {
 
 		AnalysisStructuredResult result = client.analyze(new AnalysisPromptRequest(
 			"NVDA",
+			AssetType.STOCK,
 			AnalysisType.DEEP_INFERENCE,
 			LlmProvider.GEMINI
 		));
@@ -41,6 +43,7 @@ class FallbackAnalysisClientTest {
 
 		assertThatThrownBy(() -> client.analyze(new AnalysisPromptRequest(
 			"NVDA",
+			AssetType.STOCK,
 			AnalysisType.DEEP_INFERENCE,
 			LlmProvider.GEMINI
 		)))
@@ -62,6 +65,7 @@ class FallbackAnalysisClientTest {
 
 		assertThatThrownBy(() -> client.analyze(new AnalysisPromptRequest(
 			"NVDA",
+			AssetType.STOCK,
 			AnalysisType.DEEP_INFERENCE,
 			LlmProvider.GEMINI
 		)))

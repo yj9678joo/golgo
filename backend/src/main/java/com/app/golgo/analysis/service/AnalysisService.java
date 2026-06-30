@@ -50,6 +50,7 @@ public class AnalysisService {
 		AnalysisReport report = AnalysisReport.createPending(
 			user,
 			request.ticker().trim().toUpperCase(),
+			request.assetType(),
 			request.analysisType() == null ? AnalysisType.DEEP_INFERENCE : request.analysisType(),
 			request.llmProvider() == null ? LlmProvider.GEMINI : request.llmProvider(),
 			clock
@@ -82,6 +83,7 @@ public class AnalysisService {
 		return new AnalysisReportResponse(
 			report.getId(),
 			report.getTicker(),
+			report.getAssetType().name(),
 			report.getStatus().name(),
 			report.getGeneratedAt(),
 			sections,
@@ -97,6 +99,7 @@ public class AnalysisService {
 			.map(report -> new AnalysisReportSummaryResponse(
 				report.getId(),
 				report.getTicker(),
+				report.getAssetType().name(),
 				report.getAnalysisType().name(),
 				report.getLlmProvider().name(),
 				report.getStatus().name(),

@@ -3,6 +3,7 @@ package com.app.golgo.analysis.llm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.app.golgo.analysis.entity.AnalysisType;
+import com.app.golgo.analysis.entity.AssetType;
 import com.app.golgo.analysis.entity.LlmProvider;
 import org.junit.jupiter.api.Test;
 
@@ -36,6 +37,7 @@ class AnalysisPromptFactoryTest {
 	void userPromptContainsTickerAndAnalysisTypeWithoutSecrets() {
 		String prompt = promptFactory.createUserPrompt(new AnalysisPromptRequest(
 			"NVDA",
+			AssetType.STOCK,
 			AnalysisType.DEEP_INFERENCE,
 			LlmProvider.GEMINI
 		));
@@ -50,6 +52,7 @@ class AnalysisPromptFactoryTest {
 	void userPromptUsesNaverFinanceUrlForDomesticStockCode() {
 		String prompt = promptFactory.createUserPrompt(new AnalysisPromptRequest(
 			"005930",
+			AssetType.STOCK,
 			AnalysisType.DEEP_INFERENCE,
 			LlmProvider.GEMINI
 		));

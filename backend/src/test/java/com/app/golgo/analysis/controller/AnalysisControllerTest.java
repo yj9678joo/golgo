@@ -7,6 +7,7 @@ import com.app.golgo.analysis.dto.AnalysisReportCreateRequest;
 import com.app.golgo.analysis.dto.AnalysisReportCreateResponse;
 import com.app.golgo.analysis.dto.AnalysisReportStatusResponse;
 import com.app.golgo.analysis.entity.AnalysisType;
+import com.app.golgo.analysis.entity.AssetType;
 import com.app.golgo.analysis.entity.LlmProvider;
 import com.app.golgo.analysis.service.AnalysisService;
 import com.app.golgo.auth.security.JwtPrincipal;
@@ -26,6 +27,7 @@ class AnalysisControllerTest {
 		AnalysisController controller = new AnalysisController(service);
 		AnalysisReportCreateRequest request = new AnalysisReportCreateRequest(
 			"NVDA",
+			AssetType.STOCK,
 			AnalysisType.DEEP_INFERENCE,
 			LlmProvider.GEMINI
 		);
