@@ -1,6 +1,7 @@
 package com.app.golgo.common.api;
 
 import com.app.golgo.auth.service.AuthException;
+import com.app.golgo.analysis.service.AnalysisException;
 import com.app.golgo.portfolio.service.ScreenshotException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,12 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(ScreenshotException.class)
 	public ResponseEntity<ErrorResponse> handleScreenshotException(ScreenshotException exception) {
+		return ResponseEntity.status(exception.status())
+			.body(ErrorResponse.of(exception.code(), exception.getMessage(), null));
+	}
+
+	@ExceptionHandler(AnalysisException.class)
+	public ResponseEntity<ErrorResponse> handleAnalysisException(AnalysisException exception) {
 		return ResponseEntity.status(exception.status())
 			.body(ErrorResponse.of(exception.code(), exception.getMessage(), null));
 	}

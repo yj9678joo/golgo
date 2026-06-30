@@ -77,6 +77,12 @@ golgo:
       api-key: ${GEMINI_API_KEY:}
       model: ${GEMINI_MODEL:gemini-2.5-flash}
       base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
+  analysis:
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      model: ${GEMINI_ANALYSIS_MODEL:gemini-3.5-flash}
+      base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
+      timeout-seconds: 45
   jwt:
     access-token-validity-seconds: ${JWT_ACCESS_TOKEN_VALIDITY_SECONDS:900}
     refresh-token-validity-seconds: ${JWT_REFRESH_TOKEN_VALIDITY_SECONDS:604800}

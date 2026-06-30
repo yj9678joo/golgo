@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "test:auth-routing": "node --disable-warning=ExperimentalWarning --experimental-strip-types --test src/features/auth/utils/get-post-login-path.test.mjs",
+    "test:analysis-contract": "node --disable-warning=ExperimentalWarning --experimental-strip-types --test src/features/analysis/api/analysis-contract.test.mjs",
     "test:portfolio-contract": "node --disable-warning=ExperimentalWarning --experimental-strip-types --test src/features/portfolio/api/screenshot-account-contract.test.mjs",
     "test:screenshot-job-contract": "node --disable-warning=ExperimentalWarning --experimental-strip-types --test src/features/portfolio/api/screenshot-job-contract.test.mjs",
     "test:portfolio-display": "node --disable-warning=ExperimentalWarning --experimental-strip-types --test src/features/portfolio/utils/portfolio-display.test.mjs",

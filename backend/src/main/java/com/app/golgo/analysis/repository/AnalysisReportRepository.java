@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface AnalysisReportRepository extends JpaRepository<AnalysisReport, UUID> {
 
@@ -14,5 +15,6 @@ public interface AnalysisReportRepository extends JpaRepository<AnalysisReport, 
 	Optional<AnalysisReport> findByIdAndUserId(UUID id, UUID userId);
 
 	@EntityGraph(attributePaths = "sections")
+	@Query("select report from AnalysisReport report where report.id = :id and report.user.id = :userId")
 	Optional<AnalysisReport> findWithSectionsByIdAndUserId(UUID id, UUID userId);
 }

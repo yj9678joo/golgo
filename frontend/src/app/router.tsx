@@ -5,6 +5,7 @@ import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { NicknamePage } from '@/features/auth/pages/NicknamePage'
 import { RegisterPage } from '@/features/auth/pages/RegisterPage'
 import { BrokerSetupPage } from '@/features/onboarding/pages/BrokerSetupPage'
+import { AnalysisListPage } from '@/features/analysis/pages/AnalysisListPage'
 import { OnboardingPage } from '@/features/onboarding/pages/OnboardingPage'
 import { DashboardPage } from '@/features/portfolio/pages/DashboardPage'
 import { PortfolioDetailPage } from '@/features/portfolio/pages/PortfolioDetailPage'
@@ -34,6 +35,10 @@ export const router = createBrowserRouter([
       {
         path: '/portfolio',
         element: <PortfolioDetailPage />,
+      },
+      {
+        path: '/analysis',
+        element: <AnalysisListPage />,
       },
       {
         path: '/nickname',
