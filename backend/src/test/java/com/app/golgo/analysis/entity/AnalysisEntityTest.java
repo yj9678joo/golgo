@@ -36,6 +36,12 @@ class AnalysisEntityTest {
 	}
 
 	@Test
+	void progressPctUsesSmallintCompatibleJavaType() throws Exception {
+		assertThat(AnalysisReport.class.getDeclaredField("progressPct").getType())
+			.isEqualTo(short.class);
+	}
+
+	@Test
 	void statusTransitionsStoreProcessingCompletedAndFailedDetails() {
 		User user = User.createLocal("golgo01", "hash", "홍길동", "user@example.com", "투자초보", CLOCK);
 		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
@@ -44,7 +50,7 @@ class AnalysisEntityTest {
 
 		assertThat(report.getStatus()).isEqualTo(AnalysisStatus.PROCESSING);
 		assertThat(report.getCurrentStep()).isEqualTo("VALUATION");
-		assertThat(report.getProgressPct()).isEqualTo(55);
+		assertThat(report.getProgressPct()).isEqualTo((short) 55);
 
 		report.markCompleted("AI 인프라 수요가 성장 동력이다.", new BigDecimal("8.50"), Recommendation.BUY, CLOCK);
 
@@ -52,7 +58,7 @@ class AnalysisEntityTest {
 		assertThat(report.getInvestmentThesis()).isEqualTo("AI 인프라 수요가 성장 동력이다.");
 		assertThat(report.getOverallScore()).isEqualByComparingTo("8.50");
 		assertThat(report.getRecommendation()).isEqualTo(Recommendation.BUY);
-		assertThat(report.getProgressPct()).isEqualTo(100);
+		assertThat(report.getProgressPct()).isEqualTo((short) 100);
 		assertThat(report.getGeneratedAt()).isEqualTo(Instant.now(CLOCK));
 
 		report.markFailed("provider timeout");

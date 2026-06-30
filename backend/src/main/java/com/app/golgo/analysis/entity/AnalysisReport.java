@@ -57,7 +57,7 @@ public class AnalysisReport {
 	private AnalysisStatus status;
 
 	@Column(name = "progress_pct")
-	private int progressPct;
+	private short progressPct;
 
 	@Column(name = "current_step", length = 30)
 	private String currentStep;
@@ -108,7 +108,7 @@ public class AnalysisReport {
 	public void markProcessing(String currentStep, int progressPct) {
 		this.status = AnalysisStatus.PROCESSING;
 		this.currentStep = currentStep;
-		this.progressPct = progressPct;
+		this.progressPct = (short) progressPct;
 		this.errorMessage = null;
 	}
 
