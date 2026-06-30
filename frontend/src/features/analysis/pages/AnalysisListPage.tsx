@@ -22,13 +22,13 @@ import { useAnalysisStatus } from '@/features/analysis/hooks/use-analysis-status
 import type {
   AnalysisReportSummary,
   AnalysisStatus,
-  LlmProvider,
   Recommendation,
 } from '@/features/analysis/types'
 
+const DEFAULT_PROVIDER = 'GEMINI'
+
 export function AnalysisListPage() {
   const [ticker, setTicker] = useState('')
-  const [provider, setProvider] = useState<LlmProvider>('GEMINI')
   const [activeReportId, setActiveReportId] = useState<string | null>(null)
   const reportsQuery = useAnalysisReports()
   const createMutation = useCreateAnalysisReport()
@@ -50,7 +50,7 @@ export function AnalysisListPage() {
     }
 
     const report = await createMutation.mutateAsync(
-      createAnalysisReportPayload(normalizedTicker, provider),
+      createAnalysisReportPayload(normalizedTicker, DEFAULT_PROVIDER),
     )
     setActiveReportId(report.reportId)
     setTicker('')
@@ -75,7 +75,7 @@ export function AnalysisListPage() {
           <form className="grid gap-4" onSubmit={handleSubmit}>
             <div>
               <label className="text-[12px] font-semibold text-[#8B95A1]" htmlFor="analysis-ticker">
-                티커
+                종목코드
               </label>
               <Input
                 id="analysis-ticker"
@@ -85,30 +85,6 @@ export function AnalysisListPage() {
                 value={ticker}
                 onChange={(event) => setTicker(event.target.value)}
               />
-            </div>
-
-            <div className="grid grid-cols-[1fr_1.2fr] gap-3">
-              <div>
-                <p className="text-[12px] font-semibold text-[#8B95A1]">분석 방식</p>
-                <div className="mt-2 flex h-12 items-center rounded-[14px] bg-[#F7F8FA] px-3 text-[13px] font-bold text-[#191F28]">
-                  DEEP_INFERENCE
-                </div>
-              </div>
-              <div>
-                <label className="text-[12px] font-semibold text-[#8B95A1]" htmlFor="analysis-provider">
-                  Provider
-                </label>
-                <select
-                  id="analysis-provider"
-                  className="mt-2 h-12 w-full rounded-[14px] border border-[#E5E8EB] bg-[#F7F8FA] px-3 text-[13px] font-bold text-[#191F28] outline-none"
-                  value={provider}
-                  onChange={(event) => setProvider(event.target.value as LlmProvider)}
-                >
-                  <option value="GEMINI">Gemini</option>
-                  <option disabled value="GPT">GPT 준비 중</option>
-                  <option disabled value="CLAUDE">Claude 준비 중</option>
-                </select>
-              </div>
             </div>
 
             {createMutation.isError ? (
@@ -150,7 +126,7 @@ export function AnalysisListPage() {
         {reportsQuery.isSuccess && reports.length === 0 ? (
           <EmptyState
             title="아직 분석 리포트가 없어요"
-            description="궁금한 종목 티커를 입력하면 7단계 AI 분석을 시작할 수 있어요."
+            description="궁금한 종목코드를 입력하면 7단계 AI 분석을 시작할 수 있어요."
           />
         ) : null}
 
@@ -182,7 +158,7 @@ function ReportRow({ report }: { report: AnalysisReportSummary }) {
           <StatusBadge status={report.status} />
         </div>
         <p className="mt-1 truncate text-[12px] font-medium text-[#8B95A1]">
-          {formatReportMeta(report)}
+          {formatReportDate(report)}
         </p>
       </div>
       <div className="shrink-0 text-right">
@@ -206,14 +182,14 @@ function StatusBadge({ status }: { status: AnalysisStatus }) {
   )
 }
 
-function formatReportMeta(report: AnalysisReportSummary) {
+function formatReportDate(report: AnalysisReportSummary) {
   const requestedAt = new Date(report.generatedAt ?? report.requestedAt)
 
   if (Number.isNaN(requestedAt.getTime())) {
-    return `${report.llmProvider} · ${report.analysisType}`
+    return ''
   }
 
-  return `${report.llmProvider} · ${requestedAt.toLocaleDateString('ko-KR')}`
+  return requestedAt.toLocaleDateString('ko-KR')
 }
 
 function getStatusClass(status: AnalysisStatus) {
