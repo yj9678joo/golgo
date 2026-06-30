@@ -129,6 +129,13 @@ public class GeminiAnalysisClient implements AnalysisLlmClient {
 		ObjectNode schema = objectMapper.createObjectNode();
 		schema.put("type", "object");
 		ObjectNode propertiesNode = schema.putObject("properties");
+		propertiesNode.set(
+			"dataVerification",
+			objectSchema(
+				new String[] {"declaredAssetType", "verifiedAssetType", "dataSource", "dataAsOf", "score"},
+				new String[] {"unavailableFields", "warnings"}
+			)
+		);
 		propertiesNode.set("businessModel", objectSchema(new String[] {"summary", "score"}, new String[] {"revenueStreams"}));
 		propertiesNode.set(
 			"industryStructure",
@@ -148,6 +155,28 @@ public class GeminiAnalysisClient implements AnalysisLlmClient {
 			"catalystsAndRisks",
 			objectSchema(new String[] {"selfRebuttal", "score"}, new String[] {"catalysts", "risks"})
 		);
+		ObjectNode etfAnalysisSchema = (ObjectNode) objectSchema(
+			new String[] {
+				"indexName",
+				"issuer",
+				"replicationMethod",
+				"nav",
+				"marketPrice",
+				"premiumDiscountPct",
+				"expenseRatioPct",
+				"aum",
+				"trackingErrorPct",
+				"averageDailyTradingValue",
+				"bidAskSpread",
+				"leverageInverseSynthetic",
+				"currencyHedge",
+				"liquidityRisk",
+				"score"
+			},
+			new String[] {"topHoldings", "exposures"}
+		);
+		etfAnalysisSchema.put("nullable", true);
+		propertiesNode.set("etfAnalysis", etfAnalysisSchema);
 		propertiesNode.putObject("investmentThesis").put("type", "string");
 		propertiesNode.putObject("overallScore").put("type", "number");
 		propertiesNode.putObject("recommendation")
@@ -157,6 +186,7 @@ public class GeminiAnalysisClient implements AnalysisLlmClient {
 			.add("HOLD")
 			.add("SELL");
 		schema.putArray("required")
+			.add("dataVerification")
 			.add("businessModel")
 			.add("industryStructure")
 			.add("financials")
@@ -164,6 +194,7 @@ public class GeminiAnalysisClient implements AnalysisLlmClient {
 			.add("earningsCall")
 			.add("macroPolicy")
 			.add("catalystsAndRisks")
+			.add("etfAnalysis")
 			.add("investmentThesis")
 			.add("overallScore")
 			.add("recommendation");
@@ -176,11 +207,18 @@ public class GeminiAnalysisClient implements AnalysisLlmClient {
 		ObjectNode propertiesNode = schema.putObject("properties");
 		ArrayNode required = schema.putArray("required");
 		for (String field : scalarFields) {
-			propertiesNode.putObject(field).put("type", field.equals("score") ? "integer" : scalarType(field));
+			ObjectNode property = propertiesNode.putObject(field).put("type", field.equals("score") ? "integer" : scalarType(field));
+			if (!field.equals("score")) {
+				property.put("nullable", true);
+			}
 			required.add(field);
 		}
 		for (String field : arrayFields) {
-			propertiesNode.putObject(field).put("type", "array").putObject("items").put("type", "string");
+			propertiesNode.putObject(field)
+				.put("type", "array")
+				.put("nullable", true)
+				.putObject("items")
+				.put("type", "string");
 			required.add(field);
 		}
 		return schema;
@@ -188,7 +226,20 @@ public class GeminiAnalysisClient implements AnalysisLlmClient {
 
 	private String scalarType(String field) {
 		return switch (field) {
-			case "roic", "fcfMarginPct", "per", "peg", "pbr", "psr", "dcfFairValue" -> "number";
+			case "roic",
+				"fcfMarginPct",
+				"per",
+				"peg",
+				"pbr",
+				"psr",
+				"dcfFairValue",
+				"nav",
+				"marketPrice",
+				"premiumDiscountPct",
+				"expenseRatioPct",
+				"aum",
+				"trackingErrorPct",
+				"averageDailyTradingValue" -> "number";
 			default -> "string";
 		};
 	}

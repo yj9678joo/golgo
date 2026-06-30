@@ -1,6 +1,7 @@
 package com.app.golgo.analysis.service;
 
 import com.app.golgo.analysis.entity.AnalysisReport;
+import com.app.golgo.analysis.entity.AssetType;
 import com.app.golgo.analysis.entity.ReportSection;
 import com.app.golgo.analysis.entity.SectionCode;
 import com.app.golgo.analysis.llm.AnalysisLlmClient;
@@ -81,6 +82,7 @@ public class AnalysisWorker {
 	}
 
 	private void addSections(AnalysisReport report, AnalysisStructuredResult result) {
+		report.addSection(section(report, SectionCode.DATA_VERIFICATION, 0, result.dataVerification()));
 		report.addSection(section(report, SectionCode.BUSINESS_MODEL, 1, result.businessModel()));
 		report.addSection(section(report, SectionCode.INDUSTRY_STRUCTURE, 2, result.industryStructure()));
 		report.addSection(section(report, SectionCode.FINANCIALS, 3, result.financials()));
@@ -88,6 +90,9 @@ public class AnalysisWorker {
 		report.addSection(section(report, SectionCode.EARNINGS_CALL, 5, result.earningsCall()));
 		report.addSection(section(report, SectionCode.MACRO_POLICY, 6, result.macroPolicy()));
 		report.addSection(section(report, SectionCode.CATALYSTS_AND_RISKS, 7, result.catalystsAndRisks()));
+		if (report.getAssetType() == AssetType.ETF || result.etfAnalysis() != null) {
+			report.addSection(section(report, SectionCode.ETF_ANALYSIS, 8, result.etfAnalysis()));
+		}
 	}
 
 	private ReportSection section(AnalysisReport report, SectionCode code, int order, Object section) {

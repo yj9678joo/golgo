@@ -91,7 +91,7 @@ class AnalysisEntityTest {
 	}
 
 	@Test
-	void reportCanContainAllSevenUniqueSections() {
+	void reportCanContainAllUniqueSections() {
 		User user = User.createLocal("golgo01", "hash", "홍길동", "user@example.com", "투자초보", CLOCK);
 		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AssetType.STOCK, AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);
 		JsonNode content = OBJECT_MAPPER.createObjectNode().put("summary", "ok");
@@ -102,7 +102,7 @@ class AnalysisEntityTest {
 		}
 
 		assertThat(report.getSections())
-			.hasSize(7)
+			.hasSize(SectionCode.values().length)
 			.extracting(ReportSection::getSectionCode)
 			.containsExactly(SectionCode.values());
 	}

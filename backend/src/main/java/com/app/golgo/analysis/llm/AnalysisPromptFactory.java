@@ -11,6 +11,7 @@ public class AnalysisPromptFactory {
 			Common rules:
 			- This is research analysis, not investment advice.
 			- Do not guarantee profit.
+			- Treat the user-declared asset type as an explicit input. If source evidence conflicts with it, include "경고" in dataVerification.warnings.
 			- State the latest data date, currency, and fiscal-year basis inside the relevant section text.
 			- Separate confirmed figures from estimates. If a value cannot be verified from the URL context, write "미확인".
 			- Focus on what must be true for the investment idea to work.
@@ -20,6 +21,8 @@ public class AnalysisPromptFactory {
 			- Domestic stock/ETF codes use finance.naver.com.
 			- Overseas stock/ETF tickers use finviz.com.
 			- For ETFs, do not analyze price alone. Prefer NAV premium/discount, fees, AUM, liquidity, tracking error, holdings concentration, country/currency exposure, leverage/inverse/synthetic structure, and hedging cost when the URL context provides them.
+			- If the declared asset type is STOCK, set etfAnalysis to null.
+			- If the declared asset type is ETF, fill etfAnalysis and use null or "미확인" for unavailable fields instead of inventing values.
 
 			Analysis coverage:
 			- businessModel: identify whether the target is a stock or ETF. For stocks, cover revenue model, products, customers, and pricing power. For ETFs, cover index, issuer, assets, replication method, fees, AUM, and distribution policy.
@@ -41,10 +44,17 @@ public class AnalysisPromptFactory {
 	public String createUserPrompt(AnalysisPromptRequest request) {
 		return """
 			Analyze ticker: %s
+			Declared asset type: %s
 			Analysis type: %s
 			Preferred provider: %s
 			Primary data URL for URL Context: %s
-			""".formatted(request.ticker(), request.analysisType(), request.llmProvider(), sourceUrl(request.ticker()));
+			""".formatted(
+				request.ticker(),
+				request.assetType(),
+				request.analysisType(),
+				request.llmProvider(),
+				sourceUrl(request.ticker())
+			);
 	}
 
 	public String createUrlContextPrompt(AnalysisPromptRequest request) {
@@ -52,10 +62,12 @@ public class AnalysisPromptFactory {
 			Read this public source URL with URL Context and extract only compact factual evidence for analysis.
 
 			Ticker or code: %s
+			Declared asset type: %s
 			Source URL: %s
 
 			Return concise plain text with:
 			- data source and retrieval status
+			- whether source evidence agrees or conflicts with the declared asset type
 			- asset type clues: stock or ETF
 			- current price, market cap, PER/P/E, forward P/E, PEG, PBR/P/B, PSR/P/S, dividend yield if visible
 			- revenue, operating income, net income, margin, ROE/ROA/ROI, debt metrics if visible
@@ -63,7 +75,7 @@ public class AnalysisPromptFactory {
 			- analyst target, recent earnings or guidance clues if visible
 			- any fields that are unavailable as "미확인"
 			Do not provide investment advice in this evidence step.
-			""".formatted(request.ticker(), sourceUrl(request.ticker()));
+			""".formatted(request.ticker(), request.assetType(), sourceUrl(request.ticker()));
 	}
 
 	private String sourceUrl(String ticker) {

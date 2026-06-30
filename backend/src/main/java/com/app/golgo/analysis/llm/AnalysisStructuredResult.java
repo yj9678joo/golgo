@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record AnalysisStructuredResult(
+	DataVerification dataVerification,
 	BusinessModel businessModel,
 	IndustryStructure industryStructure,
 	Financials financials,
@@ -12,10 +13,22 @@ public record AnalysisStructuredResult(
 	EarningsCall earningsCall,
 	MacroPolicy macroPolicy,
 	CatalystsAndRisks catalystsAndRisks,
+	EtfAnalysis etfAnalysis,
 	String investmentThesis,
 	BigDecimal overallScore,
 	Recommendation recommendation
 ) {
+
+	public record DataVerification(
+		String declaredAssetType,
+		String verifiedAssetType,
+		String dataSource,
+		String dataAsOf,
+		List<String> unavailableFields,
+		List<String> warnings,
+		int score
+	) {
+	}
 
 	public record BusinessModel(String summary, List<String> revenueStreams, int score) {
 	}
@@ -47,6 +60,27 @@ public record AnalysisStructuredResult(
 		List<String> catalysts,
 		List<String> risks,
 		String selfRebuttal,
+		int score
+	) {
+	}
+
+	public record EtfAnalysis(
+		String indexName,
+		String issuer,
+		String replicationMethod,
+		BigDecimal nav,
+		BigDecimal marketPrice,
+		BigDecimal premiumDiscountPct,
+		BigDecimal expenseRatioPct,
+		BigDecimal aum,
+		BigDecimal trackingErrorPct,
+		BigDecimal averageDailyTradingValue,
+		String bidAskSpread,
+		List<String> topHoldings,
+		List<String> exposures,
+		String leverageInverseSynthetic,
+		String currencyHedge,
+		String liquidityRisk,
 		int score
 	) {
 	}

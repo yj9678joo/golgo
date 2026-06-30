@@ -75,6 +75,15 @@ class FallbackAnalysisClientTest {
 
 	private AnalysisStructuredResult sampleResult() {
 		return new AnalysisStructuredResult(
+			new AnalysisStructuredResult.DataVerification(
+				"STOCK",
+				"STOCK",
+				"finviz.com",
+				"미확인",
+				List.of(),
+				List.of(),
+				7
+			),
 			new AnalysisStructuredResult.BusinessModel("GPU", List.of("데이터센터"), 9),
 			new AnalysisStructuredResult.IndustryStructure("STRONG", "EXPANSION", List.of("AMD"), 8),
 			new AnalysisStructuredResult.Financials(new BigDecimal("45.2"), new BigDecimal("38.5"), "HIGH", 9),
@@ -90,6 +99,7 @@ class FallbackAnalysisClientTest {
 			new AnalysisStructuredResult.EarningsCall("RAISED", "POSITIVE", 8),
 			new AnalysisStructuredResult.MacroPolicy("NEGATIVE", "NEUTRAL", "MEDIUM", 6),
 			new AnalysisStructuredResult.CatalystsAndRisks(List.of("Blackwell"), List.of("규제"), "둔화 가능", 7),
+			null,
 			"AI 인프라",
 			new BigDecimal("7.4"),
 			Recommendation.HOLD

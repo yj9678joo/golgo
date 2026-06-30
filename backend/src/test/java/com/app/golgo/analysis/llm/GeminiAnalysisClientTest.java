@@ -41,6 +41,8 @@ class GeminiAnalysisClientTest {
 		server.expect(requestTo("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent"))
 			.andExpect(header("x-goog-api-key", "test-key"))
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("businessModel")))
+			.andExpect(content().string(org.hamcrest.Matchers.containsString("dataVerification")))
+			.andExpect(content().string(org.hamcrest.Matchers.containsString("etfAnalysis")))
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("revenueStreams")))
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("peg")))
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("responseSchema")))
@@ -48,6 +50,7 @@ class GeminiAnalysisClientTest {
 			.andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("additionalProperties"))))
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("\"enum\":[\"BUY\",\"HOLD\",\"SELL\"]")))
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("Market Cap: 3T")))
+			.andExpect(content().string(org.hamcrest.Matchers.containsString("Declared asset type: STOCK")))
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("NVDA")))
 			.andRespond(withSuccess(geminiResponse(), MediaType.APPLICATION_JSON));
 
@@ -60,6 +63,7 @@ class GeminiAnalysisClientTest {
 
 		server.verify();
 		assertThat(result.businessModel().summary()).isEqualTo("GPU 설계");
+		assertThat(result.dataVerification().verifiedAssetType()).isEqualTo("STOCK");
 		assertThat(result.valuation().peg()).isEqualByComparingTo("1.60");
 		assertThat(result.recommendation()).isEqualTo(Recommendation.HOLD);
 	}
@@ -103,7 +107,7 @@ class GeminiAnalysisClientTest {
 		return """
 			{
 			  "candidates": [{
-			    "content": {"parts": [{"text": "{\\\"businessModel\\\":{\\\"summary\\\":\\\"GPU 설계\\\",\\\"revenueStreams\\\":[\\\"데이터센터\\\"],\\\"score\\\":9},\\\"industryStructure\\\":{\\\"moat\\\":\\\"STRONG\\\",\\\"cyclePosition\\\":\\\"EXPANSION\\\",\\\"competitors\\\":[\\\"AMD\\\"],\\\"score\\\":8},\\\"financials\\\":{\\\"roic\\\":45.2,\\\"fcfMarginPct\\\":38.5,\\\"earningsQuality\\\":\\\"HIGH\\\",\\\"score\\\":9},\\\"valuation\\\":{\\\"per\\\":65.2,\\\"peg\\\":1.60,\\\"pbr\\\":32.1,\\\"psr\\\":28.5,\\\"dcfFairValue\\\":850.00,\\\"judgment\\\":\\\"OVERVALUED\\\",\\\"score\\\":5},\\\"earningsCall\\\":{\\\"guidanceChange\\\":\\\"RAISED\\\",\\\"managementTone\\\":\\\"POSITIVE\\\",\\\"score\\\":8},\\\"macroPolicy\\\":{\\\"interestRateImpact\\\":\\\"NEGATIVE\\\",\\\"fxImpact\\\":\\\"NEUTRAL\\\",\\\"regulationRisk\\\":\\\"MEDIUM\\\",\\\"score\\\":6},\\\"catalystsAndRisks\\\":{\\\"catalysts\\\":[\\\"Blackwell\\\"],\\\"risks\\\":[\\\"중국 규제\\\"],\\\"selfRebuttal\\\":\\\"수요 둔화 시 조정\\\",\\\"score\\\":7},\\\"investmentThesis\\\":\\\"AI 인프라 독점력\\\",\\\"overallScore\\\":7.4,\\\"recommendation\\\":\\\"HOLD\\\"}"}]}
+			    "content": {"parts": [{"text": "{\\\"dataVerification\\\":{\\\"declaredAssetType\\\":\\\"STOCK\\\",\\\"verifiedAssetType\\\":\\\"STOCK\\\",\\\"dataSource\\\":\\\"finviz.com\\\",\\\"dataAsOf\\\":\\\"미확인\\\",\\\"unavailableFields\\\":[],\\\"warnings\\\":[],\\\"score\\\":7},\\\"businessModel\\\":{\\\"summary\\\":\\\"GPU 설계\\\",\\\"revenueStreams\\\":[\\\"데이터센터\\\"],\\\"score\\\":9},\\\"industryStructure\\\":{\\\"moat\\\":\\\"STRONG\\\",\\\"cyclePosition\\\":\\\"EXPANSION\\\",\\\"competitors\\\":[\\\"AMD\\\"],\\\"score\\\":8},\\\"financials\\\":{\\\"roic\\\":45.2,\\\"fcfMarginPct\\\":38.5,\\\"earningsQuality\\\":\\\"HIGH\\\",\\\"score\\\":9},\\\"valuation\\\":{\\\"per\\\":65.2,\\\"peg\\\":1.60,\\\"pbr\\\":32.1,\\\"psr\\\":28.5,\\\"dcfFairValue\\\":850.00,\\\"judgment\\\":\\\"OVERVALUED\\\",\\\"score\\\":5},\\\"earningsCall\\\":{\\\"guidanceChange\\\":\\\"RAISED\\\",\\\"managementTone\\\":\\\"POSITIVE\\\",\\\"score\\\":8},\\\"macroPolicy\\\":{\\\"interestRateImpact\\\":\\\"NEGATIVE\\\",\\\"fxImpact\\\":\\\"NEUTRAL\\\",\\\"regulationRisk\\\":\\\"MEDIUM\\\",\\\"score\\\":6},\\\"catalystsAndRisks\\\":{\\\"catalysts\\\":[\\\"Blackwell\\\"],\\\"risks\\\":[\\\"중국 규제\\\"],\\\"selfRebuttal\\\":\\\"수요 둔화 시 조정\\\",\\\"score\\\":7},\\\"etfAnalysis\\\":null,\\\"investmentThesis\\\":\\\"AI 인프라 독점력\\\",\\\"overallScore\\\":7.4,\\\"recommendation\\\":\\\"HOLD\\\"}"}]}
 			  }]
 			}
 			""";

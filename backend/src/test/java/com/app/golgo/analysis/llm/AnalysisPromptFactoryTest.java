@@ -43,6 +43,7 @@ class AnalysisPromptFactoryTest {
 		));
 
 		assertThat(prompt).contains("NVDA");
+		assertThat(prompt).contains("Declared asset type: STOCK");
 		assertThat(prompt).contains("DEEP_INFERENCE");
 		assertThat(prompt).contains("https://finviz.com/quote.ashx?t=NVDA");
 		assertThat(prompt).doesNotContain("GEMINI_API_KEY");
@@ -59,5 +60,19 @@ class AnalysisPromptFactoryTest {
 
 		assertThat(prompt).contains("https://finance.naver.com/item/main.naver?code=005930");
 		assertThat(prompt).doesNotContain("finviz.com");
+	}
+
+	@Test
+	void urlContextPromptCarriesDeclaredEtfTypeAndConflictCheck() {
+		String prompt = promptFactory.createUrlContextPrompt(new AnalysisPromptRequest(
+			"SPY",
+			AssetType.ETF,
+			AnalysisType.DEEP_INFERENCE,
+			LlmProvider.GEMINI
+		));
+
+		assertThat(prompt).contains("Declared asset type: ETF");
+		assertThat(prompt).contains("agrees or conflicts");
+		assertThat(prompt).contains("https://finviz.com/quote.ashx?t=SPY");
 	}
 }

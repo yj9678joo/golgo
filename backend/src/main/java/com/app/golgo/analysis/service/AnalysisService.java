@@ -113,6 +113,7 @@ public class AnalysisService {
 
 	private String toResponseKey(ReportSection section) {
 		return switch (section.getSectionCode()) {
+			case DATA_VERIFICATION -> "dataVerification";
 			case BUSINESS_MODEL -> "businessModel";
 			case INDUSTRY_STRUCTURE -> "industryStructure";
 			case FINANCIALS -> "financials";
@@ -120,6 +121,7 @@ public class AnalysisService {
 			case EARNINGS_CALL -> "earningsCall";
 			case MACRO_POLICY -> "macroPolicy";
 			case CATALYSTS_AND_RISKS -> "catalystsAndRisks";
+			case ETF_ANALYSIS -> "etfAnalysis";
 		};
 	}
 }

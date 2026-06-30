@@ -127,7 +127,7 @@ class AnalysisServiceTest {
 
 		assertThat(response.reportId()).isEqualTo(REPORT_ID);
 		assertThat(response.assetType()).isEqualTo("STOCK");
-		assertThat(response.sections()).hasSize(7);
+		assertThat(response.sections()).hasSize(SectionCode.values().length);
 		assertThat(response.recommendation()).isEqualTo("HOLD");
 	}
 
