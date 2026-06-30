@@ -971,11 +971,17 @@ KIS 캡처 방식 및 미래에셋 모두 동일 엔드포인트 사용.
 
 ```json
 {
-  "ticker": "NVDA",
+  "ticker": "SPY",
+  "assetType": "ETF",
   "analysisType": "DEEP_INFERENCE",
   "llmProvider": "GEMINI"
 }
 ```
+
+|assetType|설명|
+|---|---|
+|`STOCK`|개별 주식 분석|
+|`ETF`|ETF 전용 지표를 포함한 분석|
 
 |analysisType|설명|
 |---|---|
@@ -1004,13 +1010,23 @@ KIS 캡처 방식 및 미래에셋 모두 동일 엔드포인트 사용.
   "success": true,
   "data": {
     "reportId": "rpt-uuid-xxx",
-    "ticker": "NVDA",
+    "ticker": "SPY",
+    "assetType": "ETF",
     "status": "COMPLETED",
     "generatedAt": "2026-05-14T10:01:30Z",
     "sections": {
+      "dataVerification": {
+        "declaredAssetType": "ETF",
+        "verifiedAssetType": "ETF",
+        "dataSource": "finviz.com",
+        "dataAsOf": "미확인",
+        "unavailableFields": ["NAV", "trackingErrorPct"],
+        "warnings": [],
+        "score": 7
+      },
       "businessModel": {
-        "summary": "GPU 설계 및 CUDA 생태계 기반 AI 인프라 공급",
-        "revenueStreams": ["데이터센터", "게이밍", "오토모티브"],
+        "summary": "S&P 500 지수를 추종하는 대형 미국 주식 ETF",
+        "revenueStreams": ["운용보수", "기초지수 성과"],
         "score": 9
       },
       "industryStructure": {
@@ -1045,13 +1061,32 @@ KIS 캡처 방식 및 미래에셋 모두 동일 엔드포인트 사용.
         "score": 6
       },
       "catalystsAndRisks": {
-        "catalysts": ["Blackwell 출시", "AI 수요 지속"],
-        "risks": ["중국 수출 규제", "고객 집중도"],
-        "selfRebuttal": "AI 수요가 둔화되면 PER 30배까지 조정 가능",
+        "catalysts": ["미국 대형주 실적 개선", "금리 인하 기대"],
+        "risks": ["지수 밸류에이션 부담", "달러 환율 변동"],
+        "selfRebuttal": "미국 대형주 이익이 둔화되면 지수 ETF도 동반 조정 가능",
+        "score": 7
+      },
+      "etfAnalysis": {
+        "indexName": "S&P 500",
+        "issuer": "SPDR",
+        "replicationMethod": "미확인",
+        "nav": null,
+        "marketPrice": null,
+        "premiumDiscountPct": null,
+        "expenseRatioPct": 0.09,
+        "aum": null,
+        "trackingErrorPct": null,
+        "averageDailyTradingValue": null,
+        "bidAskSpread": "미확인",
+        "topHoldings": ["미확인"],
+        "exposures": ["미국 대형주"],
+        "leverageInverseSynthetic": "해당 없음",
+        "currencyHedge": "미확인",
+        "liquidityRisk": "미확인",
         "score": 7
       }
     },
-    "investmentThesis": "단기 밸류에이션 부담 있으나 장기 AI 인프라 독점력 유효",
+    "investmentThesis": "미국 대형주 분산 노출은 유효하나 NAV, 추적오차, 비용, 유동성 확인이 필요",
     "overallScore": 7.4,
     "recommendation": "HOLD"
   }
@@ -1060,7 +1095,7 @@ KIS 캡처 방식 및 미래에셋 모두 동일 엔드포인트 사용.
 
 ### 5.3 GET `/analysis/reports/{reportId}/status`
 
-> 💡 폴링용 가벼운 엔드포인트 (Redis 캐시 기반)
+> 💡 폴링용 가벼운 엔드포인트 (현재는 DB 상태 기반, Redis 캐시는 후속 최적화)
 
 **Response (200)**
 
