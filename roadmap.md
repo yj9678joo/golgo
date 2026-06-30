@@ -154,17 +154,17 @@
 
 ## Phase 2 — AI 지능화 (5주 → 예상 3주)
 
-### Week 7 — Spring AI + Gemini 연동
+### Week 7 — Gemini REST + URL Context 연동
 
 | 작업 | 담당 | 상세 |
 |------|------|------|
 | Gemini API 키 발급 | 🧑 | Google AI Studio 직접 등록 |
-| Spring AI Gemini 설정 | 🤖 | 의존성·설정 파일 생성 |
+| Gemini REST + URL Context 설정 | 🤖 | Gemini REST 호출·URL Context 도구·설정 파일 생성 |
 | 7단계 분석 System Prompt 초안 | 🤝 | 베테랑 분석가 페르소나 프롬프트 협업 작성 |
 | Structured Output Java Record 설계 | 🤝 | 7단계 섹션 스키마 → AI가 Record 생성 |
-| Analysis API 비동기 처리 | 🤖 | `@Async` + Redis 상태 캐싱 구현 |
+| Analysis API 비동기 처리 | 🤖 | `@Async` + DB 상태 폴링 구현, Redis 상태 캐싱은 후속 최적화 |
 | Analysis API 전체 (`/analysis/**`) | 🤖 | api-spec.md 기반 일괄 생성 |
-| GPT·Claude Fallback 처리 | 🤖 | LLM 오류 시 자동 전환 로직 |
+| GPT·Claude Fallback 경계 처리 | 🤖 | Gemini 실패 전환 구조와 비활성 GPT·Claude adapter 구성, 실제 provider 연결은 후속 보안 검토 |
 | 분석 목록 화면 | 🤖 | 와이어프레임 E-1 기반 |
 | 분석 진행 중 스켈레톤 | 🤖 | 단계별 텍스트 + 폴링 |
 | 🧑 검토 포인트 | 🧑 | 실제 종목으로 분석 품질 직접 평가 |

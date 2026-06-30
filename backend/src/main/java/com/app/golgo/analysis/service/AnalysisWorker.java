@@ -12,7 +12,7 @@ import java.time.Clock;
 import java.util.UUID;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 public class AnalysisWorker {
@@ -21,36 +21,58 @@ public class AnalysisWorker {
 	private final AnalysisLlmClient analysisLlmClient;
 	private final ObjectMapper objectMapper;
 	private final Clock clock;
+	private final TransactionTemplate transactionTemplate;
 
 	public AnalysisWorker(
 		AnalysisReportRepository analysisReportRepository,
 		AnalysisLlmClient analysisLlmClient,
 		ObjectMapper objectMapper,
-		Clock clock
+		Clock clock,
+		TransactionTemplate transactionTemplate
 	) {
 		this.analysisReportRepository = analysisReportRepository;
 		this.analysisLlmClient = analysisLlmClient;
 		this.objectMapper = objectMapper;
 		this.clock = clock;
+		this.transactionTemplate = transactionTemplate;
 	}
 
 	@Async("analysisTaskExecutor")
-	@Transactional
 	public void generateAsync(UUID reportId, UUID userId) {
-		AnalysisReport report = analysisReportRepository.findWithSectionsByIdAndUserId(reportId, userId)
-			.orElseThrow(AnalysisException::notFound);
+		AnalysisPromptRequest request = markProcessingAndCreateRequest(reportId, userId);
 		try {
-			report.markProcessing("BUSINESS_MODEL", 10);
-			AnalysisStructuredResult result = analysisLlmClient.analyze(new AnalysisPromptRequest(
-				report.getTicker(),
-				report.getAnalysisType(),
-				report.getLlmProvider()
-			));
+			AnalysisStructuredResult result = analysisLlmClient.analyze(request);
+			complete(reportId, userId, result);
+		} catch (AnalysisException exception) {
+			markFailed(reportId, userId, exception.getMessage());
+		}
+	}
+
+	private AnalysisPromptRequest markProcessingAndCreateRequest(UUID reportId, UUID userId) {
+		return transactionTemplate.execute(status -> {
+			AnalysisReport report = analysisReportRepository.findByIdAndUserId(reportId, userId)
+				.orElseThrow(AnalysisException::notFound);
+			report.markProcessing("DATA_COLLECTION", 10);
+			return new AnalysisPromptRequest(report.getTicker(), report.getAnalysisType(), report.getLlmProvider());
+		});
+	}
+
+	private void complete(UUID reportId, UUID userId, AnalysisStructuredResult result) {
+		transactionTemplate.executeWithoutResult(status -> {
+			AnalysisReport report = analysisReportRepository.findWithSectionsByIdAndUserId(reportId, userId)
+				.orElseThrow(AnalysisException::notFound);
+			report.markProcessing("PERSISTING_REPORT", 90);
 			addSections(report, result);
 			report.markCompleted(result.investmentThesis(), result.overallScore(), result.recommendation(), clock);
-		} catch (AnalysisException exception) {
-			report.markFailed(exception.getMessage());
-		}
+		});
+	}
+
+	private void markFailed(UUID reportId, UUID userId, String errorMessage) {
+		transactionTemplate.executeWithoutResult(status -> {
+			AnalysisReport report = analysisReportRepository.findByIdAndUserId(reportId, userId)
+				.orElseThrow(AnalysisException::notFound);
+			report.markFailed(errorMessage);
+		});
 	}
 
 	private void addSections(AnalysisReport report, AnalysisStructuredResult result) {

@@ -990,7 +990,7 @@ KIS 캡처 방식 및 미래에셋 모두 동일 엔드포인트 사용.
   "data": {
     "reportId": "rpt-uuid-xxx",
     "status": "PROCESSING",
-    "estimatedSeconds": 45
+    "estimatedSeconds": 120
   }
 }
 ```
