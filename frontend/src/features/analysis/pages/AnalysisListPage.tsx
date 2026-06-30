@@ -1,59 +1,63 @@
-import { Bot, ChevronRight, Sparkles } from 'lucide-react'
-import type { FormEvent } from 'react'
-import { useMemo, useState } from 'react'
-import { AppTabLayout } from '@/components/layout/AppTabLayout'
-import { EmptyState } from '@/components/common/EmptyState'
-import { ErrorState } from '@/components/common/ErrorState'
-import { SkeletonBlock } from '@/components/common/SkeletonBlock'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { AnalysisProgressCard } from '@/features/analysis/components/AnalysisProgressCard'
+import { Bot, ChevronRight, Sparkles } from "lucide-react";
+import type { FormEvent } from "react";
+import { useMemo, useState } from "react";
+import { AppTabLayout } from "@/components/layout/AppTabLayout";
+import { EmptyState } from "@/components/common/EmptyState";
+import { ErrorState } from "@/components/common/ErrorState";
+import { SkeletonBlock } from "@/components/common/SkeletonBlock";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { AnalysisProgressCard } from "@/features/analysis/components/AnalysisProgressCard";
 import {
   ANALYSIS_STATUS_LABELS,
   createAnalysisReportPayload,
-} from '@/features/analysis/api/analysis-api'
+} from "@/features/analysis/api/analysis-api";
 import {
   useAnalysisReports,
   useCreateAnalysisReport,
-} from '@/features/analysis/hooks/use-analysis-reports'
-import { useAnalysisStatus } from '@/features/analysis/hooks/use-analysis-status'
+} from "@/features/analysis/hooks/use-analysis-reports";
+import { useAnalysisStatus } from "@/features/analysis/hooks/use-analysis-status";
 import type {
   AnalysisReportSummary,
   AnalysisStatus,
   Recommendation,
-} from '@/features/analysis/types'
+} from "@/features/analysis/types";
 
-const DEFAULT_PROVIDER = 'GEMINI'
+const DEFAULT_PROVIDER = "GEMINI";
 
 export function AnalysisListPage() {
-  const [ticker, setTicker] = useState('')
-  const [activeReportId, setActiveReportId] = useState<string | null>(null)
-  const reportsQuery = useAnalysisReports()
-  const createMutation = useCreateAnalysisReport()
-  const reports = useMemo(() => reportsQuery.data ?? [], [reportsQuery.data])
+  const [ticker, setTicker] = useState("");
+  const [activeReportId, setActiveReportId] = useState<string | null>(null);
+  const reportsQuery = useAnalysisReports();
+  const createMutation = useCreateAnalysisReport();
+  const reports = useMemo(() => reportsQuery.data ?? [], [reportsQuery.data]);
   const inFlightReport = useMemo(
-    () => reports.find((report) => report.status === 'PENDING' || report.status === 'PROCESSING'),
+    () =>
+      reports.find(
+        (report) =>
+          report.status === "PENDING" || report.status === "PROCESSING",
+      ),
     [reports],
-  )
-  const progressReportId = activeReportId ?? inFlightReport?.reportId ?? null
-  const progressQuery = useAnalysisStatus(progressReportId)
-  const normalizedTicker = ticker.trim().toUpperCase()
-  const canSubmit = normalizedTicker.length > 0 && !createMutation.isPending
+  );
+  const progressReportId = activeReportId ?? inFlightReport?.reportId ?? null;
+  const progressQuery = useAnalysisStatus(progressReportId);
+  const normalizedTicker = ticker.trim().toUpperCase();
+  const canSubmit = normalizedTicker.length > 0 && !createMutation.isPending;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
+    event.preventDefault();
 
     if (!canSubmit) {
-      return
+      return;
     }
 
     const report = await createMutation.mutateAsync(
       createAnalysisReportPayload(normalizedTicker, DEFAULT_PROVIDER),
-    )
-    setActiveReportId(report.reportId)
-    setTicker('')
+    );
+    setActiveReportId(report.reportId);
+    setTicker("");
   }
 
   return (
@@ -74,14 +78,17 @@ export function AnalysisListPage() {
         <Card className="rounded-[20px] border-0 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.04)]">
           <form className="grid gap-4" onSubmit={handleSubmit}>
             <div>
-              <label className="text-[12px] font-semibold text-[#8B95A1]" htmlFor="analysis-ticker">
+              <label
+                className="text-[12px] font-semibold text-[#8B95A1]"
+                htmlFor="analysis-ticker"
+              >
                 종목코드
               </label>
               <Input
                 id="analysis-ticker"
                 className="mt-2 h-12 rounded-[14px] border-[#E5E8EB] bg-[#F7F8FA] font-mono text-[16px] font-bold uppercase text-[#191F28]"
                 maxLength={20}
-                placeholder="NVDA"
+                placeholder="종목 코드를 입력해주세요."
                 value={ticker}
                 onChange={(event) => setTicker(event.target.value)}
               />
@@ -144,7 +151,7 @@ export function AnalysisListPage() {
         ) : null}
       </div>
     </AppTabLayout>
-  )
+  );
 }
 
 function ReportRow({ report }: { report: AnalysisReportSummary }) {
@@ -163,55 +170,62 @@ function ReportRow({ report }: { report: AnalysisReportSummary }) {
       </div>
       <div className="shrink-0 text-right">
         <p className="font-mono text-[13px] font-bold text-[#191F28]">
-          {report.overallScore == null ? '-' : report.overallScore.toFixed(1)}
+          {report.overallScore == null ? "-" : report.overallScore.toFixed(1)}
         </p>
-        <p className={`mt-1 text-[11px] font-bold ${getRecommendationClass(report.recommendation)}`}>
-          {report.recommendation ?? '분석 전'}
+        <p
+          className={`mt-1 text-[11px] font-bold ${getRecommendationClass(report.recommendation)}`}
+        >
+          {report.recommendation ?? "분석 전"}
         </p>
       </div>
-      <ChevronRight className="size-4 shrink-0 text-[#B0B8C1]" aria-hidden="true" />
+      <ChevronRight
+        className="size-4 shrink-0 text-[#B0B8C1]"
+        aria-hidden="true"
+      />
     </div>
-  )
+  );
 }
 
 function StatusBadge({ status }: { status: AnalysisStatus }) {
   return (
-    <Badge className={`rounded-full border-0 px-2 py-0.5 text-[10px] ${getStatusClass(status)}`}>
+    <Badge
+      className={`rounded-full border-0 px-2 py-0.5 text-[10px] ${getStatusClass(status)}`}
+    >
       {ANALYSIS_STATUS_LABELS[status]}
     </Badge>
-  )
+  );
 }
 
 function formatReportDate(report: AnalysisReportSummary) {
-  const requestedAt = new Date(report.generatedAt ?? report.requestedAt)
+  const requestedAt = new Date(report.generatedAt ?? report.requestedAt);
 
   if (Number.isNaN(requestedAt.getTime())) {
-    return ''
+    return "";
   }
 
-  return requestedAt.toLocaleDateString('ko-KR')
+  return requestedAt.toLocaleDateString("ko-KR");
 }
 
 function getStatusClass(status: AnalysisStatus) {
-  if (status === 'COMPLETED') {
-    return 'bg-[#E9FBF6] text-[#008F6B]'
+  if (status === "COMPLETED") {
+    return "bg-[#E9FBF6] text-[#008F6B]";
   }
 
-  if (status === 'FAILED') {
-    return 'bg-[#FEECEF] text-[#D92D3A]'
+  if (status === "FAILED") {
+    return "bg-[#FEECEF] text-[#D92D3A]";
   }
 
-  return 'bg-[#FFF4E5] text-[#F79009]'
+  return "bg-[#FFF4E5] text-[#F79009]";
 }
 
 function getRecommendationClass(recommendation: Recommendation | null) {
-  if (recommendation === 'BUY') {
-    return 'text-[#D92D3A]'
+  if (recommendation === "BUY") {
+    return "text-[#D92D3A]";
   }
 
-  if (recommendation === 'SELL') {
-    return 'text-[#1E64D8]'
+  if (recommendation === "SELL") {
+    return "text-[#1E64D8]";
   }
 
-  return 'text-[#4E5968]'
+  return "text-[#4E5968]";
 }
