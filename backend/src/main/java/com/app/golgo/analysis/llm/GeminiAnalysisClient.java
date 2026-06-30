@@ -9,6 +9,7 @@ import java.io.IOException;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 
 public class GeminiAnalysisClient implements AnalysisLlmClient {
 
@@ -32,16 +33,41 @@ public class GeminiAnalysisClient implements AnalysisLlmClient {
 	@Override
 	public AnalysisStructuredResult analyze(AnalysisPromptRequest request) {
 		try {
+			String sourceEvidence = fetchSourceEvidence(request);
 			JsonNode response = restClient.post()
 				.uri("/v1beta/models/{model}:generateContent", properties.model())
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(requestBody(request))
+				.body(requestBody(request, sourceEvidence))
 				.retrieve()
 				.body(JsonNode.class);
 			return parseResponse(response);
 		} catch (RestClientException exception) {
-			throw AnalysisException.providerUnavailable("LLM API 응답 오류");
+			throw AnalysisException.providerUnavailable(errorMessage(exception));
 		}
+	}
+
+	private String errorMessage(RestClientException exception) {
+		if (exception instanceof RestClientResponseException responseException) {
+			String responseBody = responseException.getResponseBodyAsString();
+			if (!responseBody.isBlank()) {
+				return "LLM API 응답 오류: " + responseBody;
+			}
+		}
+		return "LLM API 응답 오류";
+	}
+
+	private String fetchSourceEvidence(AnalysisPromptRequest request) {
+		JsonNode response = restClient.post()
+			.uri("/v1beta/models/{model}:generateContent", properties.model())
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(urlContextRequestBody(request))
+			.retrieve()
+			.body(JsonNode.class);
+		String evidence = responseText(response);
+		if (evidence.isBlank()) {
+			throw AnalysisException.providerUnavailable("URL Context 응답이 비어 있습니다.");
+		}
+		return evidence;
 	}
 
 	private AnalysisStructuredResult parseResponse(JsonNode response) {
@@ -72,12 +98,25 @@ public class GeminiAnalysisClient implements AnalysisLlmClient {
 		return text.toString();
 	}
 
-	private JsonNode requestBody(AnalysisPromptRequest request) {
+	private JsonNode urlContextRequestBody(AnalysisPromptRequest request) {
+		ObjectNode root = objectMapper.createObjectNode();
+		ArrayNode contents = root.putArray("contents");
+		ArrayNode parts = contents.addObject().put("role", "user").putArray("parts");
+		parts.addObject().put("text", promptFactory.createUrlContextPrompt(request));
+		root.putArray("tools").addObject().putObject("url_context");
+
+		ObjectNode generationConfig = root.putObject("generationConfig");
+		generationConfig.put("temperature", 0);
+		return root;
+	}
+
+	private JsonNode requestBody(AnalysisPromptRequest request, String sourceEvidence) {
 		ObjectNode root = objectMapper.createObjectNode();
 		ArrayNode contents = root.putArray("contents");
 		ArrayNode parts = contents.addObject().put("role", "user").putArray("parts");
 		parts.addObject().put("text", promptFactory.createSystemPrompt());
 		parts.addObject().put("text", promptFactory.createUserPrompt(request));
+		parts.addObject().put("text", "URL Context source evidence:\n" + sourceEvidence);
 
 		ObjectNode generationConfig = root.putObject("generationConfig");
 		generationConfig.put("temperature", 0);

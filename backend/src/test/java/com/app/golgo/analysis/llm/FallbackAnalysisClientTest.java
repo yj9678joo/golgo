@@ -49,6 +49,26 @@ class FallbackAnalysisClientTest {
 			.isEqualTo("LLM_002");
 	}
 
+	@Test
+	void disabledFallbackClientsDoNotHidePrimaryProviderFailure() {
+		AnalysisLlmClient failing = request -> {
+			throw AnalysisException.providerUnavailable("Gemini URL Context timeout");
+		};
+		FallbackAnalysisClient client = new FallbackAnalysisClient(List.of(
+			failing,
+			new DisabledAnalysisClient("GPT"),
+			new DisabledAnalysisClient("Claude")
+		));
+
+		assertThatThrownBy(() -> client.analyze(new AnalysisPromptRequest(
+			"NVDA",
+			AnalysisType.DEEP_INFERENCE,
+			LlmProvider.GEMINI
+		)))
+			.isInstanceOf(AnalysisException.class)
+			.hasMessage("Gemini URL Context timeout");
+	}
+
 	private AnalysisStructuredResult sampleResult() {
 		return new AnalysisStructuredResult(
 			new AnalysisStructuredResult.BusinessModel("GPU", List.of("데이터센터"), 9),

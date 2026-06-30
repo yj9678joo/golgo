@@ -15,6 +15,9 @@ class AnalysisPromptFactoryTest {
 		String prompt = promptFactory.createSystemPrompt();
 
 		assertThat(prompt).contains("valid JSON");
+		assertThat(prompt).contains("URL Context");
+		assertThat(prompt).contains("finance.naver.com");
+		assertThat(prompt).contains("finviz.com");
 		assertThat(prompt).contains("businessModel");
 		assertThat(prompt).contains("industryStructure");
 		assertThat(prompt).contains("financials");
@@ -39,6 +42,19 @@ class AnalysisPromptFactoryTest {
 
 		assertThat(prompt).contains("NVDA");
 		assertThat(prompt).contains("DEEP_INFERENCE");
+		assertThat(prompt).contains("https://finviz.com/quote.ashx?t=NVDA");
 		assertThat(prompt).doesNotContain("GEMINI_API_KEY");
+	}
+
+	@Test
+	void userPromptUsesNaverFinanceUrlForDomesticStockCode() {
+		String prompt = promptFactory.createUserPrompt(new AnalysisPromptRequest(
+			"005930",
+			AnalysisType.DEEP_INFERENCE,
+			LlmProvider.GEMINI
+		));
+
+		assertThat(prompt).contains("https://finance.naver.com/item/main.naver?code=005930");
+		assertThat(prompt).doesNotContain("finviz.com");
 	}
 }

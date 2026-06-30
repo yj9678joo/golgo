@@ -74,7 +74,7 @@ class AnalysisServiceTest {
 
 		assertThat(response.reportId()).isEqualTo(REPORT_ID);
 		assertThat(response.status()).isEqualTo("PROCESSING");
-		assertThat(response.estimatedSeconds()).isEqualTo(45);
+		assertThat(response.estimatedSeconds()).isEqualTo(120);
 		verify(analysisWorker).generateAsync(REPORT_ID, USER_ID);
 	}
 

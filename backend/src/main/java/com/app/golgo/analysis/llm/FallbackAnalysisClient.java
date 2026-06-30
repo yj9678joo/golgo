@@ -21,7 +21,9 @@ public class FallbackAnalysisClient implements AnalysisLlmClient {
 				if (!exception.retryable()) {
 					throw exception;
 				}
-				lastRetryable = exception;
+				if (lastRetryable == null || !exception.getMessage().endsWith("provider is disabled")) {
+					lastRetryable = exception;
+				}
 			}
 		}
 		throw lastRetryable == null

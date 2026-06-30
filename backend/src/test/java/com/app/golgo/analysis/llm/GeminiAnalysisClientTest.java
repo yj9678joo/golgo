@@ -32,6 +32,13 @@ class GeminiAnalysisClientTest {
 
 		server.expect(requestTo("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent"))
 			.andExpect(header("x-goog-api-key", "test-key"))
+			.andExpect(content().string(org.hamcrest.Matchers.containsString("\"url_context\":{}")))
+			.andExpect(content().string(org.hamcrest.Matchers.containsString("https://finviz.com/quote.ashx?t=NVDA")))
+			.andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("responseSchema"))))
+			.andRespond(withSuccess(geminiEvidenceResponse(), MediaType.APPLICATION_JSON));
+
+		server.expect(requestTo("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent"))
+			.andExpect(header("x-goog-api-key", "test-key"))
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("businessModel")))
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("revenueStreams")))
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("peg")))
@@ -39,6 +46,7 @@ class GeminiAnalysisClientTest {
 			.andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("responseJsonSchema"))))
 			.andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("additionalProperties"))))
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("\"enum\":[\"BUY\",\"HOLD\",\"SELL\"]")))
+			.andExpect(content().string(org.hamcrest.Matchers.containsString("Market Cap: 3T")))
 			.andExpect(content().string(org.hamcrest.Matchers.containsString("NVDA")))
 			.andRespond(withSuccess(geminiResponse(), MediaType.APPLICATION_JSON));
 
@@ -65,6 +73,9 @@ class GeminiAnalysisClientTest {
 			new GeminiAnalysisProperties("test-key", "gemini-3.5-flash", "https://generativelanguage.googleapis.com", 45)
 		);
 		server.expect(requestTo("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent"))
+			.andRespond(withSuccess(geminiEvidenceResponse(), MediaType.APPLICATION_JSON));
+
+		server.expect(requestTo("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent"))
 			.andRespond(withSuccess("""
 				{"candidates":[{"content":{"parts":[{"text":"not-json"}]}}]}
 				""", MediaType.APPLICATION_JSON));
@@ -77,6 +88,12 @@ class GeminiAnalysisClientTest {
 			.isInstanceOf(AnalysisException.class)
 			.extracting(error -> ((AnalysisException) error).code())
 			.isEqualTo("LLM_002");
+	}
+
+	private String geminiEvidenceResponse() {
+		return """
+			{"candidates":[{"content":{"parts":[{"text":"Data source: finviz. Retrieval: success. Market Cap: 3T. P/E: 65.2."}]}}]}
+			""";
 	}
 
 	private String geminiResponse() {

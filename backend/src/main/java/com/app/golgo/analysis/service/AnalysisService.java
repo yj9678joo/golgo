@@ -24,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AnalysisService {
 
+	private static final int ESTIMATED_ANALYSIS_SECONDS = 120;
+
 	private final UserRepository userRepository;
 	private final AnalysisReportRepository analysisReportRepository;
 	private final AnalysisWorker analysisWorker;
@@ -54,7 +56,7 @@ public class AnalysisService {
 		);
 		AnalysisReport saved = analysisReportRepository.save(report);
 		analysisWorker.generateAsync(saved.getId(), userId);
-		return new AnalysisReportCreateResponse(saved.getId(), "PROCESSING", 45);
+		return new AnalysisReportCreateResponse(saved.getId(), "PROCESSING", ESTIMATED_ANALYSIS_SECONDS);
 	}
 
 	@Transactional(readOnly = true)
