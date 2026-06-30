@@ -42,6 +42,14 @@ class AnalysisEntityTest {
 	}
 
 	@Test
+	void reportSectionSmallintColumnsUseCompatibleJavaTypes() throws Exception {
+		assertThat(ReportSection.class.getDeclaredField("sectionOrder").getType())
+			.isEqualTo(short.class);
+		assertThat(ReportSection.class.getDeclaredField("score").getType())
+			.isEqualTo(Short.class);
+	}
+
+	@Test
 	void statusTransitionsStoreProcessingCompletedAndFailedDetails() {
 		User user = User.createLocal("golgo01", "hash", "홍길동", "user@example.com", "투자초보", CLOCK);
 		AnalysisReport report = AnalysisReport.createPending(user, "NVDA", AnalysisType.DEEP_INFERENCE, LlmProvider.GEMINI, CLOCK);

@@ -41,13 +41,13 @@ public class ReportSection {
 	private SectionCode sectionCode;
 
 	@Column(name = "section_order", nullable = false)
-	private int sectionOrder;
+	private short sectionOrder;
 
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(name = "content_json", nullable = false, columnDefinition = "jsonb")
 	private JsonNode contentJson;
 
-	private Integer score;
+	private Short score;
 
 	@Column(name = "created_at", nullable = false)
 	private Instant createdAt;
@@ -62,9 +62,9 @@ public class ReportSection {
 	) {
 		this.report = report;
 		this.sectionCode = sectionCode;
-		this.sectionOrder = sectionOrder;
+		this.sectionOrder = (short) sectionOrder;
 		this.contentJson = contentJson;
-		this.score = score;
+		this.score = score == null ? null : score.shortValue();
 		this.createdAt = Instant.now(clock);
 	}
 
