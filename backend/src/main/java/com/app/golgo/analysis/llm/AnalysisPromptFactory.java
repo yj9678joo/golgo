@@ -16,6 +16,7 @@ public class AnalysisPromptFactory {
 			- Separate confirmed figures from estimates. If a value cannot be verified from the URL context, write "미확인".
 			- Focus on what must be true for the investment idea to work.
 			- If indicators conflict, include the word "경고" in the relevant section text.
+			- All score fields and overallScore must use a 0-10 scale, not a 0-100 percentage scale.
 
 			Data source rules:
 			- Domestic stock/ETF codes use finance.naver.com.

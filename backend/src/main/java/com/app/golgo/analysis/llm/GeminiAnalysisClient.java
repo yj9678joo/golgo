@@ -178,7 +178,10 @@ public class GeminiAnalysisClient implements AnalysisLlmClient {
 		etfAnalysisSchema.put("nullable", true);
 		propertiesNode.set("etfAnalysis", etfAnalysisSchema);
 		propertiesNode.putObject("investmentThesis").put("type", "string");
-		propertiesNode.putObject("overallScore").put("type", "number");
+		propertiesNode.putObject("overallScore")
+			.put("type", "number")
+			.put("minimum", 0)
+			.put("maximum", 10);
 		propertiesNode.putObject("recommendation")
 			.put("type", "string")
 			.putArray("enum")
@@ -208,7 +211,9 @@ public class GeminiAnalysisClient implements AnalysisLlmClient {
 		ArrayNode required = schema.putArray("required");
 		for (String field : scalarFields) {
 			ObjectNode property = propertiesNode.putObject(field).put("type", field.equals("score") ? "integer" : scalarType(field));
-			if (!field.equals("score")) {
+			if (field.equals("score")) {
+				property.put("minimum", 0).put("maximum", 10);
+			} else {
 				property.put("nullable", true);
 			}
 			required.add(field);
